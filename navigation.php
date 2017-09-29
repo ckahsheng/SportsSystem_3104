@@ -44,10 +44,13 @@ if (!empty($_POST['login_submit'])) {
                         if (password_verify($password, $hashed_password)) {
                             /* Password is correct, so start a new session and
                               save the username to the session */
-                            session_start();
+                            if (session_status() == PHP_SESSION_NONE) {
+                                session_start();
+                            }
                             //Added this to identify what role is this user 
                             $_SESSION['username'] = $username;
                             $_SESSION['role'] = $role;
+                            $_SESSION['hashed_pw'] = $hashed_password;
                             header("location: index.php");
                         } else {
                             // Display an error message if password is not valid
@@ -95,7 +98,9 @@ if (!empty($_POST['login_submit'])) {
 
                 <!--Over here add the access control-->
                 <?php
-                session_start();
+                if (session_status() == PHP_SESSION_NONE) {
+                    session_start();
+                }
                 if (isset($_SESSION['role'])) {
                     //If user is logged in, they will be able to access their own calendar 
                     ?>
@@ -113,7 +118,7 @@ if (!empty($_POST['login_submit'])) {
                 }
                 ?>
                 <li>
-                    <a class="page-scroll" href="">GROUP PT</a>
+                    <a class="page-scroll" href="testFullCalendar.php">GROUP PT</a>
                 </li>
                 <?php
                 if (isset($_SESSION['role'])) {
@@ -123,13 +128,21 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="trainerPersonalSchedule.php">PERSONAL COACH</a>
                         </li>
                         <?php
+                    } else {
+                        ?>
+                        <li>
+                            <a class="page-scroll" href="">PERSONAL COACH</a>
+                        </li>
+                        <?php
                     }
-                } else {
+                }
+                else{
                     ?>
-                    <li>
-                        <a class="page-scroll" href="">PERSONAL COACH</a>
-                    </li>
-                    <?php
+                          <li>
+                            <a class="page-scroll" href="">PERSONAL COACH</a>
+                        </li>
+                        
+                        <?php
                 }
                 ?>
 
