@@ -159,8 +159,8 @@
             <!-- /.container -->
         </div>
     </body>
-    <?php include("footer.html"); ?>
-    <?php include("calendarscripts.html"); ?>
+  
+   <?php include("calendarscripts.html"); ?>
     <!-- jQuery Version 1.11.1 -->
     <script>
 

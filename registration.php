@@ -7,7 +7,7 @@ $emailAddress = $tel_number = $username = $password = $confirm_password = "";
 $username_err = $password_err = $confirm_password_err = "";
 // Processing form data when form is submitted
 //if ($_SERVER["REQUEST_METHOD"] == "POST") {
-if(!empty($_POST['registration_submit'])){    
+if (!empty($_POST['registration_submit'])) {
 // Validate username
     if (empty(trim($_POST["username"]))) {
         $username_err = "Please enter a username.";
@@ -54,16 +54,23 @@ if(!empty($_POST['registration_submit'])){
     // Check input errors before inserting in database
     if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
         // Prepare an insert statement
-        $sql = "INSERT INTO users (userid, password,role,phoneNumber,emailAddress) VALUES (?, ?,?,?,?)";
+        $sql = "INSERT INTO users (userid, password,role,phoneNumber,emailAddress,description,verified) VALUES (?, ?,?,?,?,?,?)";
         if ($stmt = mysqli_prepare($link, $sql)) {
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssss", $param_username, $param_password, $param_role, $param_telephone, $param_email);
+            mysqli_stmt_bind_param($stmt, "sssssss", $param_username, $param_password, $param_role, $param_telephone, $param_email, $param_description, $param_verified);
             // Set parameters
             $param_username = $username;
             $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
-            $param_role = "Trainee";
+            $roleSeleted = $_POST['role_radio'];
+            if ($roleSeleted == 'Trainee') {
+                $param_role = "Trainee";
+            } else if ($roleSeleted == 'Trainer') {
+                $param_role = "Trainer";
+            }
+            $param_description = $_POST['description'];
             $param_telephone = $_POST["telephone"];
             $param_email = $_POST["email"];
+            $param_verified = 'Not Verified';
             //
             // Attempt to execute the prepared statement
             if (mysqli_stmt_execute($stmt)) {
@@ -81,8 +88,6 @@ if(!empty($_POST['registration_submit'])){
     mysqli_close($link);
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -93,12 +98,24 @@ if(!empty($_POST['registration_submit'])){
         <meta name="author" content="">
         <?php include("header.html"); ?>
     </head>
-   <?php include("navigation.php"); ?>
+    <?php include("navigation.php"); ?>
     <body>
+
         <div class="container" style="padding-top:120px; padding-left:150px; padding-right:200px;" >
             <p>Please fill this form to create an account.</p>
-          
+
+
             <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="form-group">
+                    <label for="role_type">Create Account As: </label><br>
+                    <label class="radio-inline">
+                        <input type="radio" name="role_radio" value="Trainee" checked>Trainee
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="role_radio"  value="Trainer">Trainer
+                    </label>
+
+                </div>
                 <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
                     <label>Username:<sup>*</sup></label>
                     <input type="text" name="username"class="form-control" value="<?php echo $username; ?>">
@@ -114,8 +131,6 @@ if(!empty($_POST['registration_submit'])){
                     <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>">
                     <span class="help-block"><?php echo $confirm_password_err; ?></span>
                 </div>
-                
-
                 <div class="form-group ">
                     <label>Telephone Number<sup></sup></label>
                     <input type="tel" name="telephone" class="form-control" value="<?php echo $tel_number; ?>">
@@ -126,17 +141,18 @@ if(!empty($_POST['registration_submit'])){
                     <input type="email" name="email" class="form-control" value="<?php echo $emailAddress; ?>">
                     <span class="help-block"></span>
                 </div>
-
-
-
-
+                <div class="form-group ">
+                    <label>Please fill this up for us to have a better understanding of you! <br>
+                        Trainees Please fill up your Fitness Goals <br> Trainers Please fill up your Awards/ Certification / Describe Yourself<sup></sup></label>
+                    <!--<input type="textarea" name="description" style="height:150px;"class="form-control" >-->
+                    <textarea class="form-control" name="description" rows="5"></textarea>
+                    <span class="help-block"></span>
+                </div>
                 <div class="form-group">
-                    
                     <input type="submit"  name="registration_submit"  class="btn btn-primary" value="Submit">
                     <input type="reset" class="btn btn-default" value="Reset">
                 </div>
             </form>
-
         </div> <!-- ./container -->
     </body>
 
