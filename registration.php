@@ -71,7 +71,6 @@ if (!empty($_POST['registration_submit'])) {
             $param_telephone = $_POST["telephone"];
             $param_email = $_POST["email"];
             $param_verified = 'Not Verified';
-            //
             // Attempt to execute the prepared statement
             if (mysqli_stmt_execute($stmt)) {
                 // Redirect to login page
@@ -118,27 +117,27 @@ if (!empty($_POST['registration_submit'])) {
                 </div>
                 <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
                     <label>Username:<sup>*</sup></label>
-                    <input type="text" name="username"class="form-control" value="<?php echo $username; ?>">
+                    <input type="text" name="username"class="form-control" value="<?php echo $username; ?>" required>
                     <span class="help-block"><?php echo $username_err; ?></span>
                 </div>    
                 <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
                     <label>Password:<sup>*</sup></label>
-                    <input type="password" name="password" class="form-control" value="<?php echo $password; ?>">
+                    <input type="password" name="password" class="form-control" value="<?php echo $password; ?>" required>
                     <span class="help-block"><?php echo $password_err; ?></span>
                 </div>
                 <div class="form-group <?php echo (!empty($confirm_password_err)) ? 'has-error' : ''; ?>">
                     <label>Confirm Password:<sup>*</sup></label>
-                    <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>">
+                    <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>" required>
                     <span class="help-block"><?php echo $confirm_password_err; ?></span>
                 </div>
                 <div class="form-group ">
                     <label>Telephone Number<sup></sup></label>
-                    <input type="tel" name="telephone" class="form-control" value="<?php echo $tel_number; ?>">
+                    <input type="tel" name="telephone" class="form-control" value="<?php echo $tel_number; ?>" required>
                     <span class="help-block"></span>
                 </div>
                 <div class="form-group ">
                     <label>Email Address<sup></sup></label>
-                    <input type="email" name="email" class="form-control" value="<?php echo $emailAddress; ?>">
+                    <input type="email" name="email" class="form-control" value="<?php echo $emailAddress; ?>" required>
                     <span class="help-block"></span>
                 </div>
                 <div class="form-group ">

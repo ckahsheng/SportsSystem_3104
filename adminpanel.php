@@ -84,7 +84,6 @@ if (!empty($_POST['create_traineracc_submit'])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -106,8 +105,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
                     <div class="panel with-nav-tabs panel-primary">
                         <div class="panel-heading">
                             <ul class="nav nav-tabs" >
-                                <li class="active"><a href="#tab1primary" data-toggle="tab">View All Users</a></li>
-                                <?php
+                                   <?php
                                 require_once 'DBConfig.php';
                                 /* check connection */
                                 if ($result = mysqli_query($link, "SELECT userid,role,created_at,emailAddress,phoneNumber,chargeRate,verified FROM users WHERE role !='admin' && verified='Not Verified'")) {
@@ -119,14 +117,31 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                 /* close connection */
                                 mysqli_close($link);
                                 ?>
-
-                                <li><a href="#tab2primary" data-toggle="tab">Verify New Users (<?php echo($row_cnt) ?>)</a></li>
-                                <li><a href="#tab3primary" data-toggle="tab">Register New Trainer</a></li>
-                                <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Approve Group Training Plans ( 0 )<span class="caret"></span></a>
+                                 <li class="dropdown">
+                                    <a href="#" data-toggle="dropdown">Manage Users<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab4primary" data-toggle="tab">Primary 4</a></li>
-                                        <li><a href="#tab5primary" data-toggle="tab">Primary 5</a></li>
+                                        <li><a href="#tab2primary" data-toggle="tab">Verify New Users(<?php echo($row_cnt) ?>)</a></li>
+                                        <li><a href="#tab1primary" data-toggle="tab">View All Users</a></li>
+                                        <li><a href="#tab3primary" data-toggle="tab">Register New Trainers</a></li>
+
+                                    </ul>
+                                </li>
+<!--                                <li><a href="#tab2primary" data-toggle="tab">Verify New Users (<?php echo($row_cnt) ?>)</a></li>-->
+                                <!--<li><a href="#tab3primary" data-toggle="tab">Register New Trainer</a></li>-->
+                                 <li class="dropdown">
+                                    <a href="#" data-toggle="dropdown">Mange Gym Facilities<span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#tab4primary" data-toggle="tab">Add Gym</a></li>
+                                        <li><a href="#tab5primary" data-toggle="tab">Modify Gym Facility Limit</a></li>
+                                    </ul>
+                                </li>
+                                
+                                <li class="dropdown">
+                                    <a href="#" data-toggle="dropdown">Manage Group Training Plans ( 0 )<span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#tab4primary" data-toggle="tab">Approve Group Training Plans</a></li>
+                                        <li><a href="#tab4primary" data-toggle="tab">View All Group Training Plans</a></li>
+
                                     </ul>
                                 </li>
                             </ul>
@@ -144,9 +159,9 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                                     <div class="row">
                                                         <div class="col-md-12">
 
-                                                            <table 	 id="tableAllVerifiedUsers"
-                                                                     data-show-columns="true"
-                                                                     data-height="460">
+                                                            <table id="tableAllVerifiedUsers"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -154,20 +169,20 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                <div class="tab-pane fade" id="tab2primary"><div class="container" style="padding-top:20px;padding-right:80px; ">
+                                <div class="tab-pane fade" id="tab2primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px; ">
                                         <div class="col-md-12">
-                                            <div class="panel panel-success">
+                                            <div class="panel panel-danger">
                                                 <div class="panel-heading "> 
                                                     <b>New Registered Users</b>
                                                 </div>
                                                 <div class="panel-body">
                                                     <div class="row">
                                                         <div class="col-md-12">
-                                                            <table 	 id="tableNotVerifiedUsers"
-                                                                     data-show-columns="true"
-                                                                     data-height="460"
-                                                                     >
 
+                                                            <table id="tableNotVerifiedUsers"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -285,12 +300,15 @@ if (!empty($_POST['create_traineracc_submit'])) {
                 url: urlToSend,
                 data: {id: value},
                 success: function (result) {
-                    alert('ok');
-                    alert(value);
+                    //alert('ok');
+                    //alert(value);
+                    
+                    var $table = $('#tableNotVerifiedUsers');
+                    $table.bootstrapTable('refresh');
                 },
                 error: function (result)
                 {
-                    alert('error');
+                   // alert('error');
                 }
             });
         }
@@ -369,7 +387,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
                     align: 'center',
                     events: operateEvents,
                     formatter: operateFormatter
-                }
+                },
             ],
         });
         function operateFormatter(value, row, index) {

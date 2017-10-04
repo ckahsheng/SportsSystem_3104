@@ -6,12 +6,13 @@ $sessionHashed_pw = $_SESSION['hashed_pw'];
 ob_start();
 require_once 'DBConfig.php';
 
-$sqlID = "SELECT id FROM users WHERE userid = '$sessionUsername'";
+$sqlID = "SELECT id,image AS imagePath FROM users WHERE userid = '$sessionUsername'";
 $resultID = mysqli_query($link, $sqlID);
 while ($row = mysqli_fetch_assoc($resultID)) {
     $sessionId = $row['id'];
+    $imgIDPath = $row['imagePath'];
 
-    $sql1 = "SELECT * FROM users WHERE id = '$sessionId'";
+    $sql1 = "SELECT *  FROM users WHERE id = '$sessionId'";
     $result = mysqli_query($link, $sql1);
     $username_err = $password_err = $confirm_password_err = "";
     //$success = false;
@@ -77,20 +78,50 @@ while ($row = mysqli_fetch_assoc($resultID)) {
             }
         }
         $_SESSION['hashed_pw'] = $passwordEdited1;
-
+        $imageFile = $_FILES["image"]["name"];
+        $maxDim = 300;
+        $uploadedfile = $_FILES['image']['tmp_name'];
+        echo "$uploadedfile";
+        list($width, $height, $type, $attr) = getimagesize($uploadedfile);
+        if ($width > $maxDim || $height > $maxDim) {
+            $target_filename = $uploadedfile;
+            $ratio = $width / $height;
+            if ($ratio > 1) {
+                $new_width = $maxDim;
+                $new_height = $maxDim / $ratio;
+            } else {
+                $new_width = $maxDim * $ratio;
+                $new_height = $maxDim;
+            }
+            $src = imagecreatefromstring(file_get_contents($uploadedfile));
+            $dst = imagecreatetruecolor($new_width, $new_height);
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+            imagedestroy($src);
+            imagepng($dst, $target_filename); // adjust format as needed
+            imagedestroy($dst);
+        }
+        if (move_uploaded_file($_FILES['image']['tmp_name'], 'img/' . $imageFile)) {
+            echo "Image Uploaded Successfully";
+        } else {
+            echo "failed";
+        }
+        //Add this so that when users edit their profile without updating the picture, the page will not overwrite the entire image 
+        if ($imageFile === "") {
+            $imageFile = $row['imagePath'];
+            echo "Empty";
+        }
         // Check input errors before updating in database
         if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
             $PwEdit = $_POST["phoneNumEdited"];
             $EAddEdit = $_POST["emailAddressEdited"];
-            // Prepare an insert statement
-            $sqlUpdate = "UPDATE users SET userid = '$useridEdited', password = '$passwordEdited1', phoneNumber = '$PwEdit', emailAddress = '$EAddEdit' WHERE id = '$sessionId'";
+            // Prepare an update statement
+            $sqlUpdate = "UPDATE users SET userid = '$useridEdited', password = '$passwordEdited1', phoneNumber = '$PwEdit', emailAddress = '$EAddEdit', image = '$imageFile' WHERE id = '$sessionId'";
             if ($stmtUpdate = mysqli_prepare($link, $sqlUpdate)) {
                 // Attempt to execute the prepared statement
                 if (mysqli_stmt_execute($stmtUpdate)) {
                     // Refresh the page
-                    $_SESSION['editProfile'] = 'Profile Updated';
                     header("location: editTraineeProfile.php");
-                    //exit;
+                    $_SESSION['editProfile'] = 'Profile Updated';
                 } else {
                     echo "Something went wrong. Please try again later.";
                 }
@@ -102,9 +133,7 @@ while ($row = mysqli_fetch_assoc($resultID)) {
         echo "Click on delete";
     }
 }
-?>   
-
-
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -119,31 +148,22 @@ while ($row = mysqli_fetch_assoc($resultID)) {
 
 
     <body>
-        <!--        <div class="container" style="padding-top:70px;">
-                    <img class="fixed-ratio-resize" src="img/thumbnail_COVER.jpg" alt="img/thumbnail_COVER.JPG"/>
+        <!--                <div class="container" style="padding-top:70px;">
+                            <img class="fixed-ratio-resize" src="img/thumbnail_COVER.jpg" alt="img/thumbnail_COVER.JPG"/>
         
-                </div>-->
+                        </div>-->
 
         <div class="container" style="padding-top:150px;">
-            <center><h1>Edit Profile</h1></center>
+            <center><h1>Edit Personal Info</h1></center>
             <hr>
             <div class="row">
-                <!-- left column -->
-                <div class="col-md-3" style="padding-top:80px";>
-                    <div class="text-center">
-                        <img src="//placehold.it/100" class="avatar img-circle" alt="avatar">
-
-
-                        <input type="file" class="form-control">
-                    </div>
-                </div>
                 <?php
                 while ($row = mysqli_fetch_assoc($result)) {
                     ?>
                     <!-- edit form column -->
-                    <div class="col-md-9 personal-info">
+                    <div class="col-md-9 col-md-offset-2">
                         <!--                    <div class="alert alert-info alert-dismissable">
-                                                <a class="panel-close close" data-dismiss="alert">×</a> 
+                                                <a class="panel-close close" data-dismiss="alert">×</a>
                                                 <i class="fa fa-coffee"></i>
                                                 This is an <strong>.alert</strong>. Use this to show important messages to the user.
                                             </div>-->
@@ -154,12 +174,29 @@ while ($row = mysqli_fetch_assoc($resultID)) {
                                 <strong>Success!</strong> <?php echo $_SESSION['editProfile']; ?>
                             </div>
                             <?php
-                            //unset($_SESSION['editProfile']);
+                            unset($_SESSION['editProfile']);
                         }
                         ?>
-                        <h3><center>Personal info</center></h3>
 
-                        <form class="form-horizontal" role="form" method="POST" action="editTraineeProfile.php">
+
+                        <form class="form-horizontal" role="form" method="POST" action="editTraineeProfile.php" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label"></label>
+                                <div class="col-lg-8"> 
+                                    <img src="<?php echo 'img' . '/' . $row['image']; ?>"class="avatar img-circle"/>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label" for="image"></label>
+                                <div class="col-lg-8">
+
+                                    <input type="file" name="image" value="test">
+                                    <!--<input type="file"class="form-control" id="image" name="image" required>-->
+                                </div>
+                            </div>
+
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Telephone:</label>
                                 <div class="col-lg-8">
@@ -220,7 +257,7 @@ while ($row = mysqli_fetch_assoc($resultID)) {
 
                                     <input type="button"  class="btn btn-danger" value="Delete Account" data-href="PHPCodes/delete.php" data-toggle="modal" data-target="#confirm-delete"></a><br>
                                     <span></span>
-                                    
+
                                 </div>
                             </div>
                         </form>

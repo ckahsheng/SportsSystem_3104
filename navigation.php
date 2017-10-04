@@ -74,7 +74,6 @@ if (!empty($_POST['login_submit'])) {
     // Close connection
     mysqli_close($link);
 }
-
 //}
 ?>
 <!-- Navigation -->
@@ -95,7 +94,6 @@ if (!empty($_POST['login_submit'])) {
                 <li class="hidden">
                     <a href="#page-top"></a>
                 </li>
-
                 <!--Over here add the access control-->
                 <?php
                 if (session_status() == PHP_SESSION_NONE) {
@@ -125,7 +123,7 @@ if (!empty($_POST['login_submit'])) {
                     if ($_SESSION['role'] == 'Trainer') {
                         ?>
                         <li>
-                            <a class="page-scroll" href="trainerPersonalSchedule.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
                         </li>
                         <?php
                     } else {
@@ -135,14 +133,13 @@ if (!empty($_POST['login_submit'])) {
                         </li>
                         <?php
                     }
-                }
-                else{
+                } else {
                     ?>
-                          <li>
-                            <a class="page-scroll" href="">PERSONAL COACH</a>
-                        </li>
-                        
-                        <?php
+                    <li>
+                        <a class="page-scroll" href="">PERSONAL COACH</a>
+                    </li>
+
+                    <?php
                 }
                 ?>
 
