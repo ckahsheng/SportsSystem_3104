@@ -174,7 +174,7 @@ while ($row = mysqli_fetch_assoc($resultID)) {
                                 <strong>Success!</strong> <?php echo $_SESSION['editProfile']; ?>
                             </div>
                             <?php
-                            unset($_SESSION['editProfile']);
+                            //unset($_SESSION['editProfile']);
                         }
                         ?>
 
@@ -200,20 +200,20 @@ while ($row = mysqli_fetch_assoc($resultID)) {
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Telephone:</label>
                                 <div class="col-lg-8">
-                                    <input class="form-control" type="text" name='phoneNumEdited' value="<?php echo $row['phoneNumber']; ?>">
+                                    <input class="form-control" type="number" name='phoneNumEdited' value="<?php echo $row['phoneNumber']; ?>">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Email:</label>
                                 <div class="col-lg-8">
-                                    <input class="form-control" type="text" name='emailAddressEdited' value="<?php echo $row['emailAddress']; ?>">
+                                    <input class="form-control" type="email" name='emailAddressEdited' value="<?php echo $row['emailAddress']; ?>">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-3 control-label">Username:</label>
                                 <div class="col-md-8">
-                                    <input class="form-control" type="text" name='useridEdited' value="<?php echo $row['userid']; ?>">
+                                    <input class="form-control" type="text" name='useridEdited' value="<?php echo $row['userid']; ?>" >
                                 </div>
                             </div>
                             <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">

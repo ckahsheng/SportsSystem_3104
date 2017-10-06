@@ -13,7 +13,9 @@ if (isset($_POST['add'])) {
     $rate = $_POST['rate'];
     $starttime = $_POST['startTime'];
     $recur = implode(",", $_POST['recurring']);
+    $eventtype = $_POST['eventtype'];
 
+    //Edited by Ching pin
     $sqlRows = "SELECT count(*) FROM trainerschedule where startdate = ? and starttime = ? ";
     $q = $bdd->prepare($sqlRows);
     if (($res = $q->execute(array($startdate, $starttime))) === TRUE) {
@@ -34,7 +36,7 @@ if (isset($_POST['add'])) {
             $msg = "Duplicated slot";
             header("Location:../testFullCalendar.php?msg=$msg");
         } else {
-            $sql = "INSERT INTO trainerschedule(name, title, startdate, enddate, color, venue, rate, starttime, recur) values ('$name', '$title', '$startdate', '$enddate', '$color', '$venue', '$rate', '$starttime', '$recur')";
+            $sql = "INSERT INTO trainerschedule(name, title, startdate, enddate, color, venue, rate, starttime, recur, eventtype) values ('$name', '$title', '$startdate', '$enddate', '$color', '$venue', '$rate', '$starttime', '$recur', '$eventtype')";
             //$req = $bdd->prepare($sql);
             //$req->execute();
 
