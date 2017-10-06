@@ -1,4 +1,14 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if ($_SESSION['role'] != 'admin') {
+    //Rediret him back index 
+   header("location: index.php");
+}
+
+?>
+<?php
 // Include config file
 require_once 'DBConfig.php';
 
@@ -105,7 +115,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
                     <div class="panel with-nav-tabs panel-primary">
                         <div class="panel-heading">
                             <ul class="nav nav-tabs" >
-                                   <?php
+                                <?php
                                 require_once 'DBConfig.php';
                                 /* check connection */
                                 if ($result = mysqli_query($link, "SELECT userid,role,created_at,emailAddress,phoneNumber,chargeRate,verified FROM users WHERE role !='admin' && verified='Not Verified'")) {
@@ -117,7 +127,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                 /* close connection */
                                 mysqli_close($link);
                                 ?>
-                                 <li class="dropdown">
+                                <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Manage Users<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab2primary" data-toggle="tab">Verify New Users(<?php echo($row_cnt) ?>)</a></li>
@@ -128,14 +138,14 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                 </li>
 <!--                                <li><a href="#tab2primary" data-toggle="tab">Verify New Users (<?php echo($row_cnt) ?>)</a></li>-->
                                 <!--<li><a href="#tab3primary" data-toggle="tab">Register New Trainer</a></li>-->
-                                 <li class="dropdown">
+                                <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Mange Gym Facilities<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab4primary" data-toggle="tab">Add Gym</a></li>
                                         <li><a href="#tab5primary" data-toggle="tab">Modify Gym Facility Limit</a></li>
                                     </ul>
                                 </li>
-                                
+
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Manage Group Training Plans ( 0 )<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
@@ -302,13 +312,13 @@ if (!empty($_POST['create_traineracc_submit'])) {
                 success: function (result) {
                     //alert('ok');
                     //alert(value);
-                    
+
                     var $table = $('#tableNotVerifiedUsers');
                     $table.bootstrapTable('refresh');
                 },
                 error: function (result)
                 {
-                   // alert('error');
+                    // alert('error');
                 }
             });
         }

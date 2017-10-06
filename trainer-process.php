@@ -16,7 +16,7 @@
 
 // Include config file
 ob_start();
-require_once '../DBConfig.php';
+require_once '/DBConfig.php';
 
 $id = $_GET['id'];
 $sql = "SELECT * FROM users WHERE id = '$id'";
@@ -42,7 +42,7 @@ $row = mysqli_fetch_assoc($result);
             <div class="row">
                     <div class="col-md-9 personal-info">      
                         
-                            <?php echo "<img src='../images/".$row['image']."'>"; ?>
+                            <?php echo "<img src='img/trainers/".$row['image']."'>"; ?>
                         <form class="form-horizontal" role="form">
                             
                             <div class="form-group">

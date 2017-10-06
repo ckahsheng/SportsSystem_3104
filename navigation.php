@@ -25,7 +25,7 @@ if (!empty($_POST['login_submit'])) {
     // Validate credentials
     if (empty($username_err) && empty($password_err)) {
         // Prepare a select statement
-        $sql = "SELECT userid, password,role FROM users WHERE userid = ?";
+        $sql = "SELECT userid, password,role,verified FROM users WHERE userid = ?";
         if ($stmt = mysqli_prepare($link, $sql)) {
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);
@@ -39,7 +39,7 @@ if (!empty($_POST['login_submit'])) {
                 // Check if username exists, if yes then verify password
                 if (mysqli_stmt_num_rows($stmt) == 1) {
                     // Bind result variables
-                    mysqli_stmt_bind_result($stmt, $username, $hashed_password, $role);
+                    mysqli_stmt_bind_result($stmt, $username, $hashed_password, $role, $verified);
                     if (mysqli_stmt_fetch($stmt)) {
                         if (password_verify($password, $hashed_password)) {
                             /* Password is correct, so start a new session and
@@ -51,6 +51,7 @@ if (!empty($_POST['login_submit'])) {
                             $_SESSION['username'] = $username;
                             $_SESSION['role'] = $role;
                             $_SESSION['hashed_pw'] = $hashed_password;
+                            $_SESSION['verified_user'] = $verified;
                             header("location: index.php");
                         } else {
                             // Display an error message if password is not valid
@@ -65,8 +66,6 @@ if (!empty($_POST['login_submit'])) {
                 echo "Oops! Something went wrong. Please try again later.";
             }
         }
-
-
         // Close statement
         mysqli_stmt_close($stmt);
     }
@@ -99,65 +98,70 @@ if (!empty($_POST['login_submit'])) {
                 if (session_status() == PHP_SESSION_NONE) {
                     session_start();
                 }
-                if (isset($_SESSION['role'])) {
+                if (isset($_SESSION['username'])) {
                     //If user is logged in, they will be able to access their own calendar 
-                    ?>
-                    <li>
-                        <a class="page-scroll" href="">MY SCHEDULE</a>
-                    </li>
-                    <?php
-                } else {
-                    //If not they will only be able to see the schedule of all our group trainings
-                    ?>
-                    <li>
-                        <a class="page-scroll" href="">SCHEDULE</a>
-                    </li>
-                    <?php
-                }
-                ?>
-                <li>
-                    <a class="page-scroll" href="testFullCalendar.php">GROUP PT</a>
-                </li>
-                <?php
-                if (isset($_SESSION['role'])) {
-                    if ($_SESSION['role'] == 'Trainer') {
+                    if ($_SESSION['role'] == 'Trainee') {
                         ?>
+                        <li>
+                            <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="">GROUP PT</a>
+                        </li>
                         <li>
                             <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
                         </li>
+
                         <?php
-                    } else {
+                    } else if ($_SESSION['role'] == 'Trainer') {
+                        //If not they will only be able to see the schedule of all our group trainings
                         ?>
                         <li>
-                            <a class="page-scroll" href="">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="">GROUP PT</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
+                        </li>
+
+                        <?php
+                    } else if ($_SESSION['role'] == 'admin') {
+                        //If not they will only be able to see the schedule of all our group trainings
+                        ?>
+                        <li>
+                            <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="">GROUP PT</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="adminpanel.php">ADMIN PANEL</a>
                         </li>
                         <?php
                     }
                 } else {
+                    //Means not logged in user
                     ?>
                     <li>
-                        <a class="page-scroll" href="">PERSONAL COACH</a>
+                        <a class = "page-scroll" href = "">SCHEDULE</a>
                     </li>
-
+                    <li>
+                        <a class = "page-scroll" href = "">GROUP PT</a>
+                    </li>
+                    <li>
+                        <a class = "page-scroll" href = "trainerList.php">PERSONAL COACH</a>
+                    </li>
                     <?php
                 }
                 ?>
-
-                <li>
-                    <?php
-                    if (isset($_SESSION['role'])) {
-                        if ($_SESSION['role'] == 'admin') {
-                            ?>
-                            <a class="page-scroll" href="adminpanel.php">ADMIN PANEL</a>
-                            <?php
-                        }
-                    }
-                    ?>
-                </li>
                 <li class="dropdown">
                     <?php
 // Initialize the session
-// If session variable is not set it will redirect to login page
                     if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
                         ?>
                         <!--If no session has been created,means no user has logged in- Display the login bar-->
