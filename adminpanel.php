@@ -4,9 +4,8 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 if ($_SESSION['role'] != 'admin') {
     //Rediret him back index 
-   header("location: index.php");
+    header("location: index.php");
 }
-
 ?>
 <?php
 // Include config file
@@ -260,6 +259,69 @@ if (!empty($_POST['create_traineracc_submit'])) {
     <?php include("footer.html"); ?>
     <!--This is the Javascript for the table for view all user details--> 
     <script type="text/javascript">
+        function sendAjaxRequest(value, urlToSend) {
+
+            $.ajax({type: "POST",
+                url: urlToSend,
+                data: {id: value},
+                success: function (result) {
+                    // alert('ok');
+                    // alert(value);
+                    alert(result);
+                    location.reload();
+                },
+                error: function (result)
+                {
+                    alert('error');
+                }
+            });
+        }
+        //To deactivate valid accounts
+        window.operateEventDeactivate = {
+            'click .remove': function (e, value, row, index) {
+                var userid = '';
+                var x = 'userid';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('userid') == 0) // or any other index.
+                            userid = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/rejectUserAccount.php';
+                sendAjaxRequest(userid, linkToUpdate);
+                //alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
+
+        //For the adding and removal for the new users 
+        window.operateEvents = {
+            'click .like': function (e, value, row, index) {
+                var userid = '';
+                var x = 'userid';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('userid') == 0) // or any other index.
+                            userid = row[key];
+                    }
+                }
+                var linkToUpdate = 'updateVerificationAccount.php';
+                sendAjaxRequest(userid, linkToUpdate);
+                // alert('You click like action, row: ' + JSON.stringify(row));
+            },
+            'click .remove': function (e, value, row, index) {
+                var userid = '';
+                var x = 'userid';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('userid') == 0) // or any other index.
+                            userid = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/rejectUserAccount.php';
+                sendAjaxRequest(userid, linkToUpdate);
+                // alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
         var $table = $('#tableAllVerifiedUsers');
         $table.bootstrapTable({
             url: 'PHPCodes/listusers.php',
@@ -302,6 +364,15 @@ if (!empty($_POST['create_traineracc_submit'])) {
                     title: 'Description',
                     sortable: true,
                 },
+                {
+                    //This is to add the icons into the table
+                    field: 'operate',
+                    title: 'Deactivate Account',
+                    align: 'center',
+                    events: operateEventDeactivate,
+                    formatter: operateFormatterDeactivate
+
+                },
             ],
         });
         function sendAjaxRequest(value, urlToSend) {
@@ -312,9 +383,10 @@ if (!empty($_POST['create_traineracc_submit'])) {
                 success: function (result) {
                     //alert('ok');
                     //alert(value);
-
+                    alert(result);
                     var $table = $('#tableNotVerifiedUsers');
                     $table.bootstrapTable('refresh');
+                    location.reload();
                 },
                 error: function (result)
                 {
@@ -322,27 +394,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
                 }
             });
         }
-        window.operateEvents = {
-            'click .like': function (e, value, row, index) {
-                var userid = '';
-                var x = 'userid';
-                for (var key in row) {
-                    if (row.hasOwnProperty(key)) {
-                        if (key.indexOf('userid') == 0) // or any other index.
-                            userid = row[key];
-                    }
-                }
-                var linkToUpdate = 'PHPCodes/updateVerificationAccount.php';
-                sendAjaxRequest(userid, linkToUpdate);
-                alert('You click like action, row: ' + JSON.stringify(row));
-            },
-            'click .remove': function (e, value, row, index) {
-                $table.bootstrapTable('remove', {
-                    field: 'num',
-                    values: [row.id]
-                });
-            }
-        };
+
         var $table = $('#tableNotVerifiedUsers');
         $table.bootstrapTable({
             url: 'PHPCodes/listNonVerifiedUsers.php',
@@ -405,6 +457,14 @@ if (!empty($_POST['create_traineracc_submit'])) {
                 '<a class="like" href="javascript:void(0)" title="Like">',
                 '<i class="glyphicon glyphicon-ok"></i>',
                 '</a>  ',
+                '<a class="remove" href="javascript:void(0)" title="Remove">',
+                '<i class="glyphicon glyphicon-remove"></i>',
+                '</a>'
+            ].join('');
+        }
+
+        function operateFormatterDeactivate(value, row, index) {
+            return [
                 '<a class="remove" href="javascript:void(0)" title="Remove">',
                 '<i class="glyphicon glyphicon-remove"></i>',
                 '</a>'

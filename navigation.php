@@ -208,6 +208,7 @@ if (!empty($_POST['login_submit'])) {
                                 <div class="row">
                                     <div class="col-md-11" style="width:300px;">
                                         <center> <a href="editTraineeProfile.php">VIEW PROFILE DETAILS</a></center> <br>
+                                        <center> <a href="changePassword.php">CHANGE PASSWORD</a></center> <br>
                                     </div>
                                     <div class="bottom text-center">
                                         <a href="PHPCodes/logout.php"><b> LOGOUT</b></a>
