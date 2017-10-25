@@ -32,13 +32,13 @@ if (mysqli_query($link, $sql)) {
 //Set this to true if SMTP host requires authentication to send email
                 $mail->SMTPAuth = true;
 //Provide username and password     
-                $mail->Username = "Transaction3X03@hotmail.com";
-                $mail->Password = "SSD3X03PIG";
+                $mail->Username = "LifeStyleSportsSystem@hotmail.com";
+                $mail->Password = "LIU3104SHUANG";
 //If SMTP requires TLS encryption then set it
                 $mail->SMTPSecure = "tls";
 //Set TCP port to connect to 
                 $mail->Port = 587;
-                $mail->From = "Transaction3X03@hotmail.com";
+                $mail->From = "LifeStyleSportsSystem@hotmail.com";
                 $mail->FromName = "Sports Management System";
                 $mail->addAddress($email, "Account has been verified");
                 $mail->isHTML(true);
@@ -53,7 +53,7 @@ if (mysqli_query($link, $sql)) {
 //    }
                 $emailTextHtml .= "</table>";
                 $emailTextHtml .= "<p>Your account has been verified, you may now access the system to book your training slots! </p>";
-                $emailTextHtml .= "<p>If you encounter any problems, please email us at <b><i>itsupport@internetbank.com.sg</i></b> </p>";
+                $emailTextHtml .= "<p>If you encounter any problems, please email us at <b><i>LifeStyleSportsSystem@support.com</i></b> </p>";
                 $emailTextHtml .= "<br><p>Best regards </p>";
                 $emailTextHtml .= "<p>LifeStyle Sports System </p>";
 
