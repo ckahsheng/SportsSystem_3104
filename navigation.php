@@ -135,7 +135,7 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="testTrainerList.php">COACH PANEL</a>
+                            <a class="page-scroll" href="trainerPersonalSchedule.php">COACH PANEL</a>
                         </li>
 
                         <?php
