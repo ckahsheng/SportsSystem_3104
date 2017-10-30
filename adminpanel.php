@@ -63,16 +63,17 @@ if (!empty($_POST['create_traineracc_submit'])) {
     // Check input errors before inserting in database
     if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
         // Prepare an insert statement
-        $sql = "INSERT INTO users (userid, password,role,phoneNumber,emailAddress) VALUES (?, ?,?,?,?)";
+        $sql = "INSERT INTO users (userid, password,role,phoneNumber,emailAddress,verified) VALUES (?, ?,?,?,?,?)";
         if ($stmt = mysqli_prepare($link, $sql)) {
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssss", $param_username, $param_password, $param_role, $param_telephone, $param_email);
+            mysqli_stmt_bind_param($stmt, "ssssss", $param_username, $param_password, $param_role, $param_telephone, $param_email,$param_verified);
             // Set parameters
             $param_username = $username;
             $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
             $param_role = "Trainer";
             $param_telephone = $_POST["telephone"];
             $param_email = $_POST["email"];
+            $param_verified = "Not Verified";
             //
             // Attempt to execute the prepared statement
             if (mysqli_stmt_execute($stmt)) {

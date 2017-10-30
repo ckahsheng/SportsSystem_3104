@@ -7,14 +7,21 @@ if (isset($_POST['add'])) {
     $name = $_POST['trainerName'];
     $title = $_POST['trainingTitle'];
     $startdate = $_POST['startDate'];
-    $enddate = $_POST['endDate'];
+    
+    if(empty($_POST['endDate'])){ //if no recur, so empty end date
+        $enddate = $startdate;
+    }
+    else{
+        $enddate = $_POST['endDate'];
+    }
     $color = $_POST['color'];
     $venue = $_POST['venue'];
     $rate = $_POST['rate'];
     $starttime = $_POST['startTime'];
     $recur = implode(",", $_POST['recurring']);
     $eventtype = $_POST['eventtype'];
-
+    $endtimestamp = strtotime($_POST['startTime']) + 60*60;
+    $endtime = date('H:i', $endtimestamp);
     //Edited by Ching pin
     $sqlRows = "SELECT count(*) FROM trainerschedule where startdate = ? and starttime = ? ";
     $q = $bdd->prepare($sqlRows);
@@ -36,7 +43,7 @@ if (isset($_POST['add'])) {
             $msg = "Duplicated slot";
             header("Location:../testFullCalendar.php?msg=$msg");
         } else {
-            $sql = "INSERT INTO trainerschedule(name, title, startdate, enddate, color, venue, rate, starttime, recur, eventtype) values ('$name', '$title', '$startdate', '$enddate', '$color', '$venue', '$rate', '$starttime', '$recur', '$eventtype')";
+            $sql = "INSERT INTO trainerschedule(name, title, startdate, enddate, color, venue, rate, starttime, recur, eventtype, endtime) values ('$name', '$title', '$startdate', '$enddate', '$color', '$venue', '$rate', '$starttime', '$recur', '$eventtype', '$endtime')";
             //$req = $bdd->prepare($sql);
             //$req->execute();
 

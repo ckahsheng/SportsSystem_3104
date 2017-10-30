@@ -25,7 +25,7 @@ if (!empty($_POST['login_submit'])) {
     // Validate credentials
     if (empty($username_err) && empty($password_err)) {
         // Prepare a select statement
-        $sql = "SELECT userid, password,role,verified FROM users WHERE userid = ?";
+        $sql = "SELECT userid, password,role,emailAddress,verified FROM users WHERE userid = ?";
         if ($stmt = mysqli_prepare($link, $sql)) {
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);
@@ -39,7 +39,7 @@ if (!empty($_POST['login_submit'])) {
                 // Check if username exists, if yes then verify password
                 if (mysqli_stmt_num_rows($stmt) == 1) {
                     // Bind result variables
-                    mysqli_stmt_bind_result($stmt, $username, $hashed_password, $role, $verified);
+                    mysqli_stmt_bind_result($stmt, $username, $hashed_password, $role, $email, $verified);
                     if (mysqli_stmt_fetch($stmt)) {
                         if (password_verify($password, $hashed_password)) {
                             /* Password is correct, so start a new session and
@@ -48,11 +48,18 @@ if (!empty($_POST['login_submit'])) {
                                 session_start();
                             }
                             //Added this to identify what role is this user 
-                            $_SESSION['username'] = $username;
-                            $_SESSION['role'] = $role;
-                            $_SESSION['hashed_pw'] = $hashed_password;
-                            $_SESSION['verified_user'] = $verified;
-                            header("location: index.php");
+                            if ($verified == "Rejected") {
+                                echo "<script language='javascript'>alert('Your Account Has Been Deactivated!');</script>"; 
+                                $password_err = 'Your account has been Deactivated';
+                            } else {
+                                $_SESSION['username'] = $username;
+                                $_SESSION['role'] = $role;
+                                $_SESSION['hashed_pw'] = $hashed_password;
+                                $_SESSION['email_addr'] = $email;
+                                $_SESSION['verified'] = $verified;
+
+                                header("location: index.php");
+                            }
                         } else {
                             // Display an error message if password is not valid
                             $password_err = 'The password you entered was not valid.';
@@ -66,6 +73,8 @@ if (!empty($_POST['login_submit'])) {
                 echo "Oops! Something went wrong. Please try again later.";
             }
         }
+
+
         // Close statement
         mysqli_stmt_close($stmt);
     }
@@ -109,7 +118,7 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="">GROUP PT</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
                         </li>
 
                         <?php
@@ -123,7 +132,10 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="">GROUP PT</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="testTrainerList.php">COACH PANEL</a>
                         </li>
 
                         <?php
@@ -137,7 +149,7 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="">GROUP PT</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="trainerList.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
                         </li>
                         <li>
                             <a class="page-scroll" href="adminpanel.php">ADMIN PANEL</a>
@@ -154,7 +166,7 @@ if (!empty($_POST['login_submit'])) {
                         <a class = "page-scroll" href = "">GROUP PT</a>
                     </li>
                     <li>
-                        <a class = "page-scroll" href = "trainerList.php">PERSONAL COACH</a>
+                        <a class = "page-scroll" href = "testTrainerList.php">PERSONAL COACH</a>
                     </li>
                     <?php
                 }

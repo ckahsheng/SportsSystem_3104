@@ -1,90 +1,12 @@
 <?php
 // Include config file
-require_once 'DBConfig.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
 
-// Define variables and initialize with empty values
-$emailAddress = $tel_number = $username = $password = $confirm_password = "";
-$username_err = $password_err = $confirm_password_err = "";
-// Processing form data when form is submitted
-//if ($_SERVER["REQUEST_METHOD"] == "POST") {
-if (!empty($_POST['create_traineracc_submit'])) {
-// Validate username
-    if (empty(trim($_POST["username"]))) {
-        $username_err = "Please enter a username.";
-    } else {
-        // Prepare a select statement
-        $sql = "SELECT id FROM users WHERE userid = ?";
-        if ($stmt = mysqli_prepare($link, $sql)) {
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "s", $param_username);
-            // Set parameters
-            $param_username = trim($_POST["username"]);
-            // Attempt to execute the prepared statement
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_store_result($stmt);
-                if (mysqli_stmt_num_rows($stmt) == 1) {
-                    $username_err = "This username is already taken.";
-                } else {
-                    $username = trim($_POST["username"]);
-                }
-            } else {
-                //  echo "Oops! Something went wrong. Please try again later.";
-            }
-        }
-        // Close statement
-        mysqli_stmt_close($stmt);
-    }
-    // Validate password
-    if (empty(trim($_POST['password']))) {
-        $password_err = "Please enter a password.";
-    } elseif (strlen(trim($_POST['password'])) < 6) {
-        $password_err = "Password must have atleast 6 characters.";
-    } else {
-        $password = trim($_POST['password']);
-    }
-    // Validate confirm password
-    if (empty(trim($_POST["confirm_password"]))) {
-        $confirm_password_err = 'Please confirm password.';
-    } else {
-        $confirm_password = trim($_POST['confirm_password']);
-        if ($password != $confirm_password) {
-            $confirm_password_err = 'Password did not match.';
-        }
-    }
-    // Check input errors before inserting in database
-    if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
-        // Prepare an insert statement
-        $sql = "INSERT INTO users (userid, password,role,phoneNumber,emailAddress) VALUES (?, ?,?,?,?)";
-        if ($stmt = mysqli_prepare($link, $sql)) {
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssss", $param_username, $param_password, $param_role, $param_telephone, $param_email);
-            // Set parameters
-            $param_username = $username;
-            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
-            $param_role = "Trainer";
-            $param_telephone = $_POST["telephone"];
-            $param_email = $_POST["email"];
-            //
-            // Attempt to execute the prepared statement
-            if (mysqli_stmt_execute($stmt)) {
-                // Redirect to login page
-                session_start();
-                $_SESSION['createdTrainerMsg'] = 'Trainer Account Created' ;
-                header("location: adminpanel.php");
-                exit;
-            } else {
-                echo "Something went wrong. Please try again later.";
-            }
-        }
-        // Close statement
-        mysqli_stmt_close($stmt);
-    }
-    // Close connection
-    mysqli_close($link);
+
+    include_once('DBConfig.php');
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -106,124 +28,215 @@ if (!empty($_POST['create_traineracc_submit'])) {
                     <div class="panel with-nav-tabs panel-primary">
                         <div class="panel-heading">
                             <ul class="nav nav-tabs" >
-                                <li class="active"><a href="#tab1primary" data-toggle="tab">Your Personal Schedule Slots</a></li>
-                                <li><a href="#tab2primary" data-toggle="tab">Request for Group Training Session</a></li>
-                                <li><a href="#tab3primary" data-toggle="tab">Add New Personal Training Slots</a></li>
-                                <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">View Past Training Sessions<span class="caret"></span></a>
+                                <li class="dropdown active">
+                                    <a href="#" data-toggle="dropdown">Group Training Session<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab4primary" data-toggle="tab">October</a></li>
-                                        <li><a href="#tab5primary" data-toggle="tab">September</a></li>
+                                        <li><a href="#tab1primary" data-toggle="tab">Request for Group Training Session</a></li>
+                                        <li><a href="#tab2primary" data-toggle="tab">View Existing Group Training Request</a></li>
+                                        <li><a href="#tab3primary" data-toggle="tab">Past Group Training Request</a></li>
                                     </ul>
                                 </li>
                             </ul>
                         </div>
-                        <div class="panel-body">
-                            <div class="tab-content">
-                                <div class="tab-pane fade in active" id="tab1primary">
-                                    <div class="container" style="padding-top:20px;padding-right:80px;">
-                                        <div class="col-md-12">
-                                            <div class="panel panel-success">
-                                                <div class="panel-heading "> 
-                                                    <b>Personal Training Schedule</b>
-                                                </div>
-                                                <div class="panel-body">
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-
-                                                            <table 	 id="table"
-                                                                     data-show-columns="true"
-                                                                     data-height="460">
-                                                            </table>
+                        <center>
+                            <div class="panel-body">
+                                <div class="tab-content">
+                                    <div class="tab-pane fade in active" id="tab1primary">
+                                        <div class="container" style="padding-top:20px;padding-right:80px;padding-left:50px;">
+                                            <center><h2> Request New Group Training Session </h2></center>
+                                            <form  class="form-horizontal" role="form" action="" method="post">
+                                                <div class="panel-body form-horizontal payment-form">
+                                                    <div class="form-group">
+                                                        <label for="concept" class="col-sm-3 control-label" required>Trainer Name:</label>
+                                                        <div class="col-sm-5">
+                                                            <input type="text" class="form-control" required="required" id="trainerName" name="trainerName" value="<?php echo $_SESSION['username'] ?>" disabled>
                                                         </div>
                                                     </div>
-                                                </div>				
-                                            </div>
-                                        </div>
-                                    </div></div>
-                                <div class="tab-pane fade" id="tab2primary">Feature is down currently</div>
-                                <div class="tab-pane fade" id="tab3primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
-                                        <h2>Add Personal Training Schedule</h2>
-                                        <?php
-                               
-                                        if (isset($_SESSION['createdTrainerMsg']) && $_SESSION['createdTrainerMsg'] != '') {
-                                            ?>
-                                            <div class="alert alert-success">
-                                                <strong>Success!</strong> <?php echo $_SESSION['createdTrainerMsg']; ?>
-                                            </div>
-                                            <?php 
-                                            unset($_SESSION['createdTrainerMsg']);
+                                                    <div class="form-group">
+                                                        <label for="trainingTitle" class="col-sm-3 control-label">Group Training Title:</label>
+                                                        <div class="col-sm-5">
+                                                            <input type="text" class="form-control"  required="required" id="trainingTitle" name="trainingTitle" required>
+                                                        </div>
+                                                        <div id="msg"></div>
+
+                                                    </div> 
+                                                    <div class="form-group">
+                                                        <label for="trainingCategory" class="col-sm-3 control-label">Training Category:</label>
+                                                        <div class="col-sm-5">
+                                                            <?php
+                                                            $sql = "SELECT * FROM trainingtype ";
+                                                            $res = mysqli_query($link, $sql);
+                                                            mysqli_close($link);
+                                                            ?>
+                                                            <select class="form-control" id="trainingTypeDropDown">
+                                                                <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
+                                                                -->                                                                                                                                <option value="">Please Select:</option>
+
+                                                                <?php
+                                                                while ($row = $res->fetch_assoc()) {
+                                                                    echo '<option value=" ' . $row['ID'] . ' "> ' . $row['TRAINING_NAME'] . ' </option>';
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                                <!--<input type = "text" class = "form-control" required = "required" id = "trainingCategory" name = "trainingCategory" > -->
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class = "form-group">
+                                                        <label for = "trainingRate" class = "col-sm-3 control-label">Training Rate/Hr:</label>
+                                                        <div class = "col-sm-5">
+                                                            <input type = "text" class = "form-control" onblur = "" required = "" id = "trainingRate" name = "trainingRate" disabled>
+                                                        </div>
+                                                        <div id = "amountBal"></div>
+                                                    </div>
+
+
+                                                    <div class = "form-group">
+                                                        <label for = "trainingDesc" class = "col-sm-3 control-label">Training Description:</label>
+                                                        <div class = "col-sm-5">
+
+                                                            <input type = "text" class = "form-control" required = "required" id = "trainingDesc" name = "trainingDesc" >
+                                                        </div>
+                                                    </div>
+
+
+                                                    <!--                                                    <div class = "form-group">
+                                                                                                            <label for = "trainingDate" class = "col-sm-3 control-label">Training Date:</label>
+                                                                                                            <div class = "col-sm-5">
+                                                    
+                                                                                                                <input type = "datepicker" class = "form-control" required = "required" id = "trainingDate" name = "trainingDate" >
+                                                                                                                 <input  type="datepicker" placeholder="click to show datepicker"  id=""/>
+                                                                                                            </div>
+                                                                                                        </div>-->
+
+
+                                                    <div class="form-group">
+                                                        <label for = "trainingDesc" class = "col-sm-3 control-label">Training Date:</label>
+                                                        <div class='col-sm-5'>
+                                                            <div class='input-group input-append date' id='datePicker'>
+                                                                <input type='datepicker' class="form-control" id="trainingDate" />
+                                                                <span class="input-group-addon">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class = "form-group">
+                                                        <label for = "trainingTime" class = "col-sm-3 control-label">Training Time:</label>
+                                                        <div class = "col-sm-5">
+
+<!--                                                            <input type = "text" class = "form-control" required = "required" id = "trainingTime" name = "trainingTime" >-->
+                                                            <select name="startTime" class="form-control" id="startTime" required>
+                                                                <option value="" selected disabled hidden>Choose Time</option>
+                                                                <option value="10:00">10:00</option>
+                                                                <option value="11:00">11:00</option>
+                                                                <option value="12:00">12:00</option>						  
+                                                                <option value="13:00">13:00</option>
+                                                                <option value="14:00">14:00</option>
+                                                                <option value="15:00">15:00</option>
+                                                                <option value="16:00">16:00</option>
+                                                                <option value="17:00">17:00</option>
+                                                                <option value="18:00">18:00</option>
+                                                                <option value="19:00">19:00</option>
+                                                                <option value="20:00">20:00</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class = "form-group">
+                                                        <label for = "trainingVenue" class = "col-sm-3 control-label">Venue:</label>
+                                                        <div class = "col-sm-5">
+
+                                                            <input type = "text" class = "form-control" required = "required" id = "trainingVenue" name = "trainingVenue" >
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class = "form-group">
+                                                        <label for = "trainingCapacity" class = "col-sm-3 control-label">Maximum Capacity:</label>
+                                                        <div class = "col-sm-5">
+
+                                                            <input type = "number" class = "form-control" required = "required" id = "trainingCapacity" name = "trainingCapacity" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <input type = "button" id = "requestTraining" name = "" class = "btn btn-primary" value = "Request Training Session" >
+
+
+                                            </form>
+
+
+
+                                        </div></div>
+                                    <div class = "tab-pane fade" id = "tab2primary">Feature is down currently</div>
+                                    <div class = "tab-pane fade" id = "tab3primary"> <div class = "container" style = "padding-left:50px; padding-right:200px;" >
+                                            <h2>Add Personal Training Schedule</h2>
+                                            <?php
+                                            if (isset($_SESSION['createdTrainerMsg']) && $_SESSION['createdTrainerMsg'] != '') {
+                                                ?>
+                                                <div class="alert alert-success">
+                                                    <strong>Success!</strong> <?php echo $_SESSION['createdTrainerMsg']; ?>
+                                                </div>
+                                                <?php
+                                                unset($_SESSION['createdTrainerMsg']);
                                             }
                                             ?>
 
-                                            <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                                                <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
-                                                    <label>Training Date:<sup>*</sup></label>
-                                                    <input type="date" name="username"class="form-control" value="<?php echo $username; ?>">
-                                                    <span class="help-block"><?php echo $username_err; ?></span>
-                                                </div>    
-                                            
-                                               
-                                                <div class="form-group ">
-                                                    <label>Focuses on :<sup></sup></label>
-                                                    <input type="tel" name="telephone" class="form-control" value="<?php echo $tel_number; ?>">
-                                                    <span class="help-block"></span>
-                                                </div>
-                                                <div class="form-group ">
-                                                    <label>Description of Training<sup></sup></label>
-                                                    <input type="email" name="email" class="form-control" value="<?php echo $emailAddress; ?>">
-                                                    <span class="help-block"></span>
-                                                </div>
-                                                <div class="form-group">
 
-                                                    <input type="submit"  name="create_traineracc_submit"  class="btn btn-primary" value="Add">
-                                                    <input type="reset" class="btn btn-default" value="Reset">
-                                                </div>
-                                            </form>
 
                                         </div> <!-- ./container --></div>
                                     <div class="tab-pane fade" id="tab4primary">Primary 4</div>
                                     <div class="tab-pane fade" id="tab5primary">Primary 5</div>
                                 </div>
-                            </div>
-                        </div>
+                            </div></center>
                     </div>
                 </div>
             </div>
-        </body>
-        <?php include("footer.html"); ?>
+        </div>
+    </body>
+    <?php include("footer.html"); ?>
     <!--This is the Javascript for the table for view all user details--> 
     <script type="text/javascript">
-        var $table = $('#table');
-        $table.bootstrapTable({
-            url: 'PHPCodes/.php',
-            search: true,
-            pagination: true,
-            buttonsClass: 'primary',
-            showFooter: true,
-            minimumCountColumns: 2,
-            columns: [{
-                    field: 'num',
-                    title: '#',
-                    sortable: true,
-                }, {
-                    field: 'userid',
-                    title: 'Date',
-                    sortable: true,
-                }, {
-                    field: 'role',
-                    title: 'Focuses On',
-                    sortable: true,
-
-                }, {
-                    field: 'created',
-                    title: 'Description',
-                    sortable: true,
-
-                },
-            ],
-
+        $(document).ready(function ()
+        {
+            $("#trainingTypeDropDown").change(function ()
+            {
+                var id = $(this).find(":selected").val();
+                //   alert(id);
+                var trainingId = id;
+                $.ajax
+                        ({
+                            type: "POST",
+                            url: 'PHPCodes/getTrainingRate.php',
+                            data: {trainingId: trainingId},
+                            cache: false,
+                            success: function (r)
+                            {
+//                        $("#trainingRate").html(r);
+                                document.getElementById("trainingRate").value = r;
+                                //alert(r);
+                            }
+                        })
+                        ;
+            });
+            var date = new Date();
+            var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            $('#datePicker')
+                    .datepicker({
+                        autoclose: true,
+                        format: 'mm/dd/yyyy',
+                        startDate: today
+                    })
+//                    .on('changeDate', function (e) {
+//                        // Revalidate the date field
+//                        $('#eventForm').formValidation('revalidateField', 'date');
+//                    });
         });
+
+
 
     </script>
 

@@ -58,7 +58,7 @@ if (isset($_POST['SaveChanges'])) {
                     mysqli_stmt_bind_result($stmt, $hashedPw);
                     if (mysqli_stmt_fetch($stmt)) {
                         if (password_verify($currentPassword, $hashedPw)) {
-                            echo "Verified";
+                        //    echo "Verified";
 //If same then carry on editing the password    
                             if ($_POST['new_Password'] == ($_POST['confirm_passwordEdited'])) {
                                 if (empty($current_pw_err) && empty($password_err) && empty($confirm_password_err)) {
@@ -151,7 +151,7 @@ if (isset($_POST['SaveChanges'])) {
 
                             <label class="col-md-3 control-label">Current Password:</label>
                             <div class="col-md-8">
-                                <input class="form-control" type="text" name='current_Password' >
+                                <input class="form-control" type="password" name='current_Password' >
 
                             </div>
                         </div>
