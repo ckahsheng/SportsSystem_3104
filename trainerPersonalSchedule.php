@@ -66,7 +66,6 @@ if (session_status() == PHP_SESSION_NONE) {
                                                             <?php
                                                             $sql = "SELECT * FROM trainingtype ";
                                                             $res = mysqli_query($link, $sql);
-                                                            mysqli_close($link);
                                                             ?>
                                                             <select class="form-control" id="trainingTypeDropDown">
                                                                 <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
@@ -145,7 +144,28 @@ if (session_status() == PHP_SESSION_NONE) {
                                                             </select>
                                                         </div>
                                                     </div>
+                                                    <div class="form-group">
+                                                        <label for="trainingCategory" class="col-sm-3 control-label">Gym Location:</label>
+                                                        <div class="col-sm-5">
+                                                            <?php
+                                                            $sql = "SELECT * FROM gym ";
+                                                            $res = mysqli_query($link, $sql);
+                                                            mysqli_close($link);
+                                                            ?>
+                                                            <select class="form-control" id="gymLocationDropDown">
+                                                                <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
+                                                                -->                                                                                                                                <option value="">Please Select:</option>
 
+                                                                <?php
+                                                                while ($row = $res->fetch_assoc()) {
+                                                                    echo '<option value=" ' . $row['ID'] . ' "> ' . $row['gymName'] . ' </option>';
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                                <!--<input type = "text" class = "form-control" required = "required" id = "trainingCategory" name = "trainingCategory" > -->
+
+                                                        </div>
+                                                    </div>
                                                     <div class = "form-group">
                                                         <label for = "trainingVenue" class = "col-sm-3 control-label">Venue:</label>
                                                         <div class = "col-sm-5">
@@ -202,6 +222,28 @@ if (session_status() == PHP_SESSION_NONE) {
     <script type="text/javascript">
         $(document).ready(function ()
         {
+            //Upon training type being selected, the price of the category of training will be updated as well 
+            $("#trainingTypeDropDown").change(function ()
+            {
+                var id = $(this).find(":selected").val();
+                //   alert(id);
+                var trainingId = id;
+                $.ajax
+                        ({
+                            type: "POST",
+                            url: 'PHPCodes/getTrainingRate.php',
+                            data: {trainingId: trainingId},
+                            cache: false,
+                            success: function (r)
+                            {
+//                        $("#trainingRate").html(r);
+                                document.getElementById("trainingRate").value = r;
+                                //alert(r);
+                            }
+                        })
+                        ;
+            });
+
             $("#trainingTypeDropDown").change(function ()
             {
                 var id = $(this).find(":selected").val();
