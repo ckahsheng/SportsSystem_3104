@@ -6,7 +6,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
     $gymId= $_POST['gymId'];
     $data=array();
-    $sql = "SELECT facilityName,facilityCapacity FROM trainingtype WHERE gymid=?";
+    $sql = "SELECT facilityName,facilityCapacity FROM gymfacility WHERE gymid=?";
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "i", $param_gymId);
     $param_gymId = $gymId;
@@ -16,7 +16,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
              mysqli_stmt_bind_result($stmt,$facilityName,$facilityCapacity);
               while($stmt->fetch()){
                   
-                  $facilityDetail= $facilityName."- ".$facilityCapacity;
+                  $facilityDetail= $facilityName." (Room Size:".$facilityCapacity.")";
                   $data[]=$facilityDetail;
                   
               }
@@ -28,9 +28,9 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             echo "No Facilities Available yet ";
         }
             
-    }
+    
     mysqli_stmt_close($stmt);
-
+}
 mysqli_close($link);
 
 

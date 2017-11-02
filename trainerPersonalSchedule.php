@@ -1,10 +1,133 @@
 <?php
 // Include config file
+//STOPPED HERE ( INSERT VALUE INTO DATABASE ) 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
-
-
     include_once('DBConfig.php');
+
+    $errorMessage = "";
+
+    if (!empty($_POST['requestTraining'])) {
+        // Prepare a select statement
+        $sql = "SELECT id FROM users WHERE userid = ?";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "s", $param_username);
+            // Set parameters
+            $param_username = $_SESSION['username'];
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    mysqli_stmt_bind_result($stmt, $ID);
+                    while ($stmt->fetch()) {
+                        $trainerId = $ID;
+                    }
+                } else {
+                    $errorMessage = "Invalid Trainer";
+                    $_SESSION['errorMessage'] = "Invalid Trainer";
+                }
+            } else {
+                //  echo "Oops! Something went wrong. Please try again later.";
+                $errorMessage = "Please try again later";
+                $_SESSION['errorMessage'] = "Please try again later";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+
+        //Fetch Training Category 
+        $sql = "SELECT TRAINING_NAME FROM trainingtype WHERE ID = ?";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "s", $param_trainingID);
+            // Set parameters
+            $param_trainingID = $_POST['trainingTypeDropDown'];
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    mysqli_stmt_bind_result($stmt, $ID);
+                    while ($stmt->fetch()) {
+                        $trainingType = $ID;
+                    }
+                } else {
+                    $errorMessage = "Invalid Trainer";
+                    $_SESSION['errorMessage'] = "Invalid Training Category";
+                }
+            } else {
+                //  echo "Oops! Something went wrong. Please try again later.";
+                $errorMessage = "Please try again later";
+                $_SESSION['errorMessage'] = "Please try again later";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+
+        //Fetch Gym 
+        $sql = "SELECT gymName FROM gym WHERE id = ?";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "s", $param_gymID);
+            // Set parameters
+            $param_gymID = $_POST['gymLocationDropDown'];
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    mysqli_stmt_bind_result($stmt, $ID);
+                    while ($stmt->fetch()) {
+                        $gym = $ID;
+                    }
+                } else {
+                    $errorMessage = "Invalid Gym";
+                    $_SESSION['errorMessage'] = "Invalid Gym";
+                }
+            } else {
+                //  echo "Oops! Something went wrong. Please try again later.";
+                $errorMessage = "Please try again later";
+                $_SESSION['errorMessage'] = "Please try again later";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+
+        // Check input errors before inserting in database
+        if (empty($errorMessage)) {
+            // Prepare an insert statement
+            $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+            if ($stmt = mysqli_prepare($link, $sql)) {
+                // Bind variables to the prepared statement as parameters
+                mysqli_stmt_bind_param($stmt, "ssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName);
+                // Set parameters
+                $param_trainerid = $trainerId;
+                $param_trainingTitle = $_POST['trainingTitle'];
+                $param_trainingCategory = $trainingType;
+                $param_rate = $_POST['trainingRate'];
+                $param_Desc = $_POST['trainingDesc'];
+                $param_Date = date('Y-m-d', strtotime($_POST['trainingDate']));
+                $param_Time = $_POST['startTime'];
+                $param_Gym = $gym;
+                $param_Facility = $_POST['Facility'];
+                $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                $param_Status = "Pending";
+                $param_trainerName = $_SESSION['username'];
+                // Attempt to execute the prepared statement
+                if (mysqli_stmt_execute($stmt)) {
+                    // Redirect to login page
+
+                    $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                } else {
+                    $errorMessage = "Something went wrong. Please try again later.";
+                    $_SESSION['errorMessage'] = "Please try again later";
+                }
+            }
+            // Close statement
+            mysqli_stmt_close($stmt);
+        }
+        // Close connection
+//        mysqli_close($link);
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -20,7 +143,7 @@ if (session_status() == PHP_SESSION_NONE) {
     <?php include("navigation.php"); ?>
     <body>
         <div class="container" style="padding-top:70px;">
-            <img class="fixed-ratio-resize" src="img/personalCoach.jpg" alt="img/thumbnail_COVER.JPG"/>
+            <img class="fixed-ratio-resize" src="img/pc.jpg" alt="img/thumbnail_COVER.JPG"/>
         </div>
         <div class="container" style="padding-top:20px;">
             <div class="row">
@@ -28,12 +151,13 @@ if (session_status() == PHP_SESSION_NONE) {
                     <div class="panel with-nav-tabs panel-primary">
                         <div class="panel-heading">
                             <ul class="nav nav-tabs" >
-                                <li class="dropdown active">
+                                <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Group Training Session<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab1primary" data-toggle="tab">Request for Group Training Session</a></li>
-                                        <li><a href="#tab2primary" data-toggle="tab">View Existing Group Training Request</a></li>
-                                        <li><a href="#tab3primary" data-toggle="tab">Past Group Training Request</a></li>
+
+                                        <li><a href="#tab1primary" data-toggle="tab">View Existing Group Training Request</a></li>
+                                        <li><a href="#tab2primary" data-toggle="tab">Request for Group Training Session</a></li>
+                                        <li><a href="#tab3primary" data-toggle="tab">Past Group Trainings</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -41,10 +165,30 @@ if (session_status() == PHP_SESSION_NONE) {
                         <center>
                             <div class="panel-body">
                                 <div class="tab-content">
-                                    <div class="tab-pane fade in active" id="tab1primary">
+                                    <div class="tab-pane fade" id="tab2primary">
                                         <div class="container" style="padding-top:20px;padding-right:80px;padding-left:50px;">
                                             <center><h2> Request New Group Training Session </h2></center>
-                                            <form  class="form-horizontal" role="form" action="" method="post">
+                                            <?php
+                                            if (isset($_SESSION['groupSessionCreated']) && $_SESSION['groupSessionCreated'] != '') {
+                                                ?>
+                                                <div class="alert alert-success">
+                                                    <strong>Success!</strong> <?php echo $_SESSION['groupSessionCreated']; ?>
+                                                </div>
+                                                <?php
+                                                unset($_SESSION['groupSessionCreated']);
+                                            }
+                                            ?>
+                                            <?php
+                                            if (isset($_SESSION['errorMessage']) && $_SESSION['errorMessage'] != '') {
+                                                ?>
+                                                <div class="alert alert-danger">
+                                                    <strong>Error!</strong> <?php echo $_SESSION['errorMessage']; ?>
+                                                </div>
+                                                <?php
+                                                unset($_SESSION['errorMessage']);
+                                            }
+                                            ?>
+                                            <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                                                 <div class="panel-body form-horizontal payment-form">
                                                     <div class="form-group">
                                                         <label for="concept" class="col-sm-3 control-label" required>Trainer Name:</label>
@@ -67,7 +211,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                                             $sql = "SELECT * FROM trainingtype ";
                                                             $res = mysqli_query($link, $sql);
                                                             ?>
-                                                            <select class="form-control" id="trainingTypeDropDown">
+                                                            <select class="form-control" name="trainingTypeDropDown" id="trainingTypeDropDown">
                                                                 <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
                                                                 -->                                                                                                                                <option value="">Please Select:</option>
 
@@ -85,7 +229,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                                     <div class = "form-group">
                                                         <label for = "trainingRate" class = "col-sm-3 control-label">Training Rate/Hr:</label>
                                                         <div class = "col-sm-5">
-                                                            <input type = "text" class = "form-control" onblur = "" required = "" id = "trainingRate" name = "trainingRate" disabled>
+                                                            <input type = "text" class = "form-control"  id = "trainingRate" name = "trainingRate" readonly="readonly" >
                                                         </div>
                                                         <div id = "amountBal"></div>
                                                     </div>
@@ -114,7 +258,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                                         <label for = "trainingDesc" class = "col-sm-3 control-label">Training Date:</label>
                                                         <div class='col-sm-5'>
                                                             <div class='input-group input-append date' id='datePicker'>
-                                                                <input type='datepicker' class="form-control" id="trainingDate" />
+                                                                <input type='datepicker' class="form-control" name="trainingDate" id="trainingDate" />
                                                                 <span class="input-group-addon">
                                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                                 </span>
@@ -152,13 +296,13 @@ if (session_status() == PHP_SESSION_NONE) {
                                                             $res = mysqli_query($link, $sql);
                                                             mysqli_close($link);
                                                             ?>
-                                                            <select class="form-control" id="gymLocationDropDown">
+                                                            <select class="form-control" name="gymLocationDropDown" id="gymLocationDropDown">
                                                                 <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
-                                                                -->                                                                                                                                <option value="">Please Select:</option>
+                                                                -->                                                                                                                                <option value="">Please Select Gym Location:</option>
 
                                                                 <?php
                                                                 while ($row = $res->fetch_assoc()) {
-                                                                    echo '<option value=" ' . $row['ID'] . ' "> ' . $row['gymName'] . ' </option>';
+                                                                    echo '<option value=" ' . $row['id'] . ' "> ' . $row['gymName'] . ' </option>';
                                                                 }
                                                                 ?>
                                                             </select>
@@ -167,10 +311,13 @@ if (session_status() == PHP_SESSION_NONE) {
                                                         </div>
                                                     </div>
                                                     <div class = "form-group">
-                                                        <label for = "trainingVenue" class = "col-sm-3 control-label">Venue:</label>
+                                                        <label for = "trainingVenue" class = "col-sm-3 control-label">Facility:</label>
                                                         <div class = "col-sm-5">
 
-                                                            <input type = "text" class = "form-control" required = "required" id = "trainingVenue" name = "trainingVenue" >
+                                                            <select class="form-control" id="Facility" name="Facility">
+                                                                <option value="">Please Select Gym Location</option>
+                                                            </select>
+                                                            <!--<input type = "text" class = "form-control" required = "required" id = "trainingVenue" name = "trainingVenue" >-->
                                                         </div>
                                                     </div>
 
@@ -179,11 +326,17 @@ if (session_status() == PHP_SESSION_NONE) {
                                                         <label for = "trainingCapacity" class = "col-sm-3 control-label">Maximum Capacity:</label>
                                                         <div class = "col-sm-5">
 
-                                                            <input type = "number" class = "form-control" required = "required" id = "trainingCapacity" name = "trainingCapacity" >
+<!--                                                            <input type = "number" class = "form-control" min='0' required = "required" id = "trainingCapacity" name = "trainingCapacity" >-->
+                                                            <select class="form-control" name="trainingCapacityDropDown" id="trainingCapacityDropDown">
+
+                                                                <option value="">Please Select Facility:</option>
+
+
+                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <input type = "button" id = "requestTraining" name = "" class = "btn btn-primary" value = "Request Training Session" >
+                                                <input type = "submit" id = "requestTraining" name = "requestTraining" class = "btn btn-primary" value = "Request Training Session" >
 
 
                                             </form>
@@ -191,19 +344,46 @@ if (session_status() == PHP_SESSION_NONE) {
 
 
                                         </div></div>
-                                    <div class = "tab-pane fade" id = "tab2primary">Feature is down currently</div>
-                                    <div class = "tab-pane fade" id = "tab3primary"> <div class = "container" style = "padding-left:50px; padding-right:200px;" >
-                                            <h2>Add Personal Training Schedule</h2>
-                                            <?php
-                                            if (isset($_SESSION['createdTrainerMsg']) && $_SESSION['createdTrainerMsg'] != '') {
-                                                ?>
-                                                <div class="alert alert-success">
-                                                    <strong>Success!</strong> <?php echo $_SESSION['createdTrainerMsg']; ?>
+                                    <div class = "tab-pane fade in active" id = "tab1primary">  <div class="container" style="padding-top:20px;padding-right:80px; ">
+                                            <div class="col-md-12">
+                                                <div class="panel panel-danger">
+                                                    <div class="panel-heading "> 
+                                                        <b>Group Training Sessions Pending Approval</b>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+
+                                                                <table id="tableNotVerifiedRequests"
+                                                                       data-show-columns="true"
+                                                                       data-height="460">
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>				
                                                 </div>
-                                                <?php
-                                                unset($_SESSION['createdTrainerMsg']);
-                                            }
-                                            ?>
+                                            </div>
+                                        </div></div>
+
+                                    <div class = "tab-pane fade" id = "tab3primary"> <div class = "container" style = "padding-top:20px;padding-right:80px;" >
+                                            <div class="col-md-12">
+                                                <div class="panel panel-success">
+                                                    <div class="panel-heading "> 
+                                                        <b>Past Group Requests ( Approved / Rejected ) </b>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+
+                                                                <table id="tablePastRequests"
+                                                                       data-show-columns="true"
+                                                                       data-height="460">
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>				
+                                                </div>
+                                            </div>
 
 
 
@@ -244,26 +424,66 @@ if (session_status() == PHP_SESSION_NONE) {
                         ;
             });
 
-            $("#trainingTypeDropDown").change(function ()
+            $("#gymLocationDropDown").change(function ()
             {
+                //Upon gym location selected update 
                 var id = $(this).find(":selected").val();
+//                alert(id);
+
                 //   alert(id);
-                var trainingId = id;
+                var gymId = id;
                 $.ajax
                         ({
                             type: "POST",
-                            url: 'PHPCodes/getTrainingRate.php',
-                            data: {trainingId: trainingId},
+                            url: 'PHPCodes/getGymFacilities.php',
+                            data: {gymId: gymId},
                             cache: false,
                             success: function (r)
                             {
-//                        $("#trainingRate").html(r);
-                                document.getElementById("trainingRate").value = r;
-                                //alert(r);
+                                //Fetch the locations in the gym and display out 
+                                id_numbers = JSON.parse(r);
+                                var venue = [];
+                                for (var x in id_numbers) {
+                                    venue.push(id_numbers[x]);
+                                }
+                                var venueDropDown = document.getElementById("Facility");
+
+                                venueDropDown.innerHTML = "";
+                                for (var i = 0; i < venue.length; i++) {
+                                    var opt = venue[i];
+                                    var el = document.createElement("option");
+                                    el.textContent = opt;
+                                    el.value = opt;
+                                    venueDropDown.appendChild(el);
+                                }
                             }
+
+
                         })
                         ;
             });
+
+            $("#Facility").change(function ()
+            {
+                //Upon gym location selected update 
+                //Get the maximum capacity and set a limit on the limit of maximum capacity 
+                var venueSelected = $(this).find(":selected").val();
+                var maxPax = venueSelected.split(':')[1];
+                maxPax = maxPax.replace(")", "");
+                alert(maxPax);
+                var capacityDropDown = document.getElementById("trainingCapacityDropDown");
+
+                capacityDropDown.innerHTML = "";
+                for (var i = 0; i <= maxPax; i++) {
+                    var opt = i;
+                    var el = document.createElement("option");
+                    el.textContent = i;
+                    el.value = i;
+                    capacityDropDown.appendChild(el);
+                }
+
+            });
+
             var date = new Date();
             var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             $('#datePicker')
@@ -279,6 +499,117 @@ if (session_status() == PHP_SESSION_NONE) {
         });
 
 
+        //Table to display current status of Gym Request to user 
+        var $table = $('#tableNotVerifiedRequests');
+        $table.bootstrapTable({
+            url: 'PHPCodes/TrainerListGroupSessionsPending.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'title',
+                    title: 'Training Title',
+                    sortable: true,
+                }, {
+                    field: 'created_at',
+                    title: 'Submitted Date',
+                    sortable: true,
+                }, {
+                    field: 'trainername',
+                    title: 'Trainer Name',
+                    sortable: true,
+                }, {
+                    field: 'category',
+                    title: 'Training Type',
+                    sortable: true,
+                }, {
+                    field: 'rate',
+                    title: 'Training Rate',
+                    sortable: true,
+                }, {
+                    field: 'gym',
+                    title: 'Gym',
+                    sortable: true,
+                },
+                {
+                    field: 'facility',
+                    title: 'Training Location',
+                    sortable: true,
+                },
+                {
+                    field: 'capacity',
+                    title: 'Max Capacity',
+                    sortable: true,
+                },
+                {
+                    field: 'status',
+                    title: 'Application Status',
+                    sortable: true,
+                },
+            ],
+        });
+        
+        //Display past records
+        var $table = $('#tablePastRequests');
+        $table.bootstrapTable({
+            url: 'PHPCodes/TrainerListPastGroupSessionRequest.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'title',
+                    title: 'Training Title',
+                    sortable: true,
+                }, {
+                    field: 'created_at',
+                    title: 'Submitted Date',
+                    sortable: true,
+                }, {
+                    field: 'trainername',
+                    title: 'Trainer Name',
+                    sortable: true,
+                }, {
+                    field: 'category',
+                    title: 'Training Type',
+                    sortable: true,
+                }, {
+                    field: 'rate',
+                    title: 'Training Rate',
+                    sortable: true,
+                }, {
+                    field: 'gym',
+                    title: 'Gym',
+                    sortable: true,
+                },
+                {
+                    field: 'facility',
+                    title: 'Training Location',
+                    sortable: true,
+                },
+                {
+                    field: 'capacity',
+                    title: 'Max Capacity',
+                    sortable: true,
+                },
+                {
+                    field: 'status',
+                    title: 'Application Status',
+                    sortable: true,
+                },
+            ],
+        });
 
     </script>
 
