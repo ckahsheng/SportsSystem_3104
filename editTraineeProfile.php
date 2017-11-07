@@ -107,6 +107,12 @@ while ($row = mysqli_fetch_assoc($resultID)) {
         echo "Click on delete";
     }
 }
+
+//Retrieve Bond - ys
+$selectQuery = mysqli_query($link, "SELECT * FROM users WHERE userid = '" . $_SESSION['username'] . "'");
+$selectResult = mysqli_fetch_array($selectQuery);
+$bondQuery = mysqli_query($link, "SELECT userid FROM users WHERE id = '" . $selectResult['bondWithTrainerId'] . "'");
+$bondResult = mysqli_fetch_array($bondQuery);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -190,7 +196,16 @@ while ($row = mysqli_fetch_assoc($resultID)) {
                                     <input class="form-control" type="number" name='phoneNumEdited' value="<?php echo $row['phoneNumber']; ?>">
                                 </div>
                             </div>
-                      
+                           <div class="form-group">
+                                <label class="col-lg-3 control-label">Current Bond:</label>
+                                <div class="col-lg-8">
+                                    <?php if ($selectResult['bondWithTrainerId'] != ""){?>
+                                    <u><a href="testTrainerCalendar.php?trainerName=<?php echo $bondResult['userid']; ?>" style="color:blue; font-size:18px"><?php echo $bondResult['userid']; ?></a></u>
+                                    <?php } else{?>
+                                    <p style="display: inline;">-</p>
+                                    <?php } ?>
+                                </div>
+                            </div>
 
                        
 <!--                            <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">

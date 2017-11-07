@@ -14,7 +14,7 @@
     <?php
     session_start();
     include("navigation.php");
-    //edit to show only the specific calendar
+//edit to show only the specific calendar
     if (!isset($_SESSION['username'])) {
         $sql = "SELECT * FROM trainerschedule";
     } else {
@@ -154,7 +154,7 @@
                     </div>
                     <!--added to prevent non-login from editting--!>
                     <?php if (isset($_SESSION['username'])) { ?>
-                                                               
+                            
                         <!-- EDIT Modal -->
                         <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                             <div class="modal-dialog" role="document">
@@ -195,21 +195,22 @@
                                                 </div>
                                             </div>
                                             <!---Added time to edit modal !--->
-                                            <!--                                                                                        <div class="form-group">
-                                                                                                                                        <label for="startTime" class="col-sm-2 control-label">Start Time</label>
-                                                                                                                                        <div class="col-sm-10">
-                                                                                                                                            <select name="startTime" class="form-control" id="startTime">
-                                                                                                                                                <option value="">Choose</option>
-                                                                                                                                                <option value="13:00:00">13:00</option>
-                                                                                                                                                <option value="15:00:00">15:00</option>
-                                                                                                                                                <option value="17:00:00">17:00</option>						  
-                                                                                                                                                <option value="19:00:00">19:00</option>
-                                                                                                                                                <option value="21:00:00">21:00</option>
-                                                                                                                                                <option value="23:00:00">23:00</option>
-                                                                                        
-                                                                                                                                            </select>
-                                                                                                                                        </div>
-                                                                                                                                    </div>-->
+                                            <!--
+                                            <div class="form-group">
+                                            <label for="startTime" class="col-sm-2 control-label">Start Time</label>
+                                            <div class="col-sm-10">
+                                            <select name="startTime" class="form-control" id="startTime">
+                                            <option value="">Choose</option>
+                                            <option value="13:00:00">13:00</option>
+                                            <option value="15:00:00">15:00</option>
+                                            <option value="17:00:00">17:00</option>						  
+                                            <option value="19:00:00">19:00</option>
+                                            <option value="21:00:00">21:00</option>
+                                            <option value="23:00:00">23:00</option>
+                                            
+                                            </select>
+                                            </div>
+                                            </div>-->
                                             <div class="form-group"> 
                                                 <div class="col-sm-offset-2 col-sm-10">
                                                     <div class="checkbox">
@@ -246,16 +247,16 @@
     <script>
         $(document).ready(function(){
         $("input[name='recurring[]']").click(function(){
-            if(jQuery('#recurr input[type=checkbox]:checked').length){
-		$("#endDateRecur").show();
-            }else{
-                $("#endDateRecur").hide();
-            }
-        
+        if (jQuery('#recurr input[type=checkbox]:checked').length){
+        $("#endDateRecur").show();
+        } else{
+        $("#endDateRecur").hide();
+        }
+
         });
         });
-                // full calendar
-                $(document).ready(function () {
+        // full calendar
+        $(document).ready(function () {
         $('#calendar').fullCalendar({
         header: {
         left: 'prev,next today',
@@ -277,12 +278,12 @@
                 // Hide the pop up if past date is before today's date
                 if (start.isBefore(moment())) {
                 $('#calendar').fullCalendar('unselect');
-                        $('#ModalAdd').modal('hide');
+                $('#ModalAdd').modal('hide');
                 }
                 // Show the pop up if is after today's date
                 else {
                 $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
-                        $('#ModalAdd').modal('show');
+                $('#ModalAdd').modal('show');
                 }
                 }, // END OF SELECT FUNC.
                 eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
@@ -290,19 +291,19 @@
                 if (event.start.isBefore(moment())) {
                 element.bind('dblclick', function () {
                 $('#calendar').fullCalendar('unselect');
-                        $('#ModalEdit').modal('hide');
-                        alert("You are unable to make changes to past event dates!");
+                $('#ModalEdit').modal('hide');
+                alert("You are unable to make changes to past event dates!");
                 });
                 }
                 // Show the pop up if is after today's date
                 else {
                 element.bind('dblclick', function () {
                 $('#ModalEdit #id').val(event.id);
-                        $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                        $('#ModalEdit #title').val(event.title);
-                        $('#ModalEdit #color').val(event.color);
-                        // $('#ModalEdit #startTime').val(event.time);
-                        $('#ModalEdit').modal('show');
+                $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+                $('#ModalEdit #title').val(event.title);
+                $('#ModalEdit #color').val(event.color);
+                // $('#ModalEdit #startTime').val(event.time);
+                $('#ModalEdit').modal('show');
                 });
                 }
                 // for recurring
