@@ -2,18 +2,18 @@
 
 require_once('../DBConfig.php');
 
-$venue = intval($_POST['venue']);
+$facility = intval($_POST['facility']);
 $starttime = $_POST['starttime'];
 $startdate = $_POST['startdate'] . " 00:00:00";
 
-$sqlLocation = "SELECT count(*) FROM trainerschedule WHERE venue = '$venue' AND startdate = '$startdate' AND starttime = '$starttime' AND bookedTraineeId IS NOT NULL";
+$sqlLocation = "SELECT count(*) FROM trainerschedule WHERE facility = '$facility' AND startdate = '$startdate' AND starttime = '$starttime' AND bookedTraineeId IS NOT NULL";
 $queryLocation = $bdd->prepare($sqlLocation);
 $queryLocation->execute();
 
 $currentPairs = $queryLocation->fetchColumn();
 // $currentPairs = 49;
 
-$sqlGym = "SELECT facilityCapacity FROM gymfacility WHERE id = '$venue'";
+$sqlGym = "SELECT facilityCapacity FROM gymfacility WHERE id = '$facility'";
 $queryGym = $bdd->prepare($sqlGym);
 $queryGym->execute();
 

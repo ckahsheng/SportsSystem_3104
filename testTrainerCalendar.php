@@ -117,20 +117,33 @@ if (isset($_POST['endBond'])) {
                                 // $name1=$name.strip();
                                 //$sql1 = "SELECT * FROM trainerschedule where name='$name' and eventtype='pt'";
                                 $sql1 = "SELECT * FROM `trainerschedule` WHERE name='$name' AND eventtype='pt'";
+                               
                                 $req = $bdd->prepare($sql1);
                                 $req->execute();
 
                                 $events = $req->fetchAll();
+
+
+
+                                //Retrieve group training event from database 
+                                $sql2 = "SELECT * FROM `grouptrainingschedule` WHERE trainerName='$name' and trainingApprovalStatus='Verified'";
+                                $req1 = $bdd->prepare($sql2);
+                                $req1->execute();
+        
+                                $events1 = $req1->fetchAll();
                                 ?>
                         </div>
 
                                                                                     </div>                                                     <!--<button type="button"  class="btn generate"onclick="" value="<?//php $row['userid'] ?>"><div id="calendar" class="monthly"></div>View Schedule</button>-->
                     <div class="row">                    
                         <div class="col-md-6" >
-                            <center><p><strong>Personal Training Schedule</strong></p><br></center>
+                            <center><p><strong>Personal Training Schedule</strong></p>
+                            <button type="button" class="btn btn-primary" onclick="personalTraining()">View Personal Schedule</button></center>
                             <div id="calendar" class="monthly"></div>
-                            <p><strong>Group Training Classes</strong></p><br>
-                            Insert Calendar Here 
+                            <center><p><strong>Group Training Classes</strong></p>
+                            <button type="button" class="btn btn-primary" onclick="groupTraining()">View Group Schedule</button></center>
+                            <div id="calendar2" class="monthly"></div>
+                        
                         </div>
                     </div>
                 </div>
@@ -151,12 +164,12 @@ if (isset($_POST['endBond'])) {
                             <input type="text" size="8.5" style="border-style:none;" name="startdate" id="startdate" readonly> to 
                             <input type="text" size="8.5" style="border-style:none;" name="enddate" id="enddate" readonly> <br/><br/>
                             <label>Time</label><br/>
-                            <input type="text" size="5" style="border-style:none;" name="starttime" id="starttime" readonly> to 
-                            <input type="text" size="8.5" style="border-style:none;" name="endtime" id="endtime" readonly><br/><br/>
+                            <input type="text" size="2" style="border-style:none;" name="starttime" id="starttime" readonly> to 
+                            <input type="text" size="5" style="border-style:none;" name="endtime" id="endtime" readonly><br/><br/>
                             <label>Where</label><br/>
-                            <input type="text"  style="border-style:none;" name="venue" id="venue" readonly><br/><br/>
+                            <input type="text" style="border-style:none;" name="venue" id="venue" readonly><br/><br/>
                             <label>Cost</label><br/>
-                            <input type="text"  style="border-style:none;" name="rate" id="rate" readonly><br/><br/>
+                            <input type="text" size="1" style="border-style:none;" name="rate" id="rate" readonly>Per Hour<br/><br/>
                             
                         <!-- <form action="CalendarReqCodes/traineeJoinPT.php" method="POST"> -->
                             <input type="text" name="id" id="id" hidden>
@@ -223,6 +236,117 @@ if (isset($_POST['endBond'])) {
             </div>
         </div>
 
+        <!-- EDIT Modal - for the delete -->
+        <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form class="form-horizontal" method="POST" action="CalendarReqCodes/editEventTitle.php">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Edit Event</h4>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="name" class="form-control" id="name" placeholder="Name" value="<?php echo $_SESSION['username'] ?>">
+                            <div class="form-group">
+                                <label for="date" class="col-sm-2 control-label">Date</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="date" class="form-control" id="date" placeholder="Date">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="title" class="col-sm-2 control-label">Title</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="title" class="form-control" id="title" placeholder="Title">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="color" class="col-sm-2 control-label">Color</label>
+                                <div class="col-sm-10">
+                                    <select name="color" class="form-control" id="color">
+                                        <option value="">Choose</option>
+                                        <option style="color:#0071c5;" value="#0071c5">&#9724; Dark blue</option>
+                                        <option style="color:#40E0D0;" value="#40E0D0">&#9724; Turquoise</option>
+                                        <option style="color:#008000;" value="#008000">&#9724; Green</option>						  
+                                        <option style="color:#FFD700;" value="#FFD700">&#9724; Yellow</option>
+                                        <option style="color:#FF8C00;" value="#FF8C00">&#9724; Orange</option>
+                                        <option style="color:#FF0000;" value="#FF0000">&#9724; Red</option>
+                                        <option style="color:#000;" value="#000">&#9724; Black</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <!---Added time to edit modal !--->
+                            <!--                                                                                        <div class="form-group">
+                                                                                                                        <label for="startTime" class="col-sm-2 control-label">Start Time</label>
+                                                                                                                        <div class="col-sm-10">
+                                                                                                                            <select name="startTime" class="form-control" id="startTime">
+                                                                                                                                <option value="">Choose</option>
+                                                                                                                                <option value="13:00:00">13:00</option>
+                                                                                                                                <option value="15:00:00">15:00</option>
+                                                                                                                                <option value="17:00:00">17:00</option>						  
+                                                                                                                                <option value="19:00:00">19:00</option>
+                                                                                                                                <option value="21:00:00">21:00</option>
+                                                                                                                                <option value="23:00:00">23:00</option>
+                                                                        
+                                                                                                                            </select>
+                                                                                                                        </div>
+                                                                                                                    </div>-->
+                            <div class="form-group"> 
+                                <div class="col-sm-offsetid-2 col-sm-10">
+                                    <div class="checkbox">
+                                        <label class="text-danger"><input type="checkbox"  name="delete"> Delete event</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="id" class="form-control" id="id">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
+                                        //kee Button for cancelling training Plus modal inside//
+                            <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                            <h6 class="modal-title" id="myModalLabel">Confirm Cancellation</h4>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <p>You are about to cancel your trainning session!</p>
+                                                
+
+                                        </div>
+
+                                        <div class="modal-footer">
+                                                
+                                            </form>
+                                            <form action="PHPCodes/email-script.php" method="post"> 
+                                                <button type="submit" name="id"  id="id" class="btn btn-danger" >Confirm</button></form>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="button" id="myBtn" class="btn btn-danger" value="Cancel training"  data-toggle="modal" data-target="#confirm-delete"></a><br>
+                            <!-- Button for cancelling training Plus modal inside-->
+                            <span></span>
+
+
+
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        
     </body>
 
 
@@ -248,7 +372,17 @@ if (isset($_POST['endBond'])) {
         //        var x = document.cookie;
         //        alert(x);
 
-        $(document).ready(function () {
+            function personalTraining(){
+
+
+
+               // alert("test123");
+                var x = document.getElementById("calendar");
+                if (x.style.display === "none") {
+                        x.style.display = "block";
+
+                $(document).ready(function () {
+                   // alert("test");
             $('#calendar,#calendar1').fullCalendar({
 
                 header: {
@@ -271,20 +405,23 @@ if (isset($_POST['endBond'])) {
                 selectHelper: true,
                 displayEventTime: false, // hide the time. Eg 2a, 12p               
                 eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-                    if (event.start.isBefore(moment())) {
-                        element.bind('click', function () {
-                            $('#calendar').fullCalendar('unselect');
-                            $('#ModalView').modal('hide');
-                            alert("You are unable to view past event");
-                        });
-                    } else { // Show the pop up if is after today's date
+                    // if (event.start.isBefore(moment())) {
+                    //     element.bind('click', function () {
+                    //         $('#calendar').fullCalendar('unselect');
+                    //         $('#ModalView').modal('hide');
+                    //         alert("You are unable to view past event");
+                    //     });
+                    // } else { // Show the pop up if is after today's date
                         
                         element.bind('click', function () {
 
                             var eventTitle = (event.title).split(" ");
                             var startTime = eventTitle[0];
 
-                            console.log(event.venue);
+                            var realStartDate = (event.realStartDate).split(" ");
+                            var realEndDate = (event.realEndDate).split(" ");
+
+                            console.log(event.facility);
                             console.log(event.start.format('YYYY-MM-DD'));
                             console.log(event.startT);
                             console.log(event.traineeId);
@@ -294,7 +431,7 @@ if (isset($_POST['endBond'])) {
                                 url: "CalendarReqCodes/sufCapacity.php",
                                 type:"POST",
                                 data:{// whatever data you want to "post" to the processing page, using json format
-                                    'venue': event.venue,
+                                    'facility': event.facility,
                                     'startdate': event.start.format('YYYY-MM-DD'),
                                     'starttime': event.startT
                                 },
@@ -307,31 +444,64 @@ if (isset($_POST['endBond'])) {
 
                                         console.log('have');
 
-                                        if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
-
-                                            console.log('delete');
+                                        if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
+                                            console.log('trainer delete');
                                             // TODO: to add codes for trainee to delete the session 
-                                        } else if (event.traineeId == "") {
 
-                                            console.log('no traineeId');
+                                            $('#ModalEdit #id').val(event.id);
+                                            $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+                                            $('#ModalEdit #title').val(event.title);
+                                            $('#ModalEdit #color').val(event.color);
+                                            // $('#ModalEdit #startTime').val(event.time);
+                                            $('#ModalEdit').modal('show');
+                                             //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+                                            if (event.start > (moment().add(2, 'days'))) {
+                                                document.getElementById("myBtn").disabled = false;
+                                            } else {
+                                                document.getElementById("myBtn").disabled = true;
+                                            }
+                                        } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
+                                            if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
 
-                                            $('#ModalView #id').val(event.id);
-                                            $('#ModalView #startdate').val((event.start).format('DD MMM YYYY'));
-                                            $('#ModalView #enddate').val((event.end).format('DD MMM YYYY'));
-                                            $('#ModalView #title').val(eventTitle[1]);
-                                            $('#ModalView #venue').val(event.venue);
-                                            $('#ModalView #starttime').val(event.startT);
-                                            $('#ModalView #endtime').val(event.realEndTime);
-                                            $('#ModalView #rate').val(event.rate);
+                                                console.log('trainee delete');
+                                                // TODO: to add codes for trainee to delete the session 
 
-                                            $('#ModalView').modal('show');
-                                        } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
-                                            
-                                            console.log('other training sesh');
+                                                $('#ModalEdit #id').val(event.id);
+                                                $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+                                                $('#ModalEdit #title').val(event.title);
+                                                $('#ModalEdit #color').val(event.color);
+                                                // $('#ModalEdit #startTime').val(event.time);
+                                                $('#ModalEdit').modal('show');
+                                                 //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+                                                if (event.start > (moment().add(2, 'days'))) {
+                                                    document.getElementById("myBtn").disabled = false;
+                                                } else {
+                                                    document.getElementById("myBtn").disabled = true;
+                                                }
 
-                                            $('#noAccessModal').modal('show');
+                                            } else if (event.traineeId == "") {
+
+                                                console.log('no traineeId');
+
+                                                $('#ModalView #id').val(event.id);
+                                                $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                $('#ModalView #title').val(eventTitle[1]);
+                                                $('#ModalView #venue').val(event.venue);
+                                                $('#ModalView #facility').val(event.facility);
+                                                $('#ModalView #starttime').val(event.startT);
+                                                $('#ModalView #endtime').val(event.realEndTime);
+                                                $('#ModalView #rate').val(event.rate);
+
+                                                $('#ModalView').modal('show');
+
+                                            } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
+
+                                                console.log('other training sesh');
+
+                                                $('#noAccessModal').modal('show');
+                                            }
                                         }
-                                        
                                     } else if (data.trim() == "nope") { // no space
                                         // alert("no space");
 
@@ -344,7 +514,7 @@ if (isset($_POST['endBond'])) {
                                 }
                             });
                         });
-                    }
+                    // }
 
                     // for recurring
                     if (event.ranges) {
@@ -365,14 +535,16 @@ if (isset($_POST['endBond'])) {
                     $recur = $event['recur'];
                     $name = $event['name'];
                     $end = explode(" ", $event['enddate']);
+                    $endTime = date ('H:i',strtotime($event['endtime']));
                     $titleWithTime = $event['starttime'] . ' ' . $event['title'];
-                    $traineeId = $event['bookedTraineeId'];
+                    $traineeId = $event['traineeid'];
 
                     $title = $event['title'];
-                    $color = $event['color'];
+                    $color = '#008000';
 
                     // change color of the event if selected based on type of user viewing
                     if ($traineeId == NULL) { // no trainee sign up
+                        $title = $event['starttime'] . $title;
                         $color = $color;
                     } else if ($_SESSION['username'] == $_GET['trainerName']) { // trainer view own page
                         $title = $traineeId . " " . $title;
@@ -383,11 +555,6 @@ if (isset($_POST['endBond'])) {
                         $color = '#d3d3d3';
                     }
                     
-                    if ($end[1] == '00:00:00') {
-                        $end = $end[0];
-                    } else {
-                        $end = $event['enddate'];
-                    }
                     // if no recur
                     if ($recur == "") { 
                         ?>
@@ -398,28 +565,33 @@ if (isset($_POST['endBond'])) {
                             startT: '<?php echo $event['starttime']; ?>',
                             traineeId: '<?php echo $traineeId; ?>',
                             start: '<?php echo $event['startdate']; ?>',
-                            end: '<?php echo $end; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
+                            end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
                             venue: '<?php echo $event['venue']; ?>',
-                            realEndTime: '<?php echo $event['endtime']; ?>',
+                            facility: '<?php echo $event['facility']; ?>',
                             rate: '<?php echo $event['rate']; ?>',
+                            realStartDate: '<?php echo $event['startdate']; ?>',
+                            realEndDate: '<?php echo $event['enddate']; ?>',
+                            realEndTime: '<?php echo $endTime; ?>',
                         },
                     <?php 
                     } else { // if got recur
                         ?>
                         {
                             id: '<?php echo $event['trainingid']; ?>',
-                            title: '<?php echo $titleWithTime; ?>',
+                            title: '<?php echo $title; ?>',
                             start: '10:00',
                             end: '12:00',
-                            color: '<?php echo $event['color']; ?>',
                             dow: '<?php echo $recur; ?>',
                             ranges: [{
                                 start: '<?php echo $event['startdate']; ?>',
-                                end: '<?php echo $end; ?>T23:59:00',
+                                end: '<?php echo $end[0]; ?>T23:59:00',
                             }],
                             venue: '<?php echo $event['venue']; ?>',
+                            facility: '<?php echo $event['facility']; ?>',
                             realEndTime: '<?php echo $event['endtime']; ?>',
                             rate: '<?php echo $event['rate']; ?>',
+                            realStartDate: '<?php echo $event['startdate']; ?>',
+                            realEndDate: '<?php echo $event['enddate']; ?>',
                         },
                         <?php
                     }
@@ -452,8 +624,227 @@ if (isset($_POST['endBond'])) {
                         alert("adding error");
                     }
                 });
+                
+                // TODO: reload here 
+                location.reload();
             }
         });
+                }
+                else{
+                    x.style.display="none";
+                }
+
+                // document
+            }
+
+            function groupTraining(){
+               // alert("test123");
+                var x = document.getElementById("calendar2");
+                if (x.style.display === "none") {
+                        x.style.display = "block";
+
+                $(document).ready(function () {
+                   // alert("test");
+            $('#calendar2').fullCalendar({
+
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,basicWeek,basicDay'
+                },
+                eventLimit: true, // allow "more" link when too many events
+                
+                // TODO: identify username, so other usernames cannot click
+                // TODO: got to check if bonded - if bonded && not to this trainer, then cannot select (here or L250)
+                <?php if (!isset($_SESSION['username'])) { ?>
+                selectable: false,
+                editable: false,
+                <?php } else { ?>
+                selectable: true,
+                editable: true,
+                <?php } ?>
+
+                selectHelper: true,
+                displayEventTime: false, // hide the time. Eg 2a, 12p               
+                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
+                    // if (event.start.isBefore(moment())) {
+                    //     element.bind('click', function () {
+                    //         $('#calendar').fullCalendar('unselect');
+                    //         $('#ModalView').modal('hide');
+                    //         alert("You are unable to view past event");
+                    //     });
+                    // } else { // Show the pop up if is after today's date
+                        
+                        element.bind('click', function () {
+
+                            var eventTitle = (event.title).split(" ");
+                            var startTime = eventTitle[0];
+
+                            var realStartDate = (event.realStartDate).split(" ");
+                            var realEndDate = (event.realEndDate).split(" ");
+
+                            console.log(event.facility);
+                            console.log(event.start.format('YYYY-MM-DD'));
+                            console.log(event.startT);
+                            console.log(event.traineeId);
+
+                            // ajax to check if gym has enough capacity for the particular PT session
+                            $.ajax({
+                                url: "CalendarReqCodes/sufCapacity.php",
+                                type:"POST",
+                                data:{// whatever data you want to "post" to the processing page, using json format
+                                    'facility': event.facility,
+                                    'startdate': event.start.format('YYYY-MM-DD'),
+                                    'starttime': event.startT
+                                },
+                                async: false,
+                                success: function(data){ // data = what you echo'd back, can just like do if else
+
+                                    // alert(data);
+
+                                    if (data.trim() == "have") { // have space
+
+                                        console.log('have');
+
+                                        if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
+                                            console.log('trainer delete');
+                                            // TODO: to add codes for trainee to delete the session 
+
+                                            $('#ModalEdit #id').val(event.id);
+                                            $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+                                            $('#ModalEdit #title').val(event.title);
+                                            $('#ModalEdit #color').val(event.color);
+                                            // $('#ModalEdit #startTime').val(event.time);
+                                            $('#ModalEdit').modal('show');
+                                             //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+                                            if (event.start > (moment().add(2, 'days'))) {
+                                                document.getElementById("myBtn").disabled = false;
+                                            } else {
+                                                document.getElementById("myBtn").disabled = true;
+                                            }
+                                        } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
+                                            if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
+
+                                                console.log('trainee delete');
+                                                // TODO: to add codes for trainee to delete the session 
+
+                                                $('#ModalEdit #id').val(event.id);
+                                                $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+                                                $('#ModalEdit #title').val(event.title);
+                                                $('#ModalEdit #color').val(event.color);
+                                                // $('#ModalEdit #startTime').val(event.time);
+                                                $('#ModalEdit').modal('show');
+                                                 //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+                                                if (event.start > (moment().add(2, 'days'))) {
+                                                    document.getElementById("myBtn").disabled = false;
+                                                } else {
+                                                    document.getElementById("myBtn").disabled = true;
+                                                }
+
+                                            } else if (event.traineeId == "") {
+
+                                                console.log('no traineeId');
+
+                                                $('#ModalView #id').val(event.id);
+                                                $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                $('#ModalView #title').val(eventTitle[1]);
+                                                $('#ModalView #venue').val(event.venue);
+                                                $('#ModalView #facility').val(event.facility);
+                                                $('#ModalView #starttime').val(event.startT);
+                                                $('#ModalView #endtime').val(event.realEndTime);
+                                                $('#ModalView #rate').val(event.rate);
+
+                                                $('#ModalView').modal('show');
+
+                                            } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
+
+                                                console.log('other training sesh');
+
+                                                $('#noAccessModal').modal('show');
+                                            }
+                                        }
+                                    } else if (data.trim() == "nope") { // no space
+                                        // alert("no space");
+
+                                        $('#noSpaceModal').modal('show');
+                                    }
+                                },
+                                error: function (data) {
+                                    alert("got error");
+                                    console.log("GOT ERROR LAH");
+                                }
+                            });
+                        });
+                    // }
+
+                    // for recurring
+                    if (event.ranges) {
+                        return (event.ranges.filter(function (range) {
+                            // window.alert(range.start);
+                            return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
+                        }).length) > 0;
+                    } else { // if no recurring
+                        return true;
+                    }
+                }, //END OF EVENT RENDER FUNC.
+
+                events: [ // START OF EVENT OBJECT
+
+                <?php
+                foreach ($events1 as $event):
+                        
+
+                   ?>
+                   {
+                id: '<?php echo $event['id']; ?>',
+                        title: '<?php echo $event['trainingTitle']; ?>',
+                        start: '<?php echo $event['trainingDate']; ?>',
+                        time: '<?php echo $event['trainingTime'];
+    ; ?>',
+                        color: '<?php echo $event['trainingRate']; ?>',
+                },
+
+                <?php endforeach; ?>
+                ] //END OF EVENT OBJECT
+            });
+
+            document.getElementById("jnBtn").onclick = function() {addTraineePT()};
+
+            // ajax to add selected PT 
+            function addTraineePT() {
+                $('#ModalView').modal('hide');
+
+                $.ajax ({
+                    url: "CalendarReqCodes/traineeJoinPT.php",
+                    data: {
+                        'traineeId': $('input[name=traineeId]').val(),
+                        'trainerId': $('input[name=trainerId]').val(),
+                        'id': $('input[name=id]').val()
+                    },
+                    type: "POST",
+                    async: false,
+                    success: function(data) {
+                        // alert("added!");
+                        $('#addedModal').modal('show');
+                    },
+                    error: function(data) {
+                        alert("adding error");
+                    }
+                });
+                
+                // TODO: reload here 
+                location.reload();
+            }
+        });
+                }
+                else{
+                    x.style.display="none";
+                }
+
+                // document
+            }
+        
 
     </script>
 </html>

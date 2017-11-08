@@ -1,28 +1,31 @@
+<!---Displaying of error message !-->
 <?php
-    session_start();
+include_once('DBConfig.php');
+session_start();
+if (isset($_GET['msg'])) {
+   $message = $_GET['msg'];
+    echo "<script type='text/javascript'>alert('$message');</script>";
+}
 
-    include_once('DBConfig.php');
-    
-//edit to show only the specific calendar
-    if (!isset($_SESSION['username'])) {
-        $sql = "SELECT * FROM trainerschedule";
+//Show the specific calendar to specific user.
+if (!isset($_SESSION['username'])) {
+    $sql = "SELECT * FROM trainerschedule";
+} else {
+    $name = $_SESSION['username'];
+
+    if ($_SESSION['role'] == 'Trainer') {
+        $sql = "SELECT * FROM trainerschedule where name = '$name' ";
+    } else if ($_SESSION['role'] == 'Trainee') {
+        $sql = "SELECT * FROM trainerschedule where traineeid = '$name' OR name = '$name'";
     } else {
-        $name = $_SESSION['username'];
-        
-        if ($_SESSION['role'] == 'Trainer') {
-            $sql = "SELECT * FROM trainerschedule where name = '$name' ";
-        } else if ($_SESSION['role'] == 'Trainee') {
-            $sql = "SELECT * FROM trainerschedule where bookedTraineeId = '$name' OR name = '$name' ";
-        } else {
-            $sql = "SELECT * FROM trainerschedule";
-        }
-
+        $sql = "SELECT * FROM trainerschedule";
     }
+}
     $req = $bdd->prepare($sql);
     $req->execute();
 
     $events = $req->fetchAll();
-    ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -35,10 +38,11 @@
         <!-- FullCalendar -->
         <link href='css/fullcalendar.css' rel='stylesheet' />
     </head>
-    
+   
     <body>
-
-    <?php include("navigation.php");?>
+        <?php
+            include("navigation.php");
+        ?>
         <div class="container" style="padding-top:100px;">
             <center><h1>Calendar</h1></center>
             <div id="calendar" class="monthly">
@@ -55,53 +59,43 @@
                                     <div class="modal-body">
                                         <span style="color: red;font-size:14px;">* Mandatory fields</span>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4" for="eventtype">Type: </label>
+                                            <label class="control-label col-md-4" for="eventtype"><span style="color: red">*</span>Type Of Training: </label>
                                             <div class="col-md-7">
                                                 <?php
                                                 if ($_SESSION['role'] == 'Trainer') {
                                                     ?>
-
                                                     <label class="radio-inline">
-
-                                                        <input type="radio" name="eventtype" value="pt" checked>Personal Training
+                                                        <input type="radio" name="eventtype" id="pt" value="pt" checked>Personal Training
                                                     </label>
                                                 <?php }
                                                 ?>
                                                 <label class="radio-inline">
-                                                    <input type="radio" name="eventtype"  value="ot" checked>Own Training
+                                                    <input type="radio" name="eventtype" id="ot" value="ot" checked>Own Training
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4" for="trainerName">Trainer Name:</label>
+                                            <label class="control-label col-md-4" for="trainerName"><span style="color: red">*</span>
+                                            <?php
+                                            if ($_SESSION['role'] == 'Trainer') { ?>
+                                                Trainer Name:
+                                            <?php } else{ ?>
+                                                Trainee Name:
+                                            <?php } ?>
+                                            </label>
                                             <div class="col-md-7">
                                                 <input type="text" class="form-control" id="trainerName" name ="trainerName" readonly value="<?php echo $_SESSION['username'] ?>">
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4" for="trainingTitle"><span style="color: red">*</span>Personal Training Title:</label>
+                                            <label class="control-label col-md-4" for="trainingTitle"><span style="color: red">*</span>Training Title:</label>
                                             <div class="col-md-7">
-                                                <input type="text" class="form-control" id="trainingTitle" name="trainingTitle" required>
+                                                <input type="text" class="form-control" id="trainingTitle" name="trainingTitle" placeholder="Training Title" required>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="color" class="col-md-4 control-label">Color:</label>
-                                            <div class="col-md-7">
-                                                <select name="color" class="form-control" id="color">
-                                                    <option value="">Choose Color</option>
-                                                    <option style="color:#0071c5;" value="#0071c5">&#9724; Dark blue</option>
-                                                    <option style="color:#40E0D0;" value="#40E0D0">&#9724; Turquoise</option>
-                                                    <option style="color:#008000;" value="#008000">&#9724; Green</option>						  
-                                                    <option style="color:#FFD700;" value="#FFD700">&#9724; Yellow</option>
-                                                    <option style="color:#FF8C00;" value="#FF8C00">&#9724; Orange</option>
-                                                    <option style="color:#FF0000;" value="#FF0000">&#9724; Red</option>
-                                                    <option style="color:#000;" value="#000">&#9724; Black</option>
 
-                                                </select>
-                                            </div>
-                                        </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4" for="startDate">Start Date:</label>
+                                            <label class="control-label col-md-4" for="startDate"><span style="color: red">*</span>Start Date:</label>
                                             <div class="col-md-7">          
                                                 <input type="text" class="form-control" id="startDate" name="startDate" readonly>
                                             </div>
@@ -125,7 +119,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group" id="recurr">
+                                        <div class="form-group" id="recur">
                                             <label class="control-label col-md-4" for="recurring">Recurring:</label>
                                             <div class="col-md-7">          
                                                 <input type="checkbox" value="1" name="recurring[]" id="recurring">Mon
@@ -138,36 +132,77 @@
                                             </div>
                                         </div>
                                         <div class="form-group" style="display:none" id="endDateRecur">
-                                            <label class="control-label col-md-4" for="endDate"><span style="color: red">*</span>End Date:</label>
+                                            <label class="control-label col-md-4" for="endDate">End Date:</label>
                                             <div class="col-md-7">          
-                                                <input type="text" class="form-control" id="endDate" name="endDate" placeholder="YYYY-MM-DD">
+                                                <div class='input-group input-append date' id='datePicker'>
+                                                    <input type='text' class="form-control" name="endDate" id="endDate" placeholder="DD-MM-YYYY" readonly style="background:white;"/>
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>                                                
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group" style="display:none !important;" id="trainingCategory">
+                                            <label for="trainingCategory" class="col-md-4 control-label"><span style="color: red">*</span>Training Category:</label>
+                                            <div class="col-md-7">
+                                                <?php
+                                                $sql = "SELECT * FROM trainingtype ";
+                                                $res = mysqli_query($link, $sql);
+                                                ?>
+                                                <select class="form-control" name="trainingType" id="trainingType" required disabled>
+                                                    <option value="" selected disabled hidden>Choose Training Category</option>
+                                                    <?php
+                                                    while ($row = $res->fetch_assoc()) {
+                                                        echo '<option value=" ' . $row['ID'] . ' "> ' . $row['TRAINING_NAME'] . ' </option>';
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class = "form-group" style="display:none" id="trainingRate">
+                                            <label for="rate" class="col-md-4 control-label"><span style="color: red">*</span>Training Rate/Hr:</label>
+                                            <div class="col-md-7">
+                                                <input type = "text" class="form-control" id="rate" name="rate" readonly>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4" for="rate">Rate:</label>
-                                            <div class="col-md-7">          
-                                                <input type="text" class="form-control" id="rate" name="rate" readonly value="$50 per hour">
+                                            <label for="gymLocation" class="control-label col-md-4"><span style="color: red">*</span>Gym Location:</label>
+                                            <div class="col-md-7">
+                                                <?php
+                                                $sql = "SELECT * FROM gym ";
+                                                $res = mysqli_query($link, $sql);
+                                                ?>
+                                                <select class="form-control" name="gymLocation" id="gymLocation" required>
+                                                    <option value="" selected disabled hidden>Choose Gym Location</option>
+
+                                                    <?php
+                                                    while ($row = $res->fetch_assoc()) {
+                                                        echo '<option value="'.$row['id'].'">'.$row['gymName'].' </option>';
+                                                    }
+                                                    ?>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-4" for="venue">Venue:</label>
-                                            <div class="col-md-7">          
-                                                <input type="text" class="form-control" id="venue" name="venue" readonly value="Gym">
+                                        <div class = "form-group">
+                                            <label for="facility" class="col-md-4 control-label"><span style="color: red">*</span>Facility:</label>
+                                            <div class="col-md-7">
+                                               <input type="text" class="form-control" id="facility" name="facility" value="Open Gym" readonly>                                             
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <div class="modal-footer">                                      
                                         <button type="submit" class="btn btn-primary" name="add">Add</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-
+                    
                     <!--added to prevent non-login from editting--!>
-                    <?php if (isset($_SESSION['username'])) { ?>
-                            
+                    <?php if (isset($_SESSION['username'])) { ?>                                                                                       
                         <!-- EDIT Modal -->
                         <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                             <div class="modal-dialog" role="document">
@@ -178,65 +213,179 @@
                                             <h4 class="modal-title" id="myModalLabel">Edit Event</h4>
                                         </div>
                                         <div class="modal-body">
-                                            <input type="hidden" name="name" class="form-control" id="name" placeholder="Name" value="<?php echo $_SESSION['username'] ?>">
+                                            <span style="color: red;font-size:14px;">* Mandatory fields</span>
                                             <div class="form-group">
-                                                <label for="date" class="col-sm-2 control-label">Date</label>
-                                                <div class="col-sm-10">
-                                                    <input type="text" name="date" class="form-control" id="date" placeholder="Date">
-                                                </div>
+                                                <label for="editEventType" class="col-md-4 control-label"><span style="color: red">*</span>Type Of Training:</label>
+                                                <div class="col-md-7">
+                                                <input type="text" name="editEventType" class="form-control" id="editEventType" readonly>
+                                            </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="title" class="col-sm-2 control-label">Title</label>
-                                                <div class="col-sm-10">
-                                                    <input type="text" name="title" class="form-control" id="title" placeholder="Title">
+                                                <label for="editName" class="col-md-4 control-label"><span style="color: red">*</span>
+                                                <?php
+                                                if ($_SESSION['role'] == 'Trainer') { ?>
+                                                    Trainer Name:
+                                                <?php } else{ ?>
+                                                    Trainee Name:
+                                                <?php } ?>
+                                                </label>
+                                                <div class="col-md-7">
+                                                     <input type="text" name="editName" class="form-control" id="editName" readonly>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                <label for="color" class="col-sm-2 control-label">Color</label>
-                                                <div class="col-sm-10">
-                                                    <select name="color" class="form-control" id="color">
-                                                        <option value="">Choose</option>
-                                                        <option style="color:#0071c5;" value="#0071c5">&#9724; Dark blue</option>
-                                                        <option style="color:#40E0D0;" value="#40E0D0">&#9724; Turquoise</option>
-                                                        <option style="color:#008000;" value="#008000">&#9724; Green</option>						  
-                                                        <option style="color:#FFD700;" value="#FFD700">&#9724; Yellow</option>
-                                                        <option style="color:#FF8C00;" value="#FF8C00">&#9724; Orange</option>
-                                                        <option style="color:#FF0000;" value="#FF0000">&#9724; Red</option>
-                                                        <option style="color:#000;" value="#000">&#9724; Black</option>
-
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <!--Added time to edit modal !-->
-                                            <!--
-                                            <div class="form-group">
-                                            <label for="startTime" class="col-sm-2 control-label">Start Time</label>
-                                            <div class="col-sm-10">
-                                            <select name="startTime" class="form-control" id="startTime">
-                                            <option value="">Choose</option>
-                                            <option value="13:00:00">13:00</option>
-                                            <option value="15:00:00">15:00</option>
-                                            <option value="17:00:00">17:00</option>						  
-                                            <option value="19:00:00">19:00</option>
-                                            <option value="21:00:00">21:00</option>
-                                            <option value="23:00:00">23:00</option>
                                             
-                                            </select>
+                                            <div class="form-group">
+                                                <label for="editTitle" class="col-md-4 control-label"><span style="color: red">*</span>Training Title:</label>
+                                                <div class="col-md-7">
+                                                    <input type="text" name="editTitle" class="form-control" id="editTitle" placeholder="Training Title" required>
+                                                </div>
                                             </div>
-                                            </div>-->
-                                            <div class="form-group"> 
-                                                <div class="col-sm-offset-2 col-sm-10">
-                                                    <div class="checkbox">
-                                                        <label class="text-danger"><input type="checkbox"  name="delete"> Delete event</label>
+                                           
+                                            <div class="form-group">
+                                                <label for="editStartDate" class="col-md-4 control-label"><span style="color: red">*</span>Start Date:</label>
+                                                <div class="col-md-7">
+                                                    <div class='input-group input-append date' id='editStartDatePicker'>
+                                                    <input type='text' class="form-control" name="editStartDate" id="editStartDate" placeholder="DD-MM-YYYY" readonly style="background:white;"/>
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>       
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                    <label for="editStartTime" class="col-md-4 control-label"><span style="color: red">*</span>Start Time:</label>
+                                                    <div class="col-md-7">
+                                                        <select name="editStartTime" class="form-control" id="editStartTime" required>
+                                                            <option value="" disabled hidden>Choose Time</option>
+                                                            <option value="10:00">10:00</option>
+                                                            <option value="11:00">11:00</option>
+                                                            <option value="12:00">12:00</option>						  
+                                                            <option value="13:00">13:00</option>
+                                                            <option value="14:00">14:00</option>
+                                                            <option value="15:00">15:00</option>
+                                                            <option value="16:00">16:00</option>
+                                                            <option value="17:00">17:00</option>
+                                                            <option value="18:00">18:00</option>
+                                                            <option value="19:00">19:00</option>
+                                                            <option value="20:00">20:00</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            <div class="form-group" id="editRecur">
+                                                    <label class="control-label col-md-4" for="editRecurring">Recurring:</label>
+                                                    <div class="col-md-7">          
+                                                        <input type="checkbox" value="1" name="editRecurring[]" id="editRecurring">Mon
+                                                        <input type="checkbox" value="2" name="editRecurring[]" id="editRecurring">Tues
+                                                        <input type="checkbox" value="3" name="editRecurring[]" id="editRecurring">Wed
+                                                        <input type="checkbox" value="4" name="editRecurring[]" id="editRecurring">Thur
+                                                        <input type="checkbox" value="5" name="editRecurring[]" id="editRecurring">Fri
+                                                        <input type="checkbox" value="6" name="editRecurring[]" id="editRecurring">Sat
+                                                        <input type="checkbox" value="0" name="editRecurring[]" id="editRecurring">Sun
+                                                    </div>
+                                                </div>
+                                            
+                                                <div class="form-group" style="display:none!important;" id="editEndDateRecur">
+                                                    <label class="control-label col-md-4" for="editEndDate">End Date:</label>
+                                                    <div class="col-md-7">          
+                                                        <div class='input-group input-append date' id='editEndDatePicker'>
+                                                            <input type='text' class="form-control" name="editEndDate" id="editEndDate" placeholder="DD-MM-YYYY" readonly style="background:white;"/>
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                        </div>                                                
+                                                    </div>
+                                                </div>   
+                                         
+                                           <div class="form-group" style="display:none !important;" id="editTrainingCategory">
+                                            <label for="editTrainingCategory" class="col-md-4 control-label"><span style="color: red">*</span>Training Category:</label>
+                                            <div class="col-md-7">
+                                                <?php
+                                                $sql = "SELECT * FROM trainingtype ";
+                                                $res = mysqli_query($link, $sql);
+                                                ?>
+                                                <select class="form-control" name="editTrainingType" id="editTrainingType" disabled required>
+                                                    <option value="" disabled hidden>Choose Training Category</option>
+                                                    <?php
+                                                    while ($row = $res->fetch_assoc()) {
+                                                        echo '<option value="'.$row['ID'].'">'.$row['TRAINING_NAME'].'</option>';
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                             <div class="form-group" style="display:none !important;" id="editTrainingRate">
+                                            <label for="editRate" class="col-md-4 control-label"><span style="color: red">*</span>Training Rate/Hr:</label>
+                                            <div class="col-md-7">
+                                                <input type="text" class="form-control" id="editRate" name="editRate" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="editGymLocation" class="control-label col-md-4"><span style="color: red">*</span>Gym Location:</label>
+                                            <div class="col-md-7">
+                                                <?php
+                                                $sql = "SELECT * FROM gym ";
+                                                $res = mysqli_query($link, $sql);
+                                                ?>
+                                                <select class="form-control" name="editGymLocation" id="editGymLocation" required>
+                                                    <option value="" disabled hidden>Choose Gym Location</option>
+
+                                                    <?php
+                                                    while ($row = $res->fetch_assoc()) {
+                                                        echo '<option value="'.$row['id'].'">'.$row['gymName'].' </option>';
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class = "form-group">
+                                            <label for="editFacility" class="col-md-4 control-label"><span style="color: red">*</span>Facility:</label>
+                                            <div class="col-md-7">
+                                                <input type="text" class="form-control" id="editFacility" name="editFacility" readonly>
+<!--                                                <select class="form-control" id="editFacilityDDL" style="display:none" name="editFacilityDDL">
+                                                    <option value="" disabled hidden>Choose Gym Location First</option>
+                                                </select>                                                -->
+                                            </div>
+                                        </div>
+
+                                            <input type="hidden" name="id" class="form-control" id="id">
+                                        </div>
+                                        <div class="modal-footer">                                            
+                                            <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
+                                     
+                                            <!--KEEGAN-->
+                                            <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                            <h6 class="modal-title" id="myModalLabel">Confirm Cancellation</h4>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <p>You are about to cancel your training session!</p>                                                              
+
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                </form>
+                                                            <form action="PHPCodes/email-script.php" method="post"> 
+                                                            <button type="submit" name="id" id="id" class="btn btn-danger">Confirm</button>
+                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                                        </form>
+                                                            
+                                                            
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <input type="hidden" name="id" class="form-control" id="id">
-                                        </div>
-                                        <div class="modal-footer">
+                                            <input type="button" id="myBtn" class="btn btn-danger" value="Cancel training" formnovalidate data-toggle="modal" data-target="#confirm-delete"></a>
+                                            <!-- Button for cancelling training Plus modal inside-->
+                                            
+                                            <!-- END OF KEEGAN -->  
+                                            
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
                                         </div>
                                     </form>
                                 </div>
@@ -247,130 +396,258 @@
                 </div>
                 <!-- /.container -->
             </div>
-            <!---Displaying of error message !-->
-            <?php
-            if (isset($_GET['msg'])) {
-                $message = $_GET['msg'];
-                echo "<script type='text/javascript'>alert('$message');</script>";
-            }
-            ?>
+
     </body>
+    
     <?php include("calendarscripts.html"); ?>
 
-    <script>
-        $(document).ready(function(){
-            $("input[name='recurring[]']").click(function(){
-                if (jQuery('#recurr input[type=checkbox]:checked').length){
-                    $("#endDateRecur").show();
-                } else{
-                    $("#endDateRecur").hide();
-                }
-            });
+    <script>     
+        
+    $(document).ready(function(){
+        
+        // END-DATE DATEPICKER
+        var date = new Date();
+        var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        $("#datePicker, #editStartDatePicker, #editEndDatePicker" ).datepicker({
+            autoclose: true,
+            format: 'dd-mm-yyyy',
+            startDate: today
         });
+        
+        // TO DISPLAY END DATE IF RECUR IS CHECKED
+        $("input[name='recurring[]'], input[name='editRecurring[]']").click(function(){
+            if (jQuery('#recur input[type=checkbox]:checked').length){
+                $("#endDateRecur").show();
+            } 
+            else if(jQuery('#editRecur input[type=checkbox]:checked').length){
+                $("#editEndDateRecur").show();
+            }
+            else{
+                $("#endDateRecur").hide();
+                $("#editEndDateRecur").hide();
+            }
+        });
+        
+        // TO DISPLAY RATE IF PT IS CHECKED
+        $("#ot, #pt").change(function(){
+            if ($("#pt").is(":checked")){
+                $("#trainingRate").show();
+                $("#trainingCategory").show();
+                jQuery("#trainingType").removeAttr("disabled");
+            } else {
+                $("#trainingRate").hide();
+                $("#trainingCategory").hide();
+            }
+        });
+        
+        //Upon training type being selected, the price of the category of training will be updated as well 
+        $("#trainingType, #editTrainingType").change(function(){
+            var id = $(this).find(":selected").val();
+            var trainingId = id;
+            $.ajax({
+                type: "POST",
+                url: 'PHPCodes/getTrainingRate.php',
+                data: {trainingId: trainingId},
+                cache: false,
+                success: function (r)
+                {
+                    document.getElementById("rate").value = r;
+                    document.getElementById("editRate").value = r;
+                }
+             });
+        });      
 
-        // full calendar
-        $(document).ready(function () {
-            $('#calendar').fullCalendar({
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,basicWeek,basicDay'
-                },
-                eventLimit: true, // allow "more" link when too many events
-                
-                <?php if (!isset($_SESSION['username'])) { ?>
+        // FULL CALENDAR
+        $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,basicWeek,basicDay'
+            },
+            eventLimit: true, // allow "more" link when too many events
+            <?php 
+            if (!isset($_SESSION['username'])) { ?>
                 editable: false,
                 selectable: false,
-                <?php } else { ?>
+            <?php 
+            } else { ?>
                 editable: true,
                 selectable: true,
-                <?php } ?>
+            <?php 
+            } ?>
+            displayEventTime: false, // hide the time. Eg 2a, 12p
 
-                selectHelper: true,
-                displayEventTime: false, // hide the time. Eg 2a, 12p
-                // when you click the cells in the calendar
-                select: function (start, end) { //START OF SELECT FUNC.
-                // Hide the pop up if past date is before today's date
-                    if (start.isBefore(moment())) {
+            // When you click the cell in the calendar
+            select: function (start, end) { //START OF SELECT FUNC.
+                if (start.isBefore(moment())) {
+                    $('#calendar').fullCalendar('unselect');
+                    $('#ModalAdd').modal('hide');
+                }
+                else {
+                    $('#ModalAdd #startDate').val(moment(start).format('DD-MM-YYYY'));
+                    $('#ModalAdd').modal('show');
+                }
+            }, // END OF SELECT FUNC.
+        
+            // When you double click the event in the cell
+            eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
+                if (event.start.isBefore(moment().subtract(2, 'days'))) {
+                    element.bind('dblclick', function () {
                         $('#calendar').fullCalendar('unselect');
-                        $('#ModalAdd').modal('hide');
-                    }
-                    // Show the pop up if is after today's date
-                    else {
-                        $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
-                        $('#ModalAdd').modal('show');
-                    }
-                }, // END OF SELECT FUNC.
-                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-                // Hide the pop up if past date is before today's date
-                    if (event.start.isBefore(moment())) {
-                        element.bind('dblclick', function () {
-                            $('#calendar').fullCalendar('unselect');
-                            $('#ModalEdit').modal('hide');
-                            alert("You are unable to make changes to past event dates!");
-                        });
-                    }
-                    // Show the pop up if is after today's date
-                    else {
-                        element.bind('dblclick', function () {
-                            $('#ModalEdit #id').val(event.id);
-                            $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                            $('#ModalEdit #title').val(event.title);
-                            $('#ModalEdit #color').val(event.color);
-                            // $('#ModalEdit #startTime').val(event.time);
-                            $('#ModalEdit').modal('show');
-                        });
-                    }
-                    // for recurring
-                    if (event.ranges) {
-                        return (event.ranges.filter(function (range) {
-                            return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
-                        }).length) > 0;
-                    }
-                    else { // if no recurring
-                        return true;
-                    }
-                },
-                events: [ // START OF EVENT OBJECT
-
-                <?php
-                    foreach ($events as $event):
-                        $recur = $event['recur'];
-                        $end = explode(" ", $event['enddate']);
-
-                        if ($end[1] == '00:00:00') {
-                            $end = $end[0];
-                        } else {
-                            $end = $event['enddate'];
+                        $('#ModalEdit').modal('hide');
+                        alert("You are unable to make changes to past event dates!");
+                    });
+                }
+                else {
+                    element.bind('dblclick', function () {                  
+                        var eventTitle = (event.title).split(" ");
+                        var realStartDate = (event.realStartDate).split(" ");
+                        var arrayValues = (event.recur).split(",");
+                        if (arrayValues == ""){
+                            $('#editEndDateRecur').hide();
                         }
+                        else{
+                            for(var i = 0; i < arrayValues.length; i++) { 
+                                $('#ModalEdit #editRecurring').val(arrayValues);
+                            }
+                            $('#editEndDateRecur').show();
+                        }
+                        if (event.eventType == "pt"){
+                            event.eventType = "Personal Training";
+                            $('#editTrainingRate').show();
+                            $('#editTrainingCategory').show();
+                            jQuery("#editTrainingType").removeAttr("disabled");
+                        }
+                        else if(event.eventType == "ot"){
+                            event.eventType = "Own Training";
+                            $('#editTrainingRate').hide();
+                            $('#editTrainingCategory').hide();
+                        }
+                        $('#ModalEdit #id').val(event.id);
+                        $('#ModalEdit #editEventType').val(event.eventType);
+                        $('#ModalEdit #editName').val(event.name);
+                        $('#ModalEdit #editTitle').val(eventTitle[1]);
+                        $('#ModalEdit #editStartDate').val(moment(realStartDate[0]).format('DD-MM-YYYY'));
+                        $('#ModalEdit #editEndDate').val(moment(event.realEndDate).format('DD-MM-YYYY'));
+                        $('#ModalEdit #editStartTime').val(eventTitle[0]);
+                        $('#ModalEdit #editTrainingType').val(event.trainingCategory);
+                        $('#ModalEdit #editGymLocation').val(event.gymLocation);
+                        $('#ModalEdit #editFacility').val(event.facility);
+                        $('#ModalEdit #editRate').val(event.rate);
+                        $('#ModalEdit').modal('show');
+                        
+                        //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+                        if (event.start > (moment().add(2, 'days'))) { 
+                            document.getElementById("myBtn").disabled = false; 
+                        }
+                        else
+                        {
+                            document.getElementById("myBtn").disabled = true;
+                        }
+                        //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+                    });
+                    }
+                        // for recurring
+                        if (event.ranges) {
+                            return (event.ranges.filter(function (range) {
+                                return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
+                            }).length) > 0;
+                        }
+                        else { // if no recurring
+                            return true;
+                        }
+            }, // END OF RENDER FUNC.
+        
+            events: [ // START OF EVENT OBJECT
+                <?php
+                foreach ($events as $event):
+    
+                    $recur = $event['recur'];
+                    $end = explode(" ", $event['enddate']);
+                    $titleWithTime = $event['starttime'] . ' ' . $event['title'];
+    
+                    // RETRIEVE GYM NAME 
+                    $gymLocationQuery = mysqli_prepare($link, "SELECT id FROM gym WHERE gymName = ?");
+                    mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
+                    $gymLocation = $event['venue'];
+                    mysqli_stmt_execute($gymLocationQuery);
+                    mysqli_stmt_bind_result($gymLocationQuery, $ID);
+                    while ($gymLocationQuery->fetch()) {
+                        $venue = $ID;
+                    }
+    
+                    // RETRIEVE Facility Name 
+                    $facilityQuery = mysqli_prepare($link, "SELECT facilityName FROM gymfacility WHERE id = ?");
+                    mysqli_stmt_bind_param($facilityQuery, "s", $facilityID);
+                    $facilityID = $event['facility'];
+                    mysqli_stmt_execute($facilityQuery);
+                    mysqli_stmt_bind_result($facilityQuery, $ID);
+                    while ($facilityQuery->fetch()) {
+                        $facility = $ID;
+                    }
+    
+                    // Retrieve training category id
+                    if ($event['trainingCategory'] != ""){
+                        $categoryQuery = mysqli_prepare($link, "SELECT ID FROM trainingtype WHERE TRAINING_NAME = ?");
+                        mysqli_stmt_bind_param($categoryQuery, "s", $category);
+                        $category = $event['trainingCategory'];
+                        mysqli_stmt_execute($categoryQuery);
+                        mysqli_stmt_bind_result($categoryQuery, $ID);
+                        while ($categoryQuery->fetch()) {
+                            $trainingCategory = $ID;
+                        }
+                    }
+                    else{
+                        $trainingCategory = "";
+                    }
 
-                        // if no recur
-                        if ($recur == "") { ?>
-                            {
-                                id: '<?php echo $event['trainingid']; ?>',
-                                title: '<?php echo $event['title']; ?>',
-                                start: '<?php echo $event['startdate']; ?>',
-                                end: '<?php echo $end; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
-                                color: '<?php echo $event['color']; ?>',
-                            },
-                        <?php } else { ?> // if got recur
+                    // if no recur
+                    if ($recur == "") { ?>
                         {
                             id: '<?php echo $event['trainingid']; ?>',
-                            title: '<?php echo $event['title']; ?>',
+                            title: '<?php echo $titleWithTime; ?>',
+                            start: '<?php echo $event['startdate']; ?>',
+                            end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
+                            name: '<?php echo $event['name']; ?>',
+                            eventType: '<?php echo $event['eventType']; ?>',
+                            realStartDate: '<?php echo $event['startdate']; ?>',
+                            realEndDate: '<?php echo $event['enddate']; ?>',
+                            recur: '<?php echo $recur; ?>',
+                            trainingCategory: '<?php echo $trainingCategory; ?>', 
+                            gymLocation: '<?php echo $venue; ?>',
+                            facility: '<?php echo $facility; ?>',
+                            rate: '<?php echo $event['rate']; ?>',
+                        },
+                    <?php
+                    }
+                    // if got recur
+                    else { ?>
+                        {
+                            id: '<?php echo $event['trainingid']; ?>',
+                            title: '<?php echo $titleWithTime; ?>',
                             start: '10:00',
                             end: '12:00',
-                            color: '<?php echo $event['color']; ?>',
                             dow: '<?php echo $recur; ?>',
                             ranges: [{
                                 start: '<?php echo $event['startdate']; ?>',
-                                end: '<?php echo $end; ?>T23:59:00',
-                            }]
+                                end: '<?php echo $end[0]; ?>T23:59:00',
+                            }],
+                            name: '<?php echo $event['name']; ?>',
+                            eventType: '<?php echo $event['eventType']; ?>',
+                            realStartDate: '<?php echo $event['startdate']; ?>',
+                            realEndDate: '<?php echo $event['enddate']; ?>',
+                            recur: '<?php echo $recur; ?>',
+                            trainingCategory: '<?php echo $trainingCategory; ?>',
+                            gymLocation: '<?php echo $venue; ?>',
+                            facility: '<?php echo $facility; ?>',
+                            rate: '<?php echo $event['rate']; ?>',
                         },
-                        <?php } ?>
-                    <?php endforeach; ?>
-
-                ] //END OF EVENT OBJECT
-            });
+                    <?php 
+                    } ?>
+        
+            <?php endforeach; ?>
+            ] //END OF EVENT OBJECT       
         });
+    });
     </script>
 </html>

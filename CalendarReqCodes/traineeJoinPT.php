@@ -11,7 +11,7 @@ if (isset($_POST['traineeId'])) {
     // echo "\nPT Id: " . $ptId;
     // echo "\nTrainer Id: " . $trainerId;
 
-    $sql = "UPDATE trainerschedule SET bookedTraineeId = '$traineeId' WHERE trainingid = $ptId ";
+    $sql = "UPDATE trainerschedule SET traineeid = '$traineeId', trainingstatus = 'Assigned' WHERE trainingid = $ptId ";
     $query = $bdd->prepare($sql);
 
     if ($query == false) {
