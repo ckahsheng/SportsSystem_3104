@@ -1,4 +1,28 @@
+<?php
+    session_start();
 
+    include_once('DBConfig.php');
+    
+//edit to show only the specific calendar
+    if (!isset($_SESSION['username'])) {
+        $sql = "SELECT * FROM trainerschedule";
+    } else {
+        $name = $_SESSION['username'];
+        
+        if ($_SESSION['role'] == 'Trainer') {
+            $sql = "SELECT * FROM trainerschedule where name = '$name' ";
+        } else if ($_SESSION['role'] == 'Trainee') {
+            $sql = "SELECT * FROM trainerschedule where bookedTraineeId = '$name' OR name = '$name' ";
+        } else {
+            $sql = "SELECT * FROM trainerschedule";
+        }
+
+    }
+    $req = $bdd->prepare($sql);
+    $req->execute();
+
+    $events = $req->fetchAll();
+    ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -11,22 +35,10 @@
         <!-- FullCalendar -->
         <link href='css/fullcalendar.css' rel='stylesheet' />
     </head>
-    <?php
-    session_start();
-    include("navigation.php");
-//edit to show only the specific calendar
-    if (!isset($_SESSION['username'])) {
-        $sql = "SELECT * FROM trainerschedule";
-    } else {
-        $name = $_SESSION['username'];
-        $sql = "SELECT * FROM trainerschedule where name = '$name' ";
-    }
-    $req = $bdd->prepare($sql);
-    $req->execute();
-
-    $events = $req->fetchAll();
-    ?>
+    
     <body>
+
+    <?php include("navigation.php");?>
         <div class="container" style="padding-top:100px;">
             <center><h1>Calendar</h1></center>
             <div id="calendar" class="monthly">
@@ -152,6 +164,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!--added to prevent non-login from editting--!>
                     <?php if (isset($_SESSION['username'])) { ?>
                             
@@ -246,119 +259,118 @@
 
     <script>
         $(document).ready(function(){
-        $("input[name='recurring[]']").click(function(){
-        if (jQuery('#recurr input[type=checkbox]:checked').length){
-        $("#endDateRecur").show();
-        } else{
-        $("#endDateRecur").hide();
-        }
+            $("input[name='recurring[]']").click(function(){
+                if (jQuery('#recurr input[type=checkbox]:checked').length){
+                    $("#endDateRecur").show();
+                } else{
+                    $("#endDateRecur").hide();
+                }
+            });
+        });
 
-        });
-        });
         // full calendar
         $(document).ready(function () {
-        $('#calendar').fullCalendar({
-        header: {
-        left: 'prev,next today',
-                center: 'title',
-                right: 'month,basicWeek,basicDay'
-        },
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,basicWeek,basicDay'
+                },
                 eventLimit: true, // allow "more" link when too many events
-<?php if (!isset($_SESSION['username'])) { ?>
-            editable: false,
-                    selectable: false,
-<?php } else { ?>
-            editable: true,
-                    selectable: true,
-<?php } ?>
-        selectHelper: true,
-        displayEventTime: false, // hide the time. Eg 2a, 12p
-        // when you click the cells in the calendar
-        select: function (start, end) { //START OF SELECT FUNC.
-        // Hide the pop up if past date is before today's date
-            if (start.isBefore(moment())) {
-                $('#calendar').fullCalendar('unselect');
-                $('#ModalAdd').modal('hide');
-            }
-            // Show the pop up if is after today's date
-            else {
-                $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
-                $('#ModalAdd').modal('show');
-            }
-        }, // END OF SELECT FUNC.
-        eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-        // Hide the pop up if past date is before today's date
-            if (event.start.isBefore(moment())) {
-                element.bind('dblclick', function () {
-                    $('#calendar').fullCalendar('unselect');
-                    $('#ModalEdit').modal('hide');
-                    alert("You are unable to make changes to past event dates!");
-                });
-            }
-            // Show the pop up if is after today's date
-            else {
-                element.bind('dblclick', function () {
-                    $('#ModalEdit #id').val(event.id);
-                    $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                    $('#ModalEdit #title').val(event.title);
-                    $('#ModalEdit #color').val(event.color);
-                    // $('#ModalEdit #startTime').val(event.time);
-                    $('#ModalEdit').modal('show');
-                });
-            }
-            // for recurring
-            if (event.ranges) {
-                return (event.ranges.filter(function (range) {
-                    return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
-                }).length) > 0;
-            }
-            else { // if no recurring
-                return true;
-            }
-        },
-        events: [ // START OF EVENT OBJECT
-<?php
-foreach ($events as $event):
-    $recur = $event['recur'];
-    $end = explode(" ", $event['enddate']);
+                
+                <?php if (!isset($_SESSION['username'])) { ?>
+                editable: false,
+                selectable: false,
+                <?php } else { ?>
+                editable: true,
+                selectable: true,
+                <?php } ?>
 
-    if ($end[1] == '00:00:00') {
-        $end = $end[0];
-    } else {
-        $end = $event['enddate'];
-    }
-    // if no recur
-    if ($recur == "") {
-        ?>
-                        {
-                        id: '<?php echo $event['trainingid']; ?>',
+                selectHelper: true,
+                displayEventTime: false, // hide the time. Eg 2a, 12p
+                // when you click the cells in the calendar
+                select: function (start, end) { //START OF SELECT FUNC.
+                // Hide the pop up if past date is before today's date
+                    if (start.isBefore(moment())) {
+                        $('#calendar').fullCalendar('unselect');
+                        $('#ModalAdd').modal('hide');
+                    }
+                    // Show the pop up if is after today's date
+                    else {
+                        $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
+                        $('#ModalAdd').modal('show');
+                    }
+                }, // END OF SELECT FUNC.
+                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
+                // Hide the pop up if past date is before today's date
+                    if (event.start.isBefore(moment())) {
+                        element.bind('dblclick', function () {
+                            $('#calendar').fullCalendar('unselect');
+                            $('#ModalEdit').modal('hide');
+                            alert("You are unable to make changes to past event dates!");
+                        });
+                    }
+                    // Show the pop up if is after today's date
+                    else {
+                        element.bind('dblclick', function () {
+                            $('#ModalEdit #id').val(event.id);
+                            $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+                            $('#ModalEdit #title').val(event.title);
+                            $('#ModalEdit #color').val(event.color);
+                            // $('#ModalEdit #startTime').val(event.time);
+                            $('#ModalEdit').modal('show');
+                        });
+                    }
+                    // for recurring
+                    if (event.ranges) {
+                        return (event.ranges.filter(function (range) {
+                            return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
+                        }).length) > 0;
+                    }
+                    else { // if no recurring
+                        return true;
+                    }
+                },
+                events: [ // START OF EVENT OBJECT
+
+                <?php
+                    foreach ($events as $event):
+                        $recur = $event['recur'];
+                        $end = explode(" ", $event['enddate']);
+
+                        if ($end[1] == '00:00:00') {
+                            $end = $end[0];
+                        } else {
+                            $end = $event['enddate'];
+                        }
+
+                        // if no recur
+                        if ($recur == "") { ?>
+                            {
+                                id: '<?php echo $event['trainingid']; ?>',
                                 title: '<?php echo $event['title']; ?>',
                                 start: '<?php echo $event['startdate']; ?>',
                                 end: '<?php echo $end; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
                                 color: '<?php echo $event['color']; ?>',
-                        },
-        <?php
-    }
-    // if got recur
-    else {
-        ?>
+                            },
+                        <?php } else { ?> // if got recur
                         {
-                        id: '<?php echo $event['trainingid']; ?>',
-                                title: '<?php echo $event['title']; ?>',
-                                start: '10:00',
-                                end: '12:00',
-                                color: '<?php echo $event['color']; ?>',
-                                dow: '<?php echo $recur; ?>',
-                                ranges: [{
+                            id: '<?php echo $event['trainingid']; ?>',
+                            title: '<?php echo $event['title']; ?>',
+                            start: '10:00',
+                            end: '12:00',
+                            color: '<?php echo $event['color']; ?>',
+                            dow: '<?php echo $recur; ?>',
+                            ranges: [{
                                 start: '<?php echo $event['startdate']; ?>',
-                                        end: '<?php echo $end; ?>T23:59:00',
-                                }]
+                                end: '<?php echo $end; ?>T23:59:00',
+                            }]
                         },
-    <?php } ?>
+                        <?php } ?>
+                    <?php endforeach; ?>
 
-<?php endforeach; ?>
                 ] //END OF EVENT OBJECT
-        });
+            });
         });
     </script>
 </html>
