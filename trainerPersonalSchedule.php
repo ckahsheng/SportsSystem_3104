@@ -6,7 +6,7 @@ if (session_status() == PHP_SESSION_NONE) {
     include_once('DBConfig.php');
 
     $errorMessage = "";
-
+    $datesToStoreRecurring = array();
     if (!empty($_POST['requestTraining'])) {
         // Prepare a select statement
         $sql = "SELECT id FROM users WHERE userid = ?";
@@ -91,39 +91,192 @@ if (session_status() == PHP_SESSION_NONE) {
         }
         // Close statement
         mysqli_stmt_close($stmt);
-
-        // Check input errors before inserting in database
-        if (empty($errorMessage)) {
-            // Prepare an insert statement
-            $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-            if ($stmt = mysqli_prepare($link, $sql)) {
-                // Bind variables to the prepared statement as parameters
-                mysqli_stmt_bind_param($stmt, "ssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName);
-                // Set parameters
-                $param_trainerid = $trainerId;
-                $param_trainingTitle = $_POST['trainingTitle'];
-                $param_trainingCategory = $trainingType;
-                $param_rate = $_POST['trainingRate'];
-                $param_Desc = $_POST['trainingDesc'];
-                $param_Date = date('Y-m-d', strtotime($_POST['trainingDate']));
-                $param_Time = $_POST['startTime'];
-                $param_Gym = $gym;
-                $param_Facility = $_POST['Facility'];
-                $param_MaxCap = $_POST['trainingCapacityDropDown'];
-                $param_Status = "Pending";
-                $param_trainerName = $_SESSION['username'];
-                // Attempt to execute the prepared statement
-                if (mysqli_stmt_execute($stmt)) {
-                    // Redirect to login page
-
-                    $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
-                } else {
-                    $errorMessage = "Something went wrong. Please try again later.";
-                    $_SESSION['errorMessage'] = "Please try again later";
+        $invalidGymLocationFlag = "";
+        $duplicateDateFlag = "";
+        //Code to check for recurring 
+        if (isset($_POST['recurring'])) {
+            $repeatDays = implode(",", $_POST['recurring']);
+            $startDate = $_POST['trainingDate'];
+            $endDate = $_POST['trainingendDate'];
+            $start = new DateTime($startDate);
+            $end = new DateTime($endDate);
+            $interval = new DateInterval('P1D');
+            $period = new DatePeriod($start, $interval, $end);
+            $mydays = $_POST['recurring'];
+            foreach ($period as $date) {
+                if (in_array($date->format('N'), $mydays)) {
+                    $result = $date->format('Y-m-d');
+                    //Means this are the dates we have to store into the database as well 
+                    //Store into arrraylist
+                    array_push($datesToStoreRecurring, $result);
+                    //do something for Monday, Wednesday and Friday
                 }
             }
-            // Close statement
-            mysqli_stmt_close($stmt);
+        } else {
+            //echo "No Recurring";
+        }
+        //print_r($datesToStore);
+        // Check input errors before inserting in database
+        if (empty($errorMessage)) {
+            if (sizeof($datesToStoreRecurring) > 0) {
+                //Create a flag to check if the duplicated dates are conflicting schedules 
+                
+                
+                
+                //Check for each date if they conflict with any of the records in the Personal , OT , or group training sessions
+                foreach ($datesToStoreRecurring as $value) {
+                    $sqlDuplicate = "select * from ( "
+                            . "select trainerschedule.trainingid,trainerschedule.startdate as 'StartDate', trainerschedule.starttime as 'StartTime',trainerschedule.name as 'TrainerName' from trainerschedule "
+                            . "union all "
+                            . "select grouptrainingschedule.trainerid,grouptrainingschedule.trainingDate AS 'StartDate', grouptrainingschedule.trainingTime as 'StartTime',grouptrainingschedule.trainerName as 'TrainerName' from grouptrainingschedule ) "
+                            . "a "
+                            . "WHERE StartDate=? AND StartTime=? AND TrainerName=?";
+
+                    $q = $bdd->prepare($sqlDuplicate);
+                    $q->execute(array(date('Y-m-d', strtotime($value)), $_POST['startTime'], $_SESSION['username']));
+                    $result = $q->fetchAll(PDO::FETCH_ASSOC);
+                    if ($result == TRUE) {
+                        $_SESSION['errorMessage'] = "Duplicated slot on ";
+                        $duplicateDateFlag = "true";
+                        //If conflicted dates, then stop the transaxction from taking place 
+                        echo "Duplicated la";
+//                        header("Location:../testFullCalendar.php?msg=$msg");
+                    }
+
+                    $sqlGymAvail = "SELECT * from grouptrainingschedule WHERE trainingDate=? AND trainingTime=? AND trainingGym=? AND trainingFacility=?";
+
+                    $q = $bdd->prepare($sqlGymAvail);
+                    $q->execute(array(date('Y-m-d', strtotime($value)), $_POST['startTime'], $gym, $_POST['Facility']));
+                    $result = $q->fetchAll(PDO::FETCH_ASSOC);
+                    if ($result == TRUE) {
+                        $_SESSION['errorMessage'] = "Gym Location Not Available for one of the dates";
+                        $invalidGymLocationFlag = "true";
+                        //If conflicted dates, then stop the transaxction from taking place 
+                        echo "Invalid Location";
+//                        header("Location:../testFullCalendar.php?msg=$msg");
+                    }
+                }
+                echo $duplicateDateFlag;
+                echo $invalidGymLocationFlag;
+                if (($duplicateDateFlag== "") && ($invalidGymLocationFlag=="")) {
+                    //If no duplicated dates then proceed to store into database 
+                    //1. Check if user has any training session in this period of time before allowing of creation 
+                    foreach ($datesToStoreRecurring as $value) {
+                        //Insert the first record and subsequent records insert into recursive table 
+                        
+                        
+                        $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                        if ($stmt = mysqli_prepare($link, $sql)) {
+                            // Bind variables to the prepared statement as parameters
+                            mysqli_stmt_bind_param($stmt, "ssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName);
+                            // Set parameters
+                            $param_trainerid = $trainerId;
+                            $param_trainingTitle = $_POST['trainingTitle'];
+                            $param_trainingCategory = $trainingType;
+                            $param_rate = $_POST['trainingRate'];
+                            $param_Desc = $_POST['trainingDesc'];
+                            $param_Date = date('Y-m-d', strtotime($value));
+                            $param_Time = $_POST['startTime'];
+                            $param_Gym = $gym;
+                            $param_Facility = $_POST['Facility'];
+                            $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                            $param_Status = "Pending";
+                            $param_trainerName = $_SESSION['username'];
+                            // Attempt to execute the prepared statement
+                            if (mysqli_stmt_execute($stmt)) {
+                                // Redirect to login page
+
+                                $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                            } else {
+                                $errorMessage = "Something went wrong. Please try again later.";
+                                $_SESSION['errorMessage'] = "Please try again later";
+                            }
+                        }
+                    }
+                    // Close statement
+                    mysqli_stmt_close($stmt);
+                }
+                else{
+                    echo "weird";
+                }
+            }
+            //Recurring is not selected 
+            else {
+                //1. Check if trainer has any events during this period of time- be it own training or own training or group training 
+                $sqlGymAvail = "SELECT * from grouptrainingschedule WHERE trainingDate=? AND trainingTime=? AND trainingGym=? AND trainingFacility=?";
+                $q = $bdd->prepare($sqlGymAvail);   
+                $q->execute(array(date('Y-m-d', strtotime($_POST['trainingDate'])), $_POST['startTime'], $gym, $_POST['Facility']));
+                $result = $q->fetchAll(PDO::FETCH_ASSOC);
+                if ($result == TRUE) {
+                    $_SESSION['errorMessage'] = "Gym Location Not Available for one of the dates";
+                    $invalidGymLocationFlag = "true";
+                    //If conflicted dates, then stop the transaxction from taking place 
+                  //  echo "Invalid Location";
+//                        header("Location:../testFullCalendar.php?msg=$msg");
+                }
+                else{
+                   // echo  "nope";
+                }
+                
+                $sqlDuplicate = "select * from ( "
+                        . "select trainerschedule.trainingid,trainerschedule.startdate as 'StartDate', trainerschedule.starttime as 'StartTime',trainerschedule.name as 'TrainerName' from trainerschedule "
+                        . "union all "
+                        . "select grouptrainingschedule.trainerid,grouptrainingschedule.trainingDate AS 'StartDate', grouptrainingschedule.trainingTime as 'StartTime',grouptrainingschedule.trainerName as 'TrainerName' from grouptrainingschedule ) "
+                        . "a "
+                        . "WHERE StartDate=? AND StartTime=? AND TrainerName=?";
+
+                $q = $bdd->prepare($sqlDuplicate);
+                $q->execute(array(date('Y-m-d', strtotime($_POST['trainingDate'])), $_POST['startTime'], $_SESSION['username']));
+                $result = $q->fetchAll(PDO::FETCH_ASSOC);
+                if ($result == TRUE)  {
+                    $_SESSION['errorMessage'] = "Duplicated slot";
+                    $duplicateDateFlag="true";
+                    //echo "Duplicated Slot";
+//                        header("Location:../testFullCalendar.php?msg=$msg");
+                } 
+                
+                echo $_POST['trainingDate'];
+                echo $_POST['startTime'];
+                echo $gym;
+                echo $_POST['Facility'];
+                echo $duplicateDateFlag;
+                echo $invalidGymLocationFlag;
+                if(($duplicateDateFlag=="true") || ($invalidGymLocationFlag=="true")){
+                }
+                else{
+                  //  echo "No Recurr- Inserted";
+                    $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                    if ($stmt = mysqli_prepare($link, $sql)) {
+                        // Bind variables to the prepared statement as parameters
+                        mysqli_stmt_bind_param($stmt, "ssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName);
+                        // Set parameters
+                        $param_trainerid = $trainerId;
+                        $param_trainingTitle = $_POST['trainingTitle'];
+                        $param_trainingCategory = $trainingType;
+                        $param_rate = $_POST['trainingRate'];
+                        $param_Desc = $_POST['trainingDesc'];
+                        $param_Date = date('Y-m-d', strtotime($_POST['trainingDate']));
+                        $param_Time = $_POST['startTime'];
+                        $param_Gym = $gym;
+                        $param_Facility = $_POST['Facility'];
+                        $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                        $param_Status = "Pending";
+                        $param_trainerName = $_SESSION['username'];
+                        // Attempt to execute the prepared statement
+                        if (mysqli_stmt_execute($stmt)) {
+                            // Redirect to login page
+                            $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                        } else {
+                            $errorMessage = "Something went wrong. Please try again later.";
+                            $_SESSION['errorMessage'] = "Please try again later";
+                        }
+                    }
+
+                    // Close statement
+                    mysqli_stmt_close($stmt);
+                }
+                
+            }
         }
         // Close connection
 //        mysqli_close($link);
@@ -266,6 +419,31 @@ if (session_status() == PHP_SESSION_NONE) {
                                                         </div>
                                                     </div>
 
+                                                    <div class="form-group" id="recurr">
+                                                        <label class="col-sm-3 control-label" for="recurring">Recurring Training:</label>
+                                                        <div class="col-sm-5">          
+                                                            <input type="checkbox" value="1" name="recurring[]" id="recurring">Mon
+                                                            <input type="checkbox" value="2" name="recurring[]" id="recurring">Tues
+                                                            <input type="checkbox" value="3" name="recurring[]" id="recurring">Wed
+                                                            <input type="checkbox" value="4" name="recurring[]" id="recurring">Thur
+                                                            <input type="checkbox" value="5" name="recurring[]" id="recurring">Fri
+                                                            <input type="checkbox" value="6" name="recurring[]" id="recurring">Sat
+                                                            <input type="checkbox" value="0" name="recurring[]" id="recurring">Sun
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group" style="display:none" id="endDateRecur">
+                                                        <label class="col-sm-3 control-label" for="endDate"><span style="color: red">*</span>Training End Date:</label>
+                                                        <div class="col-sm-5">          
+<!--                                                            <input type="text" class="form-control" id="endDate" name="endDate" placeholder="YYYY-MM-DD">-->
+                                                            <div class='input-group input-append date' id='endDate'>
+                                                                <input type='datepicker' class="form-control" name="trainingendDate" id="trainingendDate" />
+                                                                <span class="input-group-addon">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
 
                                                     <div class = "form-group">
                                                         <label for = "trainingTime" class = "col-sm-3 control-label">Training Time:</label>
@@ -285,6 +463,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                                                 <option value="18:00">18:00</option>
                                                                 <option value="19:00">19:00</option>
                                                                 <option value="20:00">20:00</option>
+                                                                <option value="20:00">21:00</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -402,6 +581,14 @@ if (session_status() == PHP_SESSION_NONE) {
     <script type="text/javascript">
         $(document).ready(function ()
         {
+            $("input[name='recurring[]']").click(function () {
+                if (jQuery('#recurr input[type=checkbox]:checked').length) {
+                    $("#endDateRecur").show();
+                } else {
+                    $("#endDateRecur").hide();
+                }
+
+            });
             //Upon training type being selected, the price of the category of training will be updated as well 
             $("#trainingTypeDropDown").change(function ()
             {
@@ -485,18 +672,37 @@ if (session_status() == PHP_SESSION_NONE) {
             });
 
             var date = new Date();
-            var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            $('#datePicker')
+            var today = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 14);
+
+            $('#trainingendDate')
                     .datepicker({
                         autoclose: true,
                         format: 'mm/dd/yyyy',
                         startDate: today
+
                     })
+
+//                    .on('changeDate', function (e) {
+//                        // Revalidate the date field
+//                        $('#eventForm').formValidation('revalidateField', 'date');
+//                    });
+
+            $('#datePicker')
+                    .datepicker({
+                        autoclose: true,
+
+                        format: 'mm/dd/yyyy',
+                        startDate: today
+
+                    })
+
 //                    .on('changeDate', function (e) {
 //                        // Revalidate the date field
 //                        $('#eventForm').formValidation('revalidateField', 'date');
 //                    });
         });
+
+
 
 
         //Table to display current status of Gym Request to user 
@@ -554,7 +760,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 },
             ],
         });
-        
+
         //Display past records
         var $table = $('#tablePastRequests');
         $table.bootstrapTable({

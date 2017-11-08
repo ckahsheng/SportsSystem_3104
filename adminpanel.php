@@ -90,7 +90,139 @@ if (!empty($_POST['create_traineracc_submit'])) {
         mysqli_stmt_close($stmt);
     }
     // Close connection
-    mysqli_close($link);
+    //mysqli_close($link);
+}
+//Create gym location
+// Define variables and initialize with empty values
+    $gymName = $gymLocation = $gymCountry = $gymOperatingHours = $gymName_err = "";
+// Processing form data when form is submitted
+if (!empty($_POST['create_gym_submit'])) {
+// Validate gymName
+    if (empty(trim($_POST["gymName"]))) {
+        $gymName_err = "Please enter a Gym Name.";
+    } else {
+        // Prepare a select statement
+        $sql = "SELECT id FROM gym WHERE gymName = ?";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "s", $param_gymName);
+            // Set parameters
+            $param_gymName = trim($_POST["gymName"]);
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    $gymName_err = "This Gym Name is already taken.";
+                } else {
+                    $gymName = trim($_POST["gymName"]);
+                }
+            } else {
+                //  echo "Oops! Something went wrong. Please try again later.";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+    }
+    
+    // Check input errors before inserting in database
+    if (empty($gymName_err)) {
+        // Prepare an insert statement
+        $sql = "INSERT INTO gym (gymName, gymLocation,gymCountry,gymOperatingHours) VALUES (?,?,?,?)";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "ssss", $param_gymName, $param_gymLocation, $param_gymCountry, $param_gymOperatingHours);
+            // Set parameters
+            $param_gymName = $gymName;
+            $param_gymLocation = $_POST["gymLocation"];
+            $param_gymCountry = $_POST["gymCountry"];
+            $param_gymOperatingHours = $_POST["gymOperatingHours"];
+            //
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                // Redirect to login page
+                session_start();
+                $_SESSION['createdGymMsg'] = 'Gym Location Created';
+                header("location: adminpanel.php");
+                exit;
+            } else {
+                echo "Something went wrong. Please try again later.";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+    }
+    // Close connection
+    //mysqli_close($link);
+}
+
+//Create gym facility
+// Define variables and initialize with empty values
+$facilityName = $facilityDesc = $facilityCapacity = $errorMessage = "";
+
+// Processing form data when form is submitted
+if (!empty($_POST['create_gymFacility_submit'])) {
+// Validate gymName
+//    if (empty(trim($_POST["gymid"]))) {
+//        $gymid_err = "Please enter a Gym Name.";
+//    }
+    
+    //Fetch Gym 
+        $sql = "SELECT id FROM gym WHERE id = ?";
+        //$sql = "SELECT gymName FROM gym WHERE id = ?";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "s", $param_gymid);
+            // Set parameters
+            $param_gymid = $_POST['gymLocationDropDown'];
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    mysqli_stmt_bind_result($stmt, $ID);
+                    while ($stmt->fetch()) {
+                        $gym = $ID;
+                    }
+                } else {
+                    $errorMessage = "Invalid Gym";
+                    $_SESSION['errorMessage'] = "Please try again later";
+                }
+            } else {
+                //  echo "Oops! Something went wrong. Please try again later.";
+                $errorMessage = "Please try again later";
+                $_SESSION['errorMessage'] = "Please try again later";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+        
+// Check input errors before inserting in database (errorMessage)
+    if (empty($errorMessage)) {
+    //if (empty($gymid_err) && empty($facilityCapacity_err)) {
+        // Prepare an insert statement
+        $sql = "INSERT INTO gymfacility (gymid, facilityName,facilityDesc,facilityCapacity) VALUES (?,?,?,?)";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "ssss", $param_Gym, $param_facilityName, $param_facilityDesc, $param_facilityCapacity);
+            // Set parameters
+            $param_Gym = $gym;
+            $param_facilityName = $_POST["facilityName"];
+            $param_facilityDesc = $_POST["facilityDesc"];
+            $param_facilityCapacity = $_POST["facilityCapacity"];
+            
+            // Attempt to execute the prepared statement
+            if (mysqli_stmt_execute($stmt)) {
+                // Redirect to login page
+                session_start();
+                $_SESSION['createdGymFacilityMsg'] = 'Facility Location Created';
+                header("location: adminpanel.php");
+                exit;
+            } else {
+                echo "Something went wrong. Please try again later.";
+            }
+        }
+        // Close statement
+        mysqli_stmt_close($stmt);
+    }
 }
 ?>
 
@@ -112,7 +244,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
         <div class="container" style="padding-top:20px;">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="panel with-nav-tabs panel-primary">
+                    <div class="panel with-nav-tabs panel-primary" id="tabs">
                         <div class="panel-heading">
                             <ul class="nav nav-tabs" >
                                 <?php
@@ -125,7 +257,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                     mysqli_free_result($result);
                                 }
                                 /* close connection */
-                                mysqli_close($link);
+//                                mysqli_close($link);
                                 ?>
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Manage Users<span class="caret"></span></a>
@@ -141,17 +273,22 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Mange Gym Facilities<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab4primary" data-toggle="tab">Add Gym</a></li>
-                                        <li><a href="#tab5primary" data-toggle="tab">Modify Gym Facility Limit</a></li>
+                                         <li><a href="#tab5primary" data-toggle="tab">Add Gym</a></li>
+                                        <li><a href="#tab6primary" data-toggle="tab">Add Gym Facility</a></li>
+                                        <li><a href="#tab9primary" data-toggle="tab">Delete Gym</a></li>
+                                        <li><a href="#tab8primary" data-toggle="tab">Delete Gym Facility Limit</a></li>
+                                        <li><a href="#tab4primary" data-toggle="tab">View All Gym</a></li>
+                                        <li><a href="#tab7primary" data-toggle="tab">View All Gym Facility</a></li>
+                                       
                                     </ul>
                                 </li>
 
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Manage Group Training Plans ( 0 )<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">Manage Group Training Plans<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab4primary" data-toggle="tab">Approve Group Training Plans</a></li>
-                                        <li><a href="#tab4primary" data-toggle="tab">View All Group Training Plans</a></li>
-
+                                        <li><a href="#tab11primary" data-toggle="tab">Pending Group Training Plans</a></li>
+                                        <li><a href="#tab12primary" data-toggle="tab">Verified Group Training Plans</a></li>
+                                        <li><a href="#tab13primary" data-toggle="tab">Rejected Group Training Plans</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -248,8 +385,276 @@ if (!empty($_POST['create_traineracc_submit'])) {
                                         </form>
 
                                     </div> <!-- ./container --></div>
-                                <div class="tab-pane fade" id="tab4primary">Primary 4</div>
-                                <div class="tab-pane fade" id="tab5primary">Primary 5</div>
+                                
+                                <div class="tab-pane fade" id="tab4primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>List Of Gyms</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableAllGyms"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+                                
+                                 <div class="tab-pane fade" id="tab5primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
+                                        <h2>Create Gym</h2>
+                                        
+                                        <?php
+                                        if (isset($_SESSION['createdGymMsg']) && $_SESSION['createdGymMsg'] != '') {
+                                            ?>
+                                            <div class="alert alert-success">
+                                                <strong>Success!</strong> <?php echo $_SESSION['createdGymMsg']; ?>
+                                            </div>
+                                            <?php
+                                            unset($_SESSION['createdGymMsg']);
+                                        }
+                                        ?>
+                                        
+                                        <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                                            <div class="form-group <?php echo (!empty($gymName_err)) ? 'has-error' : ''; ?>">
+                                                <label>Gym name:<sup>*</sup></label>
+                                                <input type="text" name="gymName"class="form-control" value="<?php echo $gymName; ?>">
+                                                <span class="help-block"><?php echo $gymName_err; ?></span>
+                                            </div>   
+                                            <div class="form-group ">
+                                                <label>Gym Location<sup></sup></label>
+                                                <input type="text" name="gymLocation" class="form-control" value="<?php echo $gymLocation; ?>">
+                                                <span class="help-block"></span>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label>Gym Country<sup></sup></label>
+                                                <input type="text" name="gymCountry" class="form-control" value="<?php echo $gymCountry; ?>">
+                                                <span class="help-block"></span>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label>Gym Operating Hours<sup></sup></label>
+                                                <input type="text" name="gymOperatingHours" class="form-control" value="<?php echo $gymOperatingHours; ?>">
+                                                <span class="help-block"></span>
+                                            </div>
+                                            <div class="form-group">
+
+                                                <input type="submit"  name="create_gym_submit"  class="btn btn-primary" value="Create">
+                                                <input type="reset" class="btn btn-default" value="Reset">
+                                            </div>
+                                        </form>
+
+                                    </div> <!-- ./container --></div>
+                                
+                                <div class="tab-pane fade" id="tab6primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
+                                        <h2>Create Gym Facility</h2>
+                                         <?php
+                                        if (isset($_SESSION['createdGymFacilityMsg']) && $_SESSION['createdGymFacilityMsg'] != '') {
+                                            ?>
+                                            <div class="alert alert-success">
+                                                <strong>Success!</strong> <?php echo $_SESSION['createdGymFacilityMsg']; ?>
+                                            </div>
+                                            <?php
+                                            unset($_SESSION['createdGymFacilityMsg']);
+                                        }
+                                        ?>
+                                        
+                                        <?php
+                                            if (isset($_SESSION['errorMessage']) && $_SESSION['errorMessage'] != '') {
+                                                ?>
+                                                <div class="alert alert-danger">
+                                                    <strong>Error!</strong> <?php echo $_SESSION['errorMessage']; ?>
+                                                </div>
+                                                <?php
+                                                unset($_SESSION['errorMessage']);
+                                            }
+                                            ?>
+
+                                        <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                                            <div class="form-group ">
+                                                            <select class="form-control" name="gymLocationDropDown" id="gymLocationDropDown">
+                                                                <?php
+                                                            $sql = "SELECT * FROM gym ";
+                                                            $res = mysqli_query($link, $sql);
+                                                            //mysqli_close($link);
+                                                            ?>
+                                                                <?php
+                                                                while ($row = $res->fetch_assoc()) {
+                                                                    echo '<option value=" ' . $row['id'] . ' "> ' . $row['gymName'] . ' </option>';
+                                                                }
+                                                                ?>
+                                                            </select>
+                                            </div>
+                                            
+                                            <div class="form-group ">
+                                                <label>Facility Name<sup></sup></label>
+                                                <input type="text" name="facilityName" class="form-control" value="<?php echo $facilityName; ?>">
+                                                <span class="help-block"></span>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label>Facility Description<sup></sup></label>
+                                                <input type="text" name="facilityDesc" class="form-control" value="<?php echo $facilityDesc; ?>">
+                                                <span class="help-block"></span>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label>Facility Capacity<sup></sup></label>
+                                                <input type="number" min="1" name="facilityCapacity" class="form-control" value="<?php echo $facilityCapacity; ?>">
+                                                <span class="help-block"></span>
+                                            </div>
+                                            <div class="form-group">
+
+                                                <input type="submit"  name="create_gymFacility_submit"  class="btn btn-primary" value="Create">
+                                                <input type="reset" class="btn btn-default" value="Reset">
+                                            </div>
+                                        </form>
+
+                                    </div> <!-- ./container --></div>
+                                
+
+                                <div class="tab-pane fade" id="tab7primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>List Of Gyms Facility</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableAllGymsFacility"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+                                
+                                <div class="tab-pane fade" id="tab8primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>List Of Users</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableAllFacilityDelete"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+                                
+                                <div class="tab-pane fade" id="tab9primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>List Of Users</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableAllGymsDelete"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+                                
+                               
+                                
+                                <!--                                <div class="tab-pane fade" id="tab4primary">Primary 4</div>-->
+
+                                <div class="tab-pane fade" id="tab11primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>Pending Group Training</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tablePendingGroupTraining"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+
+                                <div class="tab-pane fade" id="tab12primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>Verified Group Training</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableVerifiedGroupTraining"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+
+                                <div class="tab-pane fade" id="tab13primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>Rejected Group Training</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableRejectedGroupTraining"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
+                                
+                              
+                                
                             </div>
                         </div>
                     </div>
@@ -265,6 +670,25 @@ if (!empty($_POST['create_traineracc_submit'])) {
             $.ajax({type: "POST",
                 url: urlToSend,
                 data: {id: value},
+                success: function (result) {
+                    // alert('ok');
+                    // alert(value);
+                    alert(result);
+                    location.reload();
+                },
+                error: function (result)
+                {
+                    alert('error');
+                }
+            });
+        }
+        
+        function sendAjax(id,msg, urlToSend) {
+
+            $.ajax({type: "POST",
+                url: urlToSend,
+                data: {id: id,
+                msg:msg},
                 success: function (result) {
                     // alert('ok');
                     // alert(value);
@@ -471,6 +895,464 @@ if (!empty($_POST['create_traineracc_submit'])) {
                 '</a>'
             ].join('');
         }
+
+        var $table = $('#tableAllGymsFacility');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listGymFacility.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'gymName',
+                    title: 'Gym Name',
+                    sortable: true,
+                }, {
+                    field: 'facilityName',
+                    title: 'Facility Name',
+                    sortable: true,
+                }, {
+                    field: 'facilityDesc',
+                    title: 'Facility Description',
+                    sortable: true,
+                }, {
+                    field: 'facilityCapacity',
+                    title: 'Facility Capacity',
+                    sortable: true,
+                },
+            ],
+        });
+
+        //To reject ongoing group training
+        window.operateEventDisapprove = {
+            'click .remove': function (e, value, row, index) {
+                var x = 'groupId';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('groupId') == 0) // or any other index.
+                            groupId = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/rejectGroupTraining.php';
+                sendAjaxRequest(groupId, linkToUpdate);
+                //alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
+
+        var $table = $('#tableVerifiedGroupTraining');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listVerifiedGroupTraining.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'groupId',
+                    title: 'Group id',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainerName',
+                    title: 'Trainer Name',
+                    sortable: true,
+                }, {
+                    field: 'title',
+                    title: 'Title',
+                    sortable: true,
+                }, {
+                    field: 'trainingCategory',
+                    title: 'Training Category',
+                    sortable: true,
+                }, {
+                    field: 'rate',
+                    title: 'Rate',
+                    sortable: true,
+                }, {
+                    field: 'trainingDescription',
+                    title: 'Description',
+                    sortable: true,
+                }, {
+                    field: 'trainingDate',
+                    title: 'Date',
+                    sortable: true,
+                }, {
+                    field: 'venue',
+                    title: 'Venue',
+                    sortable: true,
+                }, {
+                    field: 'starttime',
+                    title: 'Time',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingFacility',
+                    title: 'Facility',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingMaxCapacity',
+                    title: 'Max Capacity',
+                    sortable: true,
+                }, {
+                    field: 'trainingApprovalStatus',
+                    title: 'Approval Status',
+                    sortable: true,
+                }, {
+                    //This is to add the icons into the table
+                    field: 'operate',
+                    title: 'Disapprove Group Training',
+                    align: 'center',
+                    events: operateEventDisapprove,
+                    formatter: operateFormatterDeactivate
+
+                },
+            ],
+        });
+
+        window.operateApproveDisapprove = {
+            'click .like': function (e, value, row, index) {
+                var groupId = '';
+                var x = 'groupId';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('groupId') == 0) // or any other index.
+                            groupId = row[key];
+                    }
+                }
+                var linkToUpdate = 'updateApprovedTraining.php';
+                sendAjaxRequest(groupId, linkToUpdate);
+                // alert('You click like action, row: ' + JSON.stringify(row));
+            },
+            'click .remove': function (e, value, row, index) {
+                var msg=window.prompt("Reason for rejecting:","");
+                var x = 'groupId';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('groupId') == 0) // or any other index.
+                            groupId = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/rejectGroupTraining.php';
+                sendAjax(groupId,msg,linkToUpdate);
+                //alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
+
+        var $table = $('#tablePendingGroupTraining');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listPendingTraining.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'groupId',
+                    title: 'Group id',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainerName',
+                    title: 'Trainer Name',
+                    sortable: true,
+                }, {
+                    field: 'title',
+                    title: 'Title',
+                    sortable: true,
+                }, {
+                    field: 'trainingCategory',
+                    title: 'Training Category',
+                    sortable: true,
+                }, {
+                    field: 'rate',
+                    title: 'Rate',
+                    sortable: true,
+                }, {
+                    field: 'trainingDescription',
+                    title: 'Description',
+                    sortable: true,
+                }, {
+                    field: 'trainingDate',
+                    title: 'Date',
+                    sortable: true,
+                }, {
+                    field: 'venue',
+                    title: 'Venue',
+                    sortable: true,
+                }, {
+                    field: 'starttime',
+                    title: 'Time',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingFacility',
+                    title: 'Facility',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingMaxCapacity',
+                    title: 'Max Capacity',
+                    sortable: true,
+                }, {
+                    field: 'trainingApprovalStatus',
+                    title: 'Approval Status',
+                    sortable: true,
+                }, {
+                    //This is to add the icons into the table
+                    field: 'operate',
+                    title: 'Disapprove Group Training',
+                    align: 'center',
+                    events: operateApproveDisapprove,
+                    formatter: operateFormatter
+                },
+            ],
+        });
+
+        var $table = $('#tableRejectedGroupTraining');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listRejectedGroupTraining.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'groupId',
+                    title: 'Group id',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainerName',
+                    title: 'Trainer Name',
+                    sortable: true,
+                }, {
+                    field: 'title',
+                    title: 'Title',
+                    sortable: true,
+                }, {
+                    field: 'trainingCategory',
+                    title: 'Training Category',
+                    sortable: true,
+                }, {
+                    field: 'rate',
+                    title: 'Rate',
+                    sortable: true,
+                }, {
+                    field: 'trainingDescription',
+                    title: 'Description',
+                    sortable: true,
+                }, {
+                    field: 'trainingDate',
+                    title: 'Date',
+                    sortable: true,
+                }, {
+                    field: 'venue',
+                    title: 'Venue',
+                    sortable: true,
+                }, {
+                    field: 'starttime',
+                    title: 'Time',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingFacility',
+                    title: 'Facility',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingMaxCapacity',
+                    title: 'Max Capacity',
+                    sortable: true,
+                }, {
+                    field: 'trainingApprovalStatus',
+                    title: 'Approval Status',
+                    sortable: true,
+                },
+            ],
+        });
+        
+         var $table = $('#tableAllGyms');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listGym.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'id',
+                    title: 'Gym ID',
+                    sortable: true,
+                    visible: false,
+                },
+                {
+                    field: 'gymName',
+                    title: 'Gym Name',
+                    sortable: true,
+                }, {
+                    field: 'gymLocation',
+                    title: 'Gym Location',
+                    sortable: true,
+                }, {
+                    field: 'gymCountry',
+                    title: 'Gym Country',
+                    sortable: true,
+                }, {
+                    field: 'gymOperatingHours',
+                    title: 'Gym Operating Hours',
+                    sortable: true,
+                },
+            ],
+        });
+        
+        window.operateEventDeactivateGym = {
+            'click .remove': function (e, value, row, index) {
+                var id = '';
+                var x = 'id';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('id') == 0) // or any other index.
+                            id = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/deleteGym.php';
+                sendAjaxRequest(id, linkToUpdate);
+                //alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
+        
+        var $table = $('#tableAllGymsDelete');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listGym.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                },{
+                    field: 'id',
+                    title: 'Gym ID',
+                    sortable: true,
+                    visible: false,
+                }, 
+                {
+                    field: 'gymName',
+                    title: 'Gym Name',
+                    sortable: true,
+                }, {
+                    field: 'gymLocation',
+                    title: 'Gym Location',
+                    sortable: true,
+                }, {
+                    field: 'gymCountry',
+                    title: 'Gym Country',
+                    sortable: true,
+                }, {
+                    field: 'gymOperatingHours',
+                    title: 'Gym Operating Hours',
+                    sortable: true,
+                },
+                {
+                    //This is to add the icons into the table
+                    field: 'operate',
+                    title: 'Delete Gym',
+                    align: 'center',
+                    events: operateEventDeactivateGym,
+                    formatter: operateFormatterDeactivate
+                }
+            ],
+        });
+        
+        //To delete facility
+        window.operateEventDeactivateFacility = {
+            'click .remove': function (e, value, row, index) {
+                var id = '';
+                var x = 'id';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('id') == 0) // or any other index.
+                            id = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/deleteFacility.php';
+                sendAjaxRequest(id, linkToUpdate);
+                //alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
+        
+        var $table = $('#tableAllFacilityDelete');
+        $table.bootstrapTable({
+            url: 'PHPCodes/listGymFacility.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [{
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'id',
+                    title: 'Gym ID',
+                    sortable: true,
+                    visible: false,
+                },
+                {
+                    field: 'gymName',
+                    title: 'Gym Name',
+                    sortable: true,
+                }, {
+                    field: 'facilityName',
+                    title: 'Facility Name',
+                    sortable: true,
+                }, {
+                    field: 'facilityDesc',
+                    title: 'Facility Description',
+                    sortable: true,
+                }, {
+                    field: 'facilityCapacity',
+                    title: 'Facility Capacity',
+                    sortable: true,
+                },
+                {
+                    //This is to add the icons into the table
+                    field: 'operate',
+                    title: 'Delete Facility',
+                    align: 'center',
+                    events: operateEventDeactivateFacility,
+                    formatter: operateFormatterDeactivate
+                }
+            ],
+        });
+
+ 
 
     </script>
 

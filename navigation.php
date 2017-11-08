@@ -109,16 +109,19 @@ if (!empty($_POST['login_submit'])) {
                 }
                 if (isset($_SESSION['username'])) {
                     //If user is logged in, they will be able to access their own calendar 
+                    ?>
+               
+                        <?php
                     if ($_SESSION['role'] == 'Trainee') {
                         ?>
                         <li>
                             <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="">GROUP PT</a>
+                            <a class="page-scroll" href="groupTrainingSchedule.php">GROUP PT</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testTrainerList.php">COACHES</a>
                         </li>
 
                         <?php
@@ -129,10 +132,10 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="">GROUP PT</a>
+                            <a class="page-scroll" href="groupTrainingSchedule.php">GROUP PT</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testTrainerList.php">COACHES</a>
                         </li>
                         <li>
                             <a class="page-scroll" href="trainerPersonalSchedule.php">COACH PANEL</a>
@@ -146,10 +149,10 @@ if (!empty($_POST['login_submit'])) {
                             <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="">GROUP PT</a>
+                            <a class="page-scroll" href="groupTrainingSchedule.php">GROUP PT</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="testTrainerList.php">PERSONAL COACH</a>
+                            <a class="page-scroll" href="testTrainerList.php">COACHES</a>
                         </li>
                         <li>
                             <a class="page-scroll" href="adminpanel.php">ADMIN PANEL</a>
@@ -160,13 +163,13 @@ if (!empty($_POST['login_submit'])) {
                     //Means not logged in user
                     ?>
                     <li>
-                        <a class = "page-scroll" href = "">SCHEDULE</a>
+                        <!--<a class = "page-scroll" href = "">SCHEDULE</a>-->
                     </li>
                     <li>
-                        <a class = "page-scroll" href = "">GROUP PT</a>
+                        <a class = "page-scroll" href = "groupTrainingSchedule.php">GROUP PT</a>
                     </li>
                     <li>
-                        <a class = "page-scroll" href = "testTrainerList.php">PERSONAL COACH</a>
+                        <a class = "page-scroll" href = "testTrainerList.php">COACHES</a>
                     </li>
                     <?php
                 }
@@ -214,11 +217,15 @@ if (!empty($_POST['login_submit'])) {
                         <?php
                     } else {
                         ?>
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>PROFILE</b> <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b><?PHP echo $_SESSION['username']?></b> <span class="caret"></span></a>
                         <ul id="login-dp" class="dropdown-menu">
                             <li>
                                 <div class="row">
+                                    
                                     <div class="col-md-11" style="width:300px;">
+                                  
+                                         
+                       
                                         <center> <a href="editTraineeProfile.php">VIEW PROFILE DETAILS</a></center> <br>
                                         <center> <a href="changePassword.php">CHANGE PASSWORD</a></center> <br>
                                     </div>
