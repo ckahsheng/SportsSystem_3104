@@ -287,6 +287,7 @@ if (isset($_POST['endBond'])) {
                             console.log(event.venue);
                             console.log(event.start.format('YYYY-MM-DD'));
                             console.log(event.startT);
+                            console.log(event.traineeId);
 
                             // ajax to check if gym has enough capacity for the particular PT session
                             $.ajax({
@@ -302,8 +303,18 @@ if (isset($_POST['endBond'])) {
 
                                     // alert(data);
 
-                                    if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
-                                        if (data.trim() == "have") { // have space
+                                    if (data.trim() == "have") { // have space
+
+                                        console.log('have');
+
+                                        if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
+
+                                            console.log('delete');
+                                            // TODO: to add codes for trainee to delete the session 
+                                        } else if (event.traineeId == "") {
+
+                                            console.log('no traineeId');
+
                                             $('#ModalView #id').val(event.id);
                                             $('#ModalView #startdate').val((event.start).format('DD MMM YYYY'));
                                             $('#ModalView #enddate').val((event.end).format('DD MMM YYYY'));
@@ -314,13 +325,17 @@ if (isset($_POST['endBond'])) {
                                             $('#ModalView #rate').val(event.rate);
 
                                             $('#ModalView').modal('show');
-                                        } else if (data.trim() == "nope") { // no space
-                                            // alert("no space");
+                                        } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
+                                            
+                                            console.log('other training sesh');
 
-                                            $('#noSpaceModal').modal('show');
+                                            $('#noAccessModal').modal('show');
                                         }
-                                    } else {
-                                        // $('#noAccessModal').modal('show');
+                                        
+                                    } else if (data.trim() == "nope") { // no space
+                                        // alert("no space");
+
+                                        $('#noSpaceModal').modal('show');
                                     }
                                 },
                                 error: function (data) {
