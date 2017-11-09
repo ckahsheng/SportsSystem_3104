@@ -39,6 +39,7 @@ if (!isset($_SESSION['username'])) {
         <?php include("header.html"); ?>
         <!-- FullCalendar -->
         <link href='css/fullcalendar.css' rel='stylesheet' />
+        <link href='css/style.css' rel='stylesheet'/>
     </head>
    
     <body>
@@ -47,7 +48,25 @@ if (!isset($_SESSION['username'])) {
         ?>
         <div class="container" style="padding-top:100px;">
             <center><h1>Calendar</h1></center>
-            <div id="calendar" class="monthly">
+
+            <!-- legend of color for calendar -->
+            <center>
+                <table>                    
+                    <tr>
+                        <?php if ($_SESSION['role'] == 'Trainer') {?>
+                        <td><input class="circle" style="background: #005800; border: none;" readonly></td>
+                        <td style="padding-left: 5px; margin-bottom: 50px;">Empty PT</td>
+                        <?php }?>
+                        <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
+                        <td style="padding-left: 5px;">Occupied PT</td>
+                        <td style="padding-left: 20px;"><input class="circle" style="background: #b6abfb; border: none;" readonly></td>
+                        <td style="padding-left: 5px;">Own Training Schedule</td>
+                    </tr>
+                </table>
+            </center>
+            
+            <div id="calendar" class="monthly" style="margin-top: 50px;">
+
                 <div class="row">
                     <!-- ADD Modal -->
                     <div class="modal fade" id="ModalAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -619,7 +638,7 @@ if (!isset($_SESSION['username'])) {
                             $title=$event['starttime'] . " " . $title;
                             $color = '#b6abfb';
                         } else if ($event['eventType'] == 'pt' && $traineeId != NULL) { // trainee signed up for training
-                            $title = $event['starttime'] . "/" . $traineeId . "/" . $title;
+                            $title = $event['starttime'] . " - " . $traineeId . " - " . $title;
                             $color = '#67d967';
                         }
                     } else if ($_SESSION['role'] == 'Trainee') {
