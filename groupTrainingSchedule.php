@@ -217,7 +217,12 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
+                                            <?php if($_SESSION['role']=='Trainee'){
+                                                ?>
+                                              <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
+                                              <?php
+                                            }
+                                          ?>
                                         </div>
                                     </form>
                                 </div>
@@ -258,12 +263,12 @@
                 right: 'month,basicWeek,basicDay'
         },
                 eventLimit: true, // allow "more" link when too many events
-<?php if (!isset($_SESSION['username'])) { ?>
-            editable: false,
-                    selectable: false,
-<?php } else { ?>
+<?php if ($_SESSION['role']=='Admin') { ?>
             editable: true,
                     selectable: true,
+<?php } else { ?>
+            editable: false,
+                    selectable: false,
 <?php } ?>
         selectHelper: true,
                 displayEventTime: false, // hide the time. Eg 2a, 12p

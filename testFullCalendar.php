@@ -13,10 +13,12 @@ if (!isset($_SESSION['username'])) {
 } else {
     $name = $_SESSION['username'];
 
+    // HERE BOSS - TO REMOVE THIS LINE OF COMMENT
+    // updated when role == trainer, if trainer deletes PT, removed from the trainer's own calendar too
     if ($_SESSION['role'] == 'Trainer') {
-        $sql = "SELECT * FROM trainerschedule where name = '$name' ";
+        $sql = "SELECT * FROM trainerschedule WHERE name = '$name' AND ((eventType = 'pt' AND trainingstatus != 'Cancelled') OR (eventType = 'ot' AND trainingstatus!='Cancelled'))";
     } else if ($_SESSION['role'] == 'Trainee') {
-        $sql = "SELECT * FROM trainerschedule where traineeid = '$name' OR name = '$name'";
+        $sql = "SELECT * FROM trainerschedule WHERE traineeid = '$name' OR name = '$name'";
     } else {
         $sql = "SELECT * FROM trainerschedule";
     }
@@ -369,7 +371,7 @@ if (!isset($_SESSION['username'])) {
 
                                                         <div class="modal-footer">
                                                 </form>
-                                                            <form action="PHPCodes/email-script.php" method="post"> 
+                                    <form action="cancelTrainingEmailScript.php" method="post"> 
                                                             <button type="submit" name="id" id="id" class="btn btn-danger">Confirm</button>
                                                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                                                         </form>
@@ -600,12 +602,46 @@ if (!isset($_SESSION['username'])) {
                     else{
                         $trainingCategory = "";
                     }
+                    
+                    // HERE BOSS - TO REMOVE THIS LINE OF COMMENT
+                    // added this if else to change color + title for both trainee & trainee
+                    if ($_SESSION['role'] == 'Trainer') {
+                        $traineeId = $event['traineeid'];
+                        $title = $event['title'];
+                        $color = '#005800';
+
+                        // echo 'alert("'. $event['eventType'] .'");';
+
+                        if ($traineeId == NULL && $event['eventType'] == 'pt') { // no trainee sign up
+                            $title = $event['starttime'] . " " . $title;
+                            $color = $color;
+                        } else if ($event['eventType'] == 'ot') { // trainer's own training session
+                            $title=$event['starttime'] . " " . $title;
+                            $color = '#b6abfb';
+                        } else if ($event['eventType'] == 'pt' && $traineeId != NULL) { // trainee signed up for training
+                            $title = $event['starttime'] . "/" . $traineeId . "/" . $title;
+                            $color = '#67d967';
+                        }
+                    } else if ($_SESSION['role'] == 'Trainee') {
+                        $traineeId = $event['traineeid'];
+                        $title = $event['title'];
+
+                        if ($event['eventType'] == 'ot') { // trainee own training session
+                            $title =$event['starttime'] . " " . $title;
+                            $color = '#b6abfb';
+                        } else if ($event['eventType'] == 'pt' && $traineeId == $_SESSION['username']) { // trainee signed up for personal training session
+                            $title = $traineeId . " " . $title;
+                            $color = '#67d967';
+                        }
+
+                        // TODO: cancelled trainings by trainers need to put?
+                    }
 
                     // if no recur
                     if ($recur == "") { ?>
                         {
                             id: '<?php echo $event['trainingid']; ?>',
-                            title: '<?php echo $titleWithTime; ?>',
+                            title: '<?php echo $title; ?>',
                             start: '<?php echo $event['startdate']; ?>',
                             end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
                             name: '<?php echo $event['name']; ?>',
@@ -617,6 +653,9 @@ if (!isset($_SESSION['username'])) {
                             gymLocation: '<?php echo $venue; ?>',
                             facility: '<?php echo $facility; ?>',
                             rate: '<?php echo $event['rate']; ?>',
+                            startT: '<?php echo $event['starttime']; ?>',
+                            traineeId: '<?php echo $traineeId; ?>',
+                            color: '<?php echo $color; ?>',
                         },
                     <?php
                     }
@@ -624,7 +663,7 @@ if (!isset($_SESSION['username'])) {
                     else { ?>
                         {
                             id: '<?php echo $event['trainingid']; ?>',
-                            title: '<?php echo $titleWithTime; ?>',
+                            title: '<?php echo $title; ?>',
                             start: '10:00',
                             end: '12:00',
                             dow: '<?php echo $recur; ?>',
@@ -641,6 +680,9 @@ if (!isset($_SESSION['username'])) {
                             gymLocation: '<?php echo $venue; ?>',
                             facility: '<?php echo $facility; ?>',
                             rate: '<?php echo $event['rate']; ?>',
+                            startT: '<?php echo $event['starttime']; ?>',
+                            traineeId: '<?php echo $traineeId; ?>',
+                            color: '<?php echo $color; ?>',
                         },
                     <?php 
                     } ?>

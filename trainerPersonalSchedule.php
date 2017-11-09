@@ -120,9 +120,6 @@ if (session_status() == PHP_SESSION_NONE) {
         if (empty($errorMessage)) {
             if (sizeof($datesToStoreRecurring) > 0) {
                 //Create a flag to check if the duplicated dates are conflicting schedules 
-                
-                
-                
                 //Check for each date if they conflict with any of the records in the Personal , OT , or group training sessions
                 foreach ($datesToStoreRecurring as $value) {
                     $sqlDuplicate = "select * from ( "
