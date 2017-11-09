@@ -426,13 +426,13 @@ if (isset($_POST['endBond'])) {
                         selectHelper: true,
                         displayEventTime: false, // hide the time. Eg 2a, 12p               
                         eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-                            // if (event.start.isBefore(moment())) {
-                            //     element.bind('click', function () {
-                            //         $('#calendar').fullCalendar('unselect');
-                            //         $('#ModalView').modal('hide');
-                            //         alert("You are unable to view past event");
-                            //     });
-                            // } else { // Show the pop up if is after today's date
+                            if (event.start.isBefore(moment())) {
+                                element.bind('click', function () {
+                                    $('#calendar').fullCalendar('unselect');
+                                    $('#ModalView').modal('hide');
+                                    alert("You are unable to view past event");
+                                });
+                            } else { // Show the pop up if is after today's date
                                 
                                 element.bind('click', function () {
 
@@ -558,6 +558,7 @@ if (isset($_POST['endBond'])) {
                             } else { // if no recurring
                                 return true;
                             }
+                        }
                         }, //END OF EVENT RENDER FUNC.
 
                         events: [ // START OF EVENT OBJECT
