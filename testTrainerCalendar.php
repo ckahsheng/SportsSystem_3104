@@ -454,20 +454,26 @@ if (isset($_POST['endBond'])) {
                                         data:{// whatever data you want to "post" to the processing page, using json format
                                             'facility': event.facility,
                                             'startdate': event.start.format('YYYY-MM-DD'),
-                                            'starttime': event.startT
+                                            'starttime': event.startT,
+                                            'userid': '<?php echo $_SESSION['username'];?>'
                                         },
                                         async: false,
                                         success: function(data){ // data = what you echo'd back, can just like do if else
 
-                                            // alert(data);
+                                            // alert(data.trim());
 
-                                            if (data.trim() == "have") { // have space
+                                            var hold = data.trim().toString();
+                                            var status = hold.split("-");
+
+                                            // alert(status[0]); // should return 'have' or 'nope'
+                                            // alert(status[1]); // should return 'exists' or 'free'
+
+                                            if (status[0] == "have") { // have space
 
                                                 console.log('have');
 
                                                 if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
                                                     console.log('trainer delete');
-                                                    // TODO: to add codes for trainee to delete the session 
 
                                                     $('#ModalEdit #id').val(event.id);
                                                     $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
@@ -482,7 +488,7 @@ if (isset($_POST['endBond'])) {
                                                         document.getElementById("myBtn").disabled = true;
                                                     }
                                                 } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
-                                                    if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
+                                                    if (event.traineeId == '<?php echo $_SESSION['username']; ?>') { // if this is the trainee's PT, allow deletion
 
                                                         console.log('trainee delete');
                                                         // TODO: to add codes for trainee to delete the session 
@@ -504,17 +510,23 @@ if (isset($_POST['endBond'])) {
 
                                                         console.log('no traineeId');
 
-                                                        $('#ModalView #id').val(event.id);
-                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #title').val(eventTitle[1]);
-                                                        $('#ModalView #venue').val(event.venue);
-                                                        $('#ModalView #facility').val(event.facility);
-                                                        $('#ModalView #starttime').val(event.startT);
-                                                        $('#ModalView #endtime').val(event.realEndTime);
-                                                        $('#ModalView #rate').val(event.rate);
+                                                        if (status[1] == 'exists') {
+                                                            // cannot add
 
-                                                        $('#ModalView').modal('show');
+                                                            alert("you got something on liao!");
+                                                        } else if (status[1] == 'free') {
+                                                            $('#ModalView #id').val(event.id);
+                                                            $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                            $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                            $('#ModalView #title').val(eventTitle[1]);
+                                                            $('#ModalView #venue').val(event.venue);
+                                                            $('#ModalView #facility').val(event.facility);
+                                                            $('#ModalView #starttime').val(event.startT);
+                                                            $('#ModalView #endtime').val(event.realEndTime);
+                                                            $('#ModalView #rate').val(event.rate);
+
+                                                            $('#ModalView').modal('show');
+                                                        }
 
                                                     } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
 
@@ -523,7 +535,7 @@ if (isset($_POST['endBond'])) {
                                                         $('#noAccessModal').modal('show');
                                                     }
                                                 }
-                                            } else if (data.trim() == "nope") { // no space
+                                            } else if (status[0] == "nope") { // no space
                                                 // alert("no space");
 
                                                 $('#noSpaceModal').modal('show');
@@ -624,7 +636,9 @@ if (isset($_POST['endBond'])) {
                     });
 
                     // when click on the particular join button in the current/ selected modal
+                    <?php if ($_SESSION['role'] == 'Trainee') {?>
                     document.getElementById("jnBtn").onclick = function() {addTraineePT()};
+                    <?php } ?>
 
                     // ajax to add selected PT 
                     function addTraineePT() {
@@ -641,7 +655,7 @@ if (isset($_POST['endBond'])) {
                             async: false,
                             success: function(data) {
                                 // alert("added!");
-                                alert(data);
+                                // alert(data);
                                 $('#addedModal').modal('show');
                             },
                             error: function(data) {
