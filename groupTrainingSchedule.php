@@ -23,7 +23,7 @@
     ?>
     <body>
         <div class="container" style="padding-top:100px;">
-            <center><h1>Calendar</h1></center>
+            <center><h1>Group Training Calendar</h1></center>
             <div id="calendar" class="monthly">
                 <div class="row">
                     <!-- ADD Modal -->
@@ -149,7 +149,7 @@
                     </div>
                     <!--added to prevent non-login from editting--!>
                     <?php if (isset($_SESSION['username'])) { ?>
-                                                               
+                                         
                         <!-- EDIT Modal -->
                         <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                             <div class="modal-dialog" role="document">
@@ -157,7 +157,7 @@
                                     <form class="form-horizontal" method="POST" action="CalendarReqCodes/editEventTitle.php">
                                         <div class="modal-header">
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                            <h4 class="modal-title" id="myModalLabel">Edit Event</h4>
+                                            <h4 class="modal-title" id="myModalLabel">Group Training Details</h4>
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="name" class="form-control" id="name" placeholder="Name" value="<?php echo $_SESSION['username'] ?>">
@@ -168,27 +168,44 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="title" class="col-sm-2 control-label">Title</label>
+                                                <label for="time" class="col-sm-2 control-label">Time</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="time" class="form-control" id="time" placeholder="Time">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="title" class="col-sm-2 control-label"> Title</label>
                                                 <div class="col-sm-10">
                                                     <input type="text" name="title" class="form-control" id="title" placeholder="Title">
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="color" class="col-sm-2 control-label">Color</label>
+                                                <label for="category" class="col-sm-2 control-label"> Category:</label>
                                                 <div class="col-sm-10">
-                                                    <select name="color" class="form-control" id="color">
-                                                        <option value="">Choose</option>
-                                                        <option style="color:#0071c5;" value="#0071c5">&#9724; Dark blue</option>
-                                                        <option style="color:#40E0D0;" value="#40E0D0">&#9724; Turquoise</option>
-                                                        <option style="color:#008000;" value="#008000">&#9724; Green</option>						  
-                                                        <option style="color:#FFD700;" value="#FFD700">&#9724; Yellow</option>
-                                                        <option style="color:#FF8C00;" value="#FF8C00">&#9724; Orange</option>
-                                                        <option style="color:#FF0000;" value="#FF0000">&#9724; Red</option>
-                                                        <option style="color:#000;" value="#000">&#9724; Black</option>
-
-                                                    </select>
+                                                    <input type="text" name="category" class="form-control" id="category" placeholder="Category">
                                                 </div>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="rate" class="col-sm-2 control-label"> Rate</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="rate" class="form-control" id="rate" placeholder="Training Rate">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="gym" class="col-sm-2 control-label"> Gym</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="gym" class="form-control" id="gym" placeholder="Gym Location">
+                                                </div>
+                                            </div>
+            
+                                             <div class="form-group">
+                                                <label for="maxCapacity" class="col-sm-2 control-label"> Max Size</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="maxCapacity" class="form-control" id="maxCapacity" placeholder="Max Capacity">
+                                                </div>
+                                            </div>
+                            
+                             
                                             <!---Added time to edit modal !--->
                                             <!--                                                                                        <div class="form-group">
                                                                                                                                         <label for="startTime" class="col-sm-2 control-label">Start Time</label>
@@ -205,24 +222,14 @@
                                                                                                                                             </select>
                                                                                                                                         </div>
                                                                                                                                     </div>-->
-                                            <div class="form-group"> 
-                                                <div class="col-sm-offset-2 col-sm-10">
-                                                    <div class="checkbox">
-                                                        <label class="text-danger"><input type="checkbox"  name="delete"> Delete event</label>
-                                                    </div>
-                                                </div>
-                                            </div>
 
                                             <input type="hidden" name="id" class="form-control" id="id">
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            <?php if($_SESSION['role']=='Trainee'){
-                                                ?>
-                                              <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
-                                              <?php
-                                            }
-                                          ?>
+              
+                                                <!--<button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>-->
+                      
                                         </div>
                                     </form>
                                 </div>
@@ -244,92 +251,103 @@
     <?php include("calendarscripts.html"); ?>
 
     <script>
-        $(document).ready(function(){
-        $("input[name='recurring[]']").click(function(){
-            if(jQuery('#recurr input[type=checkbox]:checked').length){
-		$("#endDateRecur").show();
-            }else{
-                $("#endDateRecur").hide();
-            }
-        
+        $(document).ready(function () {
+            $("input[name='recurring[]']").click(function () {
+                if (jQuery('#recurr input[type=checkbox]:checked').length) {
+                    $("#endDateRecur").show();
+                } else {
+                    $("#endDateRecur").hide();
+                }
+
+            });
         });
-        });
-                // full calendar
-                $(document).ready(function () {
-        $('#calendar').fullCalendar({
-        header: {
-        left: 'prev,next today',
-                center: 'title',
-                right: 'month,basicWeek,basicDay'
-        },
-                eventLimit: true, // allow "more" link when too many events
-<?php if ($_SESSION['role']=='Admin') { ?>
-            editable: true,
-                    selectable: true,
+        // full calendar
+        $(document).ready(function () {
+            $('#calendar').fullCalendar({
+            header: {
+            left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,basicWeek,basicDay'
+            },
+                    eventLimit: true, // allow "more" link when too many events
+<?php if ($_SESSION['role'] == 'Admin') { ?>
+                editable: true,
+                        selectable: true,
 <?php } else { ?>
-            editable: false,
-                    selectable: false,
+                editable: false,
+                        selectable: false,
 <?php } ?>
-        selectHelper: true,
-                displayEventTime: false, // hide the time. Eg 2a, 12p
-                // when you click the cells in the calendar
-                select: function (start, end) { //START OF SELECT FUNC.
-                // Hide the pop up if past date is before today's date
-                if (start.isBefore(moment())) {
-                $('#calendar').fullCalendar('unselect');
+            selectHelper: true,
+                    displayEventTime: false, // hide the time. Eg 2a, 12p
+                    // when you click the cells in the calendar
+                    select: function (start, end) { //START OF SELECT FUNC.
+                    // Hide the pop up if past date is before today's date
+                    if (start.isBefore(moment())) {
+                        $('#calendar').fullCalendar('unselect');
                         $('#ModalAdd').modal('hide');
-                }
-                // Show the pop up if is after today's date
-                else {
-                $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
+                    }
+                    // Show the pop up if is after today's date
+                    else {
+                        $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
                         $('#ModalAdd').modal('show');
-                }
-                }, // END OF SELECT FUNC.
-                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
+                        }
+                    }
+            , // END OF SELECT FUNC.
+            eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
                 // Hide the pop up if past date is before today's date
                 if (event.start.isBefore(moment())) {
-                element.bind('dblclick', function () {
-                $('#calendar').fullCalendar('unselect');
+                    element.bind('dblclick', function () {
+                        $('#calendar').fullCalendar('unselect');
                         $('#ModalEdit').modal('hide');
                         alert("You are unable to make changes to past event dates!");
-                });
+                    });
                 }
                 // Show the pop up if is after today's date
                 else {
-                element.bind('dblclick', function () {
-                $('#ModalEdit #id').val(event.id);
+                    element.bind('dblclick', function () {
+                        $('#ModalEdit #id').val(event.id);
                         $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
                         $('#ModalEdit #title').val(event.title);
-                        $('#ModalEdit #color').val(event.color);
+                        $('#ModalEdit #category').val(event.category);
+                        $('#ModalEdit #rate').val(event.rate);
+                        $('#ModalEdit #gym').val(event.gym);
+                        $('#ModalEdit #maxCapacity').val(event.maxCapacity);
+                        $('#ModalEdit #time').val(event.time);
+                        
                         // $('#ModalEdit #startTime').val(event.time);
                         $('#ModalEdit').modal('show');
-                });
+                    });
                 }
                 // for recurring
                 if (event.ranges) {
-                return (event.ranges.filter(function (range) {
-                return (event.start.isBefore(range.end) &&
-                        event.end.isAfter(range.start));
-                }).length) > 0;
+                    return (event.ranges.filter(function (range) {
+                        return (event.start.isBefore(range.end) &&
+                                event.end.isAfter(range.start));
+                    }).length) > 0;
+                } else { // if no recurring
+                    return true;
+                    }
                 }
-                else { // if no recurring
-                return true;
-                }
-                },
-                events: [ // START OF EVENT OBJECT
-			<?php foreach($events as $event): 
-			
-			?>
-				{
-					id: '<?php echo $event['id']; ?>',
-					title: '<?php echo $event['trainingTitle']; ?>',
-					start: '<?php echo $event['trainingDate']; ?>',
-					time: '<?php echo $event['trainingTime'];; ?>',
-					color: '<?php echo $event['trainingRate']; ?>',
-				},
-			<?php endforeach; ?>
+                ,
+                events: [// START OF EVENT OBJECT
+<?php foreach ($events as $event):
+    ?>
+                        {
+                            id: '<?php echo $event['id']; ?>',
+                                    title: '<?php echo $event['trainingTitle']; ?>',
+                            category: '<?php echo $event['trainingCategory']; ?>',
+                            rate: '<?php echo $event['trainingRate']; ?>',
+                            gym: '<?php echo $event['trainingGym']; ?>',
+                            maxCapacity: '<?php echo $event['trainingMaxCapacity']; ?>',
+                            date: '<?php echo $event['trainingDate']; ?>',
+                                    time: '<?php echo $event['trainingTime'];
+    ; ?>',
+         
+                        },
+<?php endforeach; ?>
                 ] //END OF EVENT OBJECT
-        });
+            }
+            );
         });
     </script>
 </html>

@@ -19,10 +19,10 @@ if (isset($_POST['delete'])) {
         die('Error execute');
     }
     header('Location:../testFullCalendar.php');
-} 
+}
 // EDIT FUNCTION
 elseif (isset($_POST['savechanges'])) {
-    
+
     // VARIABLES
     $id = $_POST['id'];
     $name = $_POST['editName'];
@@ -33,39 +33,17 @@ elseif (isset($_POST['savechanges'])) {
     $endtime = date('H:i', $endtimestamp);
     $recur = implode(",", $_POST['editRecurring']);
 //    $venue = $_POST['editGymLocation'];
-    
-    // RETRIEVE GYM NAME 
-    $gymLocationQuery = mysqli_prepare($link, "SELECT gymName FROM gym WHERE id = ?");
-    mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
-    $gymLocation = $_POST['editGymLocation'];
-    mysqli_stmt_execute($gymLocationQuery);
-    mysqli_stmt_bind_result($gymLocationQuery, $ID);
-    while ($gymLocationQuery->fetch()) {
-        $venue = $ID;
-    }
-    
-    // RETRIEVE Facility ID 
-    $facilityQuery = mysqli_prepare($link, "SELECT id FROM gymfacility WHERE gymid = ? AND facilityName = ?");
-    mysqli_stmt_bind_param($facilityQuery, "ss", $gymLocationID, $facilityName);
-    $gymLocationID = $_POST['editGymLocation'];
-    $facilityName = $_POST['editFacility'];
-    mysqli_stmt_execute($facilityQuery);
-    mysqli_stmt_bind_result($facilityQuery, $ID);
-    while ($facilityQuery->fetch()) {
-        $facility = $ID;
-    }
-            
     // END DATE
     if ($_POST['editEndDate'] == $startdate && $recur == "") { //if no recur
         $enddate = $startdate;
     } else {
         $enddate = date('Y/m/d', strtotime($_POST['editEndDate']));
     }
-    
+
     // RATE AND TRAINING CATEGORY
-    if ($_POST['editEventType'] == "Personal Training") { 
+    if ($_POST['editEventType'] == "Personal Training") {
         $rate = $_POST['editRate'];
-         // RETRIEVE TRAINING CATEGORY NAME
+        // RETRIEVE TRAINING CATEGORY NAME
         $categoryQuery = mysqli_prepare($link, "SELECT TRAINING_NAME FROM trainingtype WHERE ID = ?");
         mysqli_stmt_bind_param($categoryQuery, "s", $category);
         $category = $_POST['editTrainingType'];
@@ -74,16 +52,39 @@ elseif (isset($_POST['savechanges'])) {
         while ($categoryQuery->fetch()) {
             $trainingCategory = $ID;
         }
+
+        // RETRIEVE GYM NAME 
+        $gymLocationQuery = mysqli_prepare($link, "SELECT gymName FROM gym WHERE id = ?");
+        mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
+        $gymLocation = $_POST['editGymLocation'];
+        mysqli_stmt_execute($gymLocationQuery);
+        mysqli_stmt_bind_result($gymLocationQuery, $ID);
+        while ($gymLocationQuery->fetch()) {
+            $venue = $ID;
+        }
+
+        // RETRIEVE Facility ID 
+        $facilityQuery = mysqli_prepare($link, "SELECT id FROM gymfacility WHERE gymid = ? AND facilityName = ?");
+        mysqli_stmt_bind_param($facilityQuery, "ss", $gymLocationID, $facilityName);
+        $gymLocationID = $_POST['editGymLocation'];
+        $facilityName = $_POST['editFacility'];
+        mysqli_stmt_execute($facilityQuery);
+        mysqli_stmt_bind_result($facilityQuery, $ID);
+        while ($facilityQuery->fetch()) {
+            $facility = $ID;
+        }
+        
     } else {
         $rate = "";
         $trainingCategory = "";
+        $facility = "";
+        $venue = "";
     }
-    
+
     // EVENT TYPE
-    if($_POST['editEventType'] == "Personal Training"){
+    if ($_POST['editEventType'] == "Personal Training") {
         $eventtype = "pt";
-    }
-    else{
+    } else {
         $eventtype = "ot";
     }
 
@@ -99,21 +100,17 @@ elseif (isset($_POST['savechanges'])) {
     if ($v > 10) {
         $msg = "Slots full";
         header("Location:../testFullCalendar.php?msg=$msg");
-    } 
-    
-    else {
+    } else {
         //check for duplicate
         $sqlDuplicate = "SELECT * FROM trainerschedule where startdate = ? and starttime = ? and name = ? ";
         $q = $bdd->prepare($sqlDuplicate);
         $q->execute(array($startdate, $starttime, $name));
         $result = $q->fetchAll(PDO::FETCH_ASSOC);
-        
+
         if ($result == TRUE) {
             $msg = "Duplicated slot";
             header("Location:../testFullCalendar.php?msg=$msg");
-        } 
-        
-        else {    
+        } else {
             // UPDATE TRAINING DETAILS
             $sql = "UPDATE trainerschedule SET name = ?, title = ?, startdate = ?, enddate = ?, venue = ?, starttime = ?, endtime = ?, rate = ?, recur = ?, eventType = ?, trainingCategory = ?, facility = ?  WHERE trainingid = ? ";
 

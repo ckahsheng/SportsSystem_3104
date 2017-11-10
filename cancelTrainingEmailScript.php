@@ -61,7 +61,7 @@ if ($role == "Trainer") {
                 $emailTextHtml .= "<p>If you encounter any problems, please email us at <b><i>LifeStyleSportsSystem@support.com</i></b> </p>";
                 $emailTextHtml .= "<br><p>Best regards </p>";
                 $emailTextHtml .= "<p>LifeStyle Sports System </p>";
-                $mail->Subject = "Subject Text";
+                $mail->Subject = "Trainer Cancelled Personal Training Session";
                 $mail->Body = $emailTextHtml;
                 $mail->AltBody = "This is the plain text version of the email content";
 
@@ -93,9 +93,9 @@ if ($role == "Trainer") {
     }
 }
 //If user who cancel training is Trainee
-else if ($role = "Trainee") {
+else if ($role == "Trainee") {
     //If trainee cancel, set training session to Available as other trainees can still sign up for session 
-    $sql = "UPDATE trainerschedule SET trainingstatus='Available' WHERE trainingid=$trainingId";
+    $sql = "UPDATE trainerschedule SET trainingstatus='Available', traineeid='' WHERE trainingid=$trainingId";
     $result = mysqli_query($link, $sql)
             or die(mysqli_error($link));
     if ($result) {
@@ -141,7 +141,7 @@ else if ($role = "Trainee") {
                 $emailTextHtml .= "<p>If you encounter any problems, please email us at <b><i>LifeStyleSportsSystem@support.com</i></b> </p>";
                 $emailTextHtml .= "<br><p>Best regards </p>";
                 $emailTextHtml .= "<p>LifeStyle Sports System </p>";
-                $mail->Subject = "Subject Text";
+                $mail->Subject = "Trainee Cancelled Personal Training Session";
                 $mail->Body = $emailTextHtml;
                 $mail->AltBody = "This is the plain text version of the email content";
 

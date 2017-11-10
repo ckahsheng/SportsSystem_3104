@@ -811,6 +811,11 @@ if (session_status() == PHP_SESSION_NONE) {
                     title: 'Application Status',
                     sortable: true,
                 },
+                {
+                    field: 'remarks',
+                    title: 'Remarks',
+                    sortable: true,
+                },
             ],
         });
 

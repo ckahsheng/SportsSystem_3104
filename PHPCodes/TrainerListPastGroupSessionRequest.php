@@ -21,7 +21,8 @@ while ($rowList = mysqli_fetch_array($sqltran)) {
         'gym' => $rowList['trainingGym'],
         'facility' => $rowList['trainingFacility'],
         'capacity' => $rowList['trainingMaxCapacity'],
-        'status'=>$rowList['trainingApprovalStatus']
+        'status'=>$rowList['trainingApprovalStatus'],
+        'remarks'=>$rowList['remarks']
  
     );
     array_push($arrVal, $result);

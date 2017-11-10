@@ -4,8 +4,8 @@ require_once('../DBConfig.php');
 session_start();
 
 if (isset($_POST['add'])) {
-    
-     // VARIABLES
+
+    // VARIABLES
     $name = $_POST['trainerName'];
     $title = $_POST['trainingTitle'];
     $startdate = date('Y/m/d', strtotime($_POST['startDate']));
@@ -14,30 +14,9 @@ if (isset($_POST['add'])) {
     $endtimestamp = strtotime($_POST['startTime']) + 60 * 60;
     $endtime = date('H:i', $endtimestamp);
 
-    // RETRIEVE GYM NAME 
-    $gymLocationQuery = mysqli_prepare($link, "SELECT gymName FROM gym WHERE id = ?");
-    mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
-    $gymLocation = $_POST['gymLocation'];
-    mysqli_stmt_execute($gymLocationQuery);
-    mysqli_stmt_bind_result($gymLocationQuery, $ID);
-    while ($gymLocationQuery->fetch()) {
-        $venue = $ID;
-    }
-
-    // RETRIEVE Facility ID 
-    $facilityQuery = mysqli_prepare($link, "SELECT id FROM gymfacility WHERE gymid = ? AND facilityName = ?");
-    mysqli_stmt_bind_param($facilityQuery, "ss", $gymLocationID, $facilityName);
-    $gymLocationID = $_POST['gymLocation'];
-    $facilityName = $_POST['facility'];
-    mysqli_stmt_execute($facilityQuery);
-    mysqli_stmt_bind_result($facilityQuery, $ID);
-    while ($facilityQuery->fetch()) {
-        $facility = $ID;
-    }
-
     if ($eventtype == "pt") {
         $rate = $_POST['rate'];
-        
+
         // RETRIEVE TRAINING CATEGORY NAME
         $categoryQuery = mysqli_prepare($link, "SELECT TRAINING_NAME FROM trainingtype WHERE ID = ?");
         mysqli_stmt_bind_param($categoryQuery, "s", $category);
@@ -47,15 +26,38 @@ if (isset($_POST['add'])) {
         while ($categoryQuery->fetch()) {
             $trainingCategory = $ID;
         }
+
+        // RETRIEVE GYM NAME 
+        $gymLocationQuery = mysqli_prepare($link, "SELECT gymName FROM gym WHERE id = ?");
+        mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
+        $gymLocation = $_POST['gymLocation'];
+        mysqli_stmt_execute($gymLocationQuery);
+        mysqli_stmt_bind_result($gymLocationQuery, $ID);
+        while ($gymLocationQuery->fetch()) {
+            $venue = $ID;
+        }
+
+        // RETRIEVE Facility ID 
+        $facilityQuery = mysqli_prepare($link, "SELECT id FROM gymfacility WHERE gymid = ? AND facilityName = ?");
+        mysqli_stmt_bind_param($facilityQuery, "ss", $gymLocationID, $facilityName);
+        $gymLocationID = $_POST['gymLocation'];
+        $facilityName = $_POST['facility'];
+        mysqli_stmt_execute($facilityQuery);
+        mysqli_stmt_bind_result($facilityQuery, $ID);
+        while ($facilityQuery->fetch()) {
+            $facility = $ID;
+        }
+        
     } else {
         $rate = "";
         $trainingCategory = "";
+        $venue = "";
+        $facility = "";
     }
-    
-    if($_POST['recurring'] == ""){
+
+    if ($_POST['recurring'] == "") {
         $recur = "";
-    }
-    else{
+    } else {
         $recur = implode(",", $_POST['recurring']);
     }
 
@@ -101,13 +103,12 @@ if (isset($_POST['add'])) {
                 print_r($query->errorInfo());
                 die('error execute');
             }
-            if($query->rowCount() == 1){
+            if ($query->rowCount() == 1) {
                 echo '<script>';
                 echo 'alert("Added to calendar successfully!");';
                 echo '</script>';
                 header('Location:../testFullCalendar.php');
             }
-
         }
     }
 }

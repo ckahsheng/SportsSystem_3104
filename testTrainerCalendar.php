@@ -7,6 +7,7 @@ $name = $_GET['trainerName'];
 $sql = "SELECT * FROM users WHERE userid = '$name'";
 $result = mysqli_query($link, $sql);
 
+
 if (isset($_SESSION['username'])) {
     $selectQuery = mysqli_query($link, "SELECT * FROM users WHERE userid = '" . $_SESSION['username'] . "'");
     $selectResult = mysqli_fetch_array($selectQuery);
@@ -50,6 +51,7 @@ if (isset($_POST['endBond'])) {
         <meta name="description" content="">
         <meta name="author" content="">
         <link href='css/fullcalendar.css' rel='stylesheet' />
+                <link href='css/circle.css' rel='stylesheet'/>
         <?php include("header.html"); ?>
     </head>
 
@@ -62,6 +64,7 @@ if (isset($_POST['endBond'])) {
 
         <div class="container" style="padding-top:20px;">
             <center><h1>Trainer Profile</h1></center>
+         
             <hr>
             <div class="row">
                 <!-- edit form column -->                     
@@ -79,7 +82,7 @@ if (isset($_POST['endBond'])) {
                                     <!-- Modal content-->
 
                                     <center>
-                                        <button type="button" class="close" data-dismiss="modal" onclick="removeCalendar()">&times;</button>
+                                     
                                         <h3 class="modal-title" id="trainerNameModal"><?php echo $row['userid']; ?></h3>
                                     </center>
                                 </div>
@@ -88,10 +91,8 @@ if (isset($_POST['endBond'])) {
                                 <p>
                                     <?php echo $row['description']; ?>
                                 </p>
-                                <h3><u>Charge Rate</u></h3>
-                                <p>
-                                    <?php echo $row['chargeRate']; ?>
-                                </p>
+                              
+                          
                                 <form method='post'>
                                     <input type="hidden" name="trainerId" value="<?php echo $row['id']; ?>">
                                     <?php
@@ -115,7 +116,7 @@ if (isset($_POST['endBond'])) {
                                 $name = trim($name);
                                 // $name1=$name.strip();
                                 //$sql1 = "SELECT * FROM trainerschedule where name='$name' and eventtype='pt'";
-                                $sql1 = "SELECT * FROM `trainerschedule` WHERE name='$name' AND eventtype='pt'";
+                                $sql1 = "SELECT * FROM `trainerschedule` WHERE name='$name' AND eventtype='pt' AND trainingStatus!='Cancelled'";
                                
                                 $req = $bdd->prepare($sql1);
                                 $req->execute();
@@ -140,6 +141,21 @@ if (isset($_POST['endBond'])) {
                     <div class="row">                    
                         <div class="col-md-6" >
                             <center>
+                                    <center>
+                <table>                    
+                    <tr>
+                      
+                            <td><input class="circle" style="background: #005800; border: none;" readonly></td>
+                            <td style="padding-left: 5px; margin-bottom: 50px;">Available PT</td>
+     
+                        <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
+                        <td style="padding-left: 5px;">Your PT</td>
+                         <td style="padding-left: 20px;"><input class="circle" style="background: #bfbfbf; border: none;" readonly></td>
+                        <td style="padding-left: 5px;">Occupied PT</td>
+
+                    </tr>
+                </table>
+            </center>
                                 <p><strong>Personal Training Schedule</strong></p>
                                 <button type="button" class="btn btn-primary" onclick="personalTraining()">View Personal Schedule</button>
                                 <div id="calendar" class="monthly"></div>
@@ -158,7 +174,7 @@ if (isset($_POST['endBond'])) {
         ?>
 
         <!-- when can add PT to trainee calendar, this modal will pop out -->
-        <div class="modal fade" id="ModalView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal fade" id="ModalView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" align="center">
             <div class="modal-dialog modal-md" role="document">
                 <div class="modal-content">  
                     <div class="modal-header">
@@ -335,7 +351,7 @@ if (isset($_POST['endBond'])) {
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
+                            <!--<button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>-->
                             
                             <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -362,7 +378,7 @@ if (isset($_POST['endBond'])) {
                                 </div>
                             </div>
 
-                            <input type="button" id="myBtn" class="btn btn-danger" value="Cancel training"  data-toggle="modal" data-target="#confirm-delete"></a><br>
+                            <!--<input type="button" id="myBtn" class="btn btn-danger" value="Cancel training"  data-toggle="modal" data-target="#confirm-delete"></a><br>-->
                             <!-- Button for cancelling training Plus modal inside-->
                             <span></span>
                         </div>
@@ -426,13 +442,13 @@ if (isset($_POST['endBond'])) {
                         selectHelper: true,
                         displayEventTime: false, // hide the time. Eg 2a, 12p               
                         eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-                            // if (event.start.isBefore(moment())) {
-                            //     element.bind('click', function () {
-                            //         $('#calendar').fullCalendar('unselect');
-                            //         $('#ModalView').modal('hide');
-                            //         alert("You are unable to view past event");
-                            //     });
-                            // } else { // Show the pop up if is after today's date
+                             if (event.start.isBefore(moment())) {
+                                 element.bind('click', function () {
+                                     $('#calendar').fullCalendar('unselect');
+                                     $('#ModalView').modal('hide');
+                                     alert("You are unable to view past event");
+                                 });
+                             } else { // Show the pop up if is after today's date
                                 
                                 element.bind('click', function () {
 
@@ -454,16 +470,22 @@ if (isset($_POST['endBond'])) {
                                         data:{// whatever data you want to "post" to the processing page, using json format
                                             'facility': event.facility,
                                             'startdate': event.start.format('YYYY-MM-DD'),
-                                            'starttime': event.startT
+                                            'starttime': event.startT,
+                                            'userid': '<?php echo $_SESSION['username'];?>'
                                         },
                                         async: false,
                                         success: function(data){ // data = what you echo'd back, can just like do if else
 
                                             // alert(data);
+                                            
+                                            var hold = data.trim().toString();
+                                            var status = hold.split("-");
 
-                                            if (data.trim() == "have") { // have space
+                                            if (status[0] == "have") { // have space
 
                                                 console.log('have');
+                                                
+                                                
 
                                                 if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
                                                     console.log('trainer delete');
@@ -504,17 +526,23 @@ if (isset($_POST['endBond'])) {
 
                                                         console.log('no traineeId');
 
-                                                        $('#ModalView #id').val(event.id);
-                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #title').val(eventTitle[1]);
-                                                        $('#ModalView #venue').val(event.venue);
-                                                        $('#ModalView #facility').val(event.facility);
-                                                        $('#ModalView #starttime').val(event.startT);
-                                                        $('#ModalView #endtime').val(event.realEndTime);
-                                                        $('#ModalView #rate').val(event.rate);
+                                                        if (status[1] == 'exists') {
+                                                            // cannot add
 
-                                                        $('#ModalView').modal('show');
+                                                            alert("Please check your schedule. You have conflicting schedules");
+                                                        } else if (status[1] == 'free') {
+                                                            $('#ModalView #id').val(event.id);
+                                                            $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                            $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                            $('#ModalView #title').val(eventTitle[1]);
+                                                            $('#ModalView #venue').val(event.venue);
+                                                            $('#ModalView #facility').val(event.facility);
+                                                            $('#ModalView #starttime').val(event.startT);
+                                                            $('#ModalView #endtime').val(event.realEndTime);
+                                                            $('#ModalView #rate').val(event.rate);
+
+                                                            $('#ModalView').modal('show');
+                                                        }
 
                                                     } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
 
@@ -523,7 +551,7 @@ if (isset($_POST['endBond'])) {
                                                         $('#noAccessModal').modal('show');
                                                     }
                                                 }
-                                            } else if (data.trim() == "nope") { // no space
+                                            } else if (status[0] == "nope") { // no space
                                                 // alert("no space");
 
                                                 $('#noSpaceModal').modal('show');
@@ -546,6 +574,7 @@ if (isset($_POST['endBond'])) {
                             } else { // if no recurring
                                 return true;
                             }
+                            }
                         }, //END OF EVENT RENDER FUNC.
 
                         events: [ // START OF EVENT OBJECT
@@ -559,7 +588,7 @@ if (isset($_POST['endBond'])) {
                             $endTime = date ('H:i',strtotime($event['endtime']));
                             $titleWithTime = $event['starttime'] . ' ' . $event['title'];
                             $traineeId = $event['traineeid'];
-
+                            
                             $title = $event['title'];
                             $color = '#008000';
 
@@ -624,8 +653,10 @@ if (isset($_POST['endBond'])) {
                     });
 
                     // when click on the particular join button in the current/ selected modal
+                    <?php if ($_SESSION['role'] == 'Trainee') { ?>
                     document.getElementById("jnBtn").onclick = function() {addTraineePT()};
-
+                    <?php } ?>
+                    
                     // ajax to add selected PT 
                     function addTraineePT() {
                         $('#ModalView').modal('hide');
@@ -641,7 +672,7 @@ if (isset($_POST['endBond'])) {
                             async: false,
                             success: function(data) {
                                 // alert("added!");
-                                alert(data);
+                                alert("You have signed up for the session");
                                 $('#addedModal').modal('show');
                             },
                             error: function(data) {
@@ -792,7 +823,7 @@ if (isset($_POST['endBond'])) {
                                             }
                                         },
                                         error: function (data) {
-                                            alert("got error");
+                                            alert("Error-Please try again later");
                                             console.log("GOT ERROR LAH");
                                         }
                                     });
