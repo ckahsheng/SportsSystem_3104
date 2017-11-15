@@ -13,21 +13,27 @@ if (!isset($_SESSION['username'])) {
 } else {
     $name = $_SESSION['username'];
 
-    // HERE BOSS - TO REMOVE THIS LINE OF COMMENT
     // updated when role == trainer, if trainer deletes PT, removed from the trainer's own calendar too
     if ($_SESSION['role'] == 'Trainer') {
         $sql = "SELECT * FROM trainerschedule WHERE name = '$name' AND ((eventType = 'pt' AND trainingstatus != 'Cancelled') OR (eventType = 'ot' AND trainingstatus!='Cancelled'))";
-        
     } else if ($_SESSION['role'] == 'Trainee') {
         $sql = "SELECT * FROM trainerschedule WHERE traineeid = '$name' OR name = '$name'";
     } else {
         $sql = "SELECT * FROM trainerschedule";
     }
 }
+$events = array();
+$group = array();
 $req = $bdd->prepare($sql);
 $req->execute();
-
 $events = $req->fetchAll();
+//array_merge($events, $personal);
+$sql1 = "SELECT * FROM grouptrainingschedule";
+$req = $bdd->prepare($sql1);
+$req->execute();
+$group = $req->fetchAll();
+$events = array_merge($events, $group);
+//print_r($events);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -160,7 +166,7 @@ $events = $req->fetchAll();
                                             </div>
                                         </div>
 
-                                       <div class="form-group" style="display:none !important;" id="trainingTypeDDL">
+                                        <div class="form-group" style="display:none !important;" id="trainingTypeDDL">
                                             <label for="trainingType" class="col-md-4 control-label"><span style="color: red">*</span>Training Category:</label>
                                             <div class="col-md-7">
                                                 <?php
@@ -196,7 +202,7 @@ $events = $req->fetchAll();
 
                                                     <?php
                                                     while ($row = $res->fetch_assoc()) {
-                                                        echo '<option value="'.$row['id'].'">'.$row['gymName'].' </option>';
+                                                        echo '<option value="' . $row['id'] . '">' . $row['gymName'] . ' </option>';
                                                     }
                                                     ?>
                                                 </select>
@@ -205,7 +211,7 @@ $events = $req->fetchAll();
                                         <div class = "form-group" style="display:none" id="facilityText">
                                             <label for="facility" class="col-md-4 control-label"><span style="color: red">*</span>Facility:</label>
                                             <div class="col-md-7">
-                                               <input type="text" class="form-control" id="facility" name="facility" value="Open Gym" readonly>                                             
+                                                <input type="text" class="form-control" id="facility" name="facility" value="Open Gym" readonly>                                             
                                             </div>
                                         </div>
                                     </div>
@@ -313,55 +319,55 @@ $events = $req->fetchAll();
                                             </div>   
 
                                             <div class="form-group" style="display:none !important;" id="editTrainingTypeDDL">
-                                            <label for="editTrainingType" class="col-md-4 control-label"><span style="color: red">*</span>Training Category:</label>
-                                            <div class="col-md-7">
-                                                <?php
-                                                $sql = "SELECT * FROM trainingtype ";
-                                                $res = mysqli_query($link, $sql);
-                                                ?>
-                                                <select class="form-control" name="editTrainingType" id="editTrainingType" disabled required>
-                                                    <option value="" disabled hidden>Choose Training Category</option>
+                                                <label for="editTrainingType" class="col-md-4 control-label"><span style="color: red">*</span>Training Category:</label>
+                                                <div class="col-md-7">
                                                     <?php
-                                                    while ($row = $res->fetch_assoc()) {
-                                                        echo '<option value="'.$row['ID'].'">'.$row['TRAINING_NAME'].'</option>';
-                                                    }
+                                                    $sql = "SELECT * FROM trainingtype ";
+                                                    $res = mysqli_query($link, $sql);
                                                     ?>
-                                                </select>
+                                                    <select class="form-control" name="editTrainingType" id="editTrainingType" disabled required>
+                                                        <option value="" disabled hidden>Choose Training Category</option>
+                                                        <?php
+                                                        while ($row = $res->fetch_assoc()) {
+                                                            echo '<option value="' . $row['ID'] . '">' . $row['TRAINING_NAME'] . '</option>';
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                             <div class="form-group" style="display:none !important;" id="editRateText">
-                                            <label for="editRate" class="col-md-4 control-label"><span style="color: red">*</span>Training Rate/Hr:</label>
-                                            <div class="col-md-7">
-                                                <input type="text" class="form-control" id="editRate" name="editRate" readonly>
+                                            <div class="form-group" style="display:none !important;" id="editRateText">
+                                                <label for="editRate" class="col-md-4 control-label"><span style="color: red">*</span>Training Rate/Hr:</label>
+                                                <div class="col-md-7">
+                                                    <input type="text" class="form-control" id="editRate" name="editRate" readonly>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group" style="display:none" id="editGymLocationDDL">
-                                            <label for="editGymLocation" class="control-label col-md-4"><span style="color: red">*</span>Gym Location:</label>
-                                            <div class="col-md-7">
-                                                <?php
-                                                $sql = "SELECT * FROM gym ";
-                                                $res = mysqli_query($link, $sql);
-                                                ?>
-                                                <select class="form-control" name="editGymLocation" id="editGymLocation" disabled required>
-                                                    <option value="" disabled hidden>Choose Gym Location</option>
+                                            <div class="form-group" style="display:none" id="editGymLocationDDL">
+                                                <label for="editGymLocation" class="control-label col-md-4"><span style="color: red">*</span>Gym Location:</label>
+                                                <div class="col-md-7">
+                                                    <?php
+                                                    $sql = "SELECT * FROM gym ";
+                                                    $res = mysqli_query($link, $sql);
+                                                    ?>
+                                                    <select class="form-control" name="editGymLocation" id="editGymLocation" disabled required>
+                                                        <option value="" disabled hidden>Choose Gym Location</option>
 
-                                                    <?php
-                                                    while ($row = $res->fetch_assoc()) {
-                                                        echo '<option value="'.$row['id'].'">'.$row['gymName'].' </option>';
-                                                    }
-                                                    ?>
-                                                </select>
+                                                        <?php
+                                                        while ($row = $res->fetch_assoc()) {
+                                                            echo '<option value="' . $row['id'] . '">' . $row['gymName'] . ' </option>';
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class = "form-group" style="display:none" id="editFacilityText">
-                                            <label for="editFacility" class="col-md-4 control-label"><span style="color: red">*</span>Facility:</label>
-                                            <div class="col-md-7">
-                                                <input type="text" class="form-control" id="editFacility" name="editFacility" readonly>
-<!--                                                <select class="form-control" id="editFacilityDDL" style="display:none" name="editFacilityDDL">
-                                                    <option value="" disabled hidden>Choose Gym Location First</option>
-                                                </select>                                                -->
+                                            <div class = "form-group" style="display:none" id="editFacilityText">
+                                                <label for="editFacility" class="col-md-4 control-label"><span style="color: red">*</span>Facility:</label>
+                                                <div class="col-md-7">
+                                                    <input type="text" class="form-control" id="editFacility" name="editFacility" readonly>
+    <!--                                                <select class="form-control" id="editFacilityDDL" style="display:none" name="editFacilityDDL">
+                                                        <option value="" disabled hidden>Choose Gym Location First</option>
+                                                    </select>                                                -->
+                                                </div>
                                             </div>
-                                        </div>
 
                                             <input type="hidden" name="id" class="form-control" id="id">
                                         </div>
@@ -444,21 +450,21 @@ $events = $req->fetchAll();
         });
         // TO DISPLAY RATE, TRAINING TYPE, LOCATION, FACILITY IF PT IS CHECKED
         $("#ot, #pt").change(function(){
-            if ($("#pt").is(":checked")){
-                $("#rateText").show();
-                $("#trainingTypeDDL").show();
-                $("#gymLocationDDL").show();
-                $("#facilityText").show();
-                jQuery("#trainingType").removeAttr("disabled");
-                jQuery("#gymLocation").removeAttr("disabled");
-            } else {
-                $("#rateText").hide();
-                $("#trainingTypeDDL").hide();
-                $("#gymLocationDDL").hide();
-                $("#facilityText").hide();
-                jQuery("#trainingType").attr("disabled",'disabled');
-                jQuery("#gymLocation").attr("disabled",'disabled');
-            }
+        if ($("#pt").is(":checked")){
+        $("#rateText").show();
+        $("#trainingTypeDDL").show();
+        $("#gymLocationDDL").show();
+        $("#facilityText").show();
+        jQuery("#trainingType").removeAttr("disabled");
+        jQuery("#gymLocation").removeAttr("disabled");
+        } else {
+        $("#rateText").hide();
+        $("#trainingTypeDDL").hide();
+        $("#gymLocationDDL").hide();
+        $("#facilityText").hide();
+        jQuery("#trainingType").attr("disabled", 'disabled');
+        jQuery("#gymLocation").attr("disabled", 'disabled');
+        }
         });
         //Upon training type being selected, the price of the category of training will be updated as well 
         $("#trainingType, #editTrainingType").change(function(){
@@ -476,13 +482,10 @@ $events = $req->fetchAll();
                 }
         });
         });
-        
         // TO PREVENT HIDE/SHOW BUGS FOR EDIT MODAL
         $('#ModalEdit').on('hidden.bs.modal', function () {
-            location.reload(); 
+        location.reload();
         });
-        
-        
         // FULL CALENDAR
         $('#calendar').fullCalendar({
         header: {
@@ -538,31 +541,29 @@ $events = $req->fetchAll();
                 $('#editEndDateRecur').show();
                 }
                 if (event.eventType == "pt"){
-                            event.eventType = "Personal Training";
-                            $('#editRateText').show();
-                            $('#editTrainingTypeDDL').show();
-                            $('#editGymLocationDDL').show();
-                            $('#editFacilityText').show();
-                            
-                            jQuery("#editTrainingType").removeAttr("disabled");
-                            jQuery("#editGymLocation").removeAttr("disabled");
-                        }
-                        else if(event.eventType == "ot"){
-                            event.eventType = "Own Training";
-                            $('#editRateText').hide();
-                            $('#editTrainingTypeDDL').hide();
-                            $('#editGymLocationDDL').hide();
-                            $('#editFacilityText').hide();
-                            
-                            jQuery("#editTrainingType").attr("disabled",'disabled');
-                            jQuery("#editGymLocation").attr("disabled",'disabled');
-                        }
-                        
-                        if(event.traineeId == "<?php echo $_SESSION['username'] ;?>"){
-                             $('#editEndDateRecur').hide();
-                             $('#savechanges').hide();     
-                             $('#editRecur').hide();
-                        }
+                event.eventType = "Personal Training";
+                $('#editRateText').show();
+                $('#editTrainingTypeDDL').show();
+                $('#editGymLocationDDL').show();
+                $('#editFacilityText').show();
+                jQuery("#editTrainingType").removeAttr("disabled");
+                jQuery("#editGymLocation").removeAttr("disabled");
+                }
+                else if (event.eventType == "ot"){
+                event.eventType = "Own Training";
+                $('#editRateText').hide();
+                $('#editTrainingTypeDDL').hide();
+                $('#editGymLocationDDL').hide();
+                $('#editFacilityText').hide();
+                jQuery("#editTrainingType").attr("disabled", 'disabled');
+                jQuery("#editGymLocation").attr("disabled", 'disabled');
+                }
+
+                if (event.traineeId == "<?php echo $_SESSION['username']; ?>"){
+                $('#editEndDateRecur').hide();
+                $('#savechanges').hide();
+                $('#editRecur').hide();
+                }
                 $('#ModalEdit #id').val(event.id);
                 $('#ModalEdit #editEventType').val(event.eventType);
                 $('#ModalEdit #editName').val(event.name);
@@ -602,128 +603,145 @@ $events = $req->fetchAll();
                 events: [ // START OF EVENT OBJECT
 <?php
 foreach ($events as $event):
-
-    $recur = $event['recur'];
-    $end = explode(" ", $event['enddate']);
-    $titleWithTime = $event['starttime'] . ' ' . $event['title'];
-
-    // RETRIEVE GYM NAME 
-    $gymLocationQuery = mysqli_prepare($link, "SELECT id FROM gym WHERE gymName = ?");
-    mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
-    $gymLocation = $event['venue'];
-    mysqli_stmt_execute($gymLocationQuery);
-    mysqli_stmt_bind_result($gymLocationQuery, $ID);
-    while ($gymLocationQuery->fetch()) {
-        $venue = $ID;
-    }
-
-    // RETRIEVE Facility Name 
-    $facilityQuery = mysqli_prepare($link, "SELECT facilityName FROM gymfacility WHERE id = ?");
-    mysqli_stmt_bind_param($facilityQuery, "s", $facilityID);
-    $facilityID = $event['facility'];
-    mysqli_stmt_execute($facilityQuery);
-    mysqli_stmt_bind_result($facilityQuery, $ID);
-    while ($facilityQuery->fetch()) {
-        $facility = $ID;
-    }
-
-    // Retrieve training category id
-    if ($event['trainingCategory'] != "") {
-        $categoryQuery = mysqli_prepare($link, "SELECT ID FROM trainingtype WHERE TRAINING_NAME = ?");
-        mysqli_stmt_bind_param($categoryQuery, "s", $category);
-        $category = $event['trainingCategory'];
-        mysqli_stmt_execute($categoryQuery);
-        mysqli_stmt_bind_result($categoryQuery, $ID);
-        while ($categoryQuery->fetch()) {
-            $trainingCategory = $ID;
-        }
-    } else {
-        $trainingCategory = "";
-    }
-
-    // HERE BOSS - TO REMOVE THIS LINE OF COMMENT
-    // added this if else to change color + title for both trainee & trainee
-    if ($_SESSION['role'] == 'Trainer') {
-        $traineeId = $event['traineeid'];
-        $title = $event['title'];
-        $color = '#005800';
-        // echo 'alert("'. $event['eventType'] .'");';
-
-        if ($traineeId == NULL && $event['eventType'] == 'pt') { // no trainee sign up
-            $title = $event['starttime'] . " " . $title;
-            $color = $color;
-        } else if ($event['eventType'] == 'ot') { // trainer's own training session
-            $title = $event['starttime'] . " " . $title;
-            $color = '#b6abfb';
-        } else if ($event['eventType'] == 'pt' && $traineeId != NULL) { // trainee signed up for training
-            $title = $event['starttime'] . " /" . $traineeId . " /" . $title;
-            $color = '#67d967';
-        }
-    } else if ($_SESSION['role'] == 'Trainee') {
-        $traineeId = $event['traineeid'];
-        $title = $event['title'];
-
-        if ($event['eventType'] == 'ot') { // trainee own training session
-            $title = $event['starttime'] . " " . $title;
-            $color = '#b6abfb';
-        } else if ($event['eventType'] == 'pt' && $traineeId == $_SESSION['username']) { // trainee signed up for personal training session
-            $title = $traineeId . " " . $title;
-            $color = '#67d967';
-        }
-
-        // TODO: cancelled trainings by trainers need to put?
-    }
-
-    // if no recur
-    if ($recur == "") {
+    //Search for PT / OT 
+    if ($event['eventType'] == 'gt') {
         ?>
                         {
-                        id: '<?php echo $event['trainingid']; ?>',
-                                title: '<?php echo $title; ?>',
-                                start: '<?php echo $event['startdate']; ?>',
-                                end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
-                                name: '<?php echo $event['name']; ?>',
+                        id: '<?php echo $event['id']; ?>',
+                                title: '<?php echo $event['trainingTitle']; ?>',
+                                start: '<?php echo $event['trainingDate']; ?>',
+                                name: '<?php echo $event['trainerName']; ?>',
                                 eventType: '<?php echo $event['eventType']; ?>',
-                                realStartDate: '<?php echo $event['startdate']; ?>',
-                                realEndDate: '<?php echo $event['enddate']; ?>',
-                                recur: '<?php echo $recur; ?>',
-                                trainingCategory: '<?php echo $trainingCategory; ?>',
-                                gymLocation: '<?php echo $venue; ?>',
-                                facility: '<?php echo $facility; ?>',
-                                rate: '<?php echo $event['rate']; ?>',
-                                startT: '<?php echo $event['starttime']; ?>',
-                                traineeId: '<?php echo $traineeId; ?>',
-                                color: '<?php echo $color; ?>',
+                                    trainingCategory: '<?php $event['trainingCategory'] ?>',
+                                    gymLocation: '<?php $event['trainingGym']; ?>',
+                                    facility: '<?php $event['trainingFacility']; ?>',
+                                    rate: '<?php echo $event['trainingRate']; ?>',
+                                    startT: '<?php echo $event['trainingTime']; ?>',
+                                 
                         },
-        <?php
+       <?php
+    } else if (($event['eventType'] == 'ot') || ($event['eventType'] == 'pt')) {
+        $recur = $event['recur'];
+        $end = explode(" ", $event['enddate']);
+        $titleWithTime = $event['starttime'] . ' ' . $event['title'];
+        // RETRIEVE GYM NAME 
+        $gymLocationQuery = mysqli_prepare($link, "SELECT id FROM gym WHERE gymName = ?");
+        mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
+        $gymLocation = $event['venue'];
+        mysqli_stmt_execute($gymLocationQuery);
+        mysqli_stmt_bind_result($gymLocationQuery, $ID);
+        while ($gymLocationQuery->fetch()) {
+            $venue = $ID;
+        }
+        // RETRIEVE Facility Name 
+        $facilityQuery = mysqli_prepare($link, "SELECT facilityName FROM gymfacility WHERE id = ?");
+        mysqli_stmt_bind_param($facilityQuery, "s", $facilityID);
+        $facilityID = $event['facility'];
+        mysqli_stmt_execute($facilityQuery);
+        mysqli_stmt_bind_result($facilityQuery, $ID);
+        while ($facilityQuery->fetch()) {
+            $facility = $ID;
+        }
+
+        // Retrieve training category id
+        if ($event['trainingCategory'] != "") {
+            $categoryQuery = mysqli_prepare($link, "SELECT ID FROM trainingtype WHERE TRAINING_NAME = ?");
+            mysqli_stmt_bind_param($categoryQuery, "s", $category);
+            $category = $event['trainingCategory'];
+            mysqli_stmt_execute($categoryQuery);
+            mysqli_stmt_bind_result($categoryQuery, $ID);
+            while ($categoryQuery->fetch()) {
+                $trainingCategory = $ID;
+            }
+        } else {
+            $trainingCategory = "";
+        }
+
+        // HERE BOSS - TO REMOVE THIS LINE OF COMMENT
+        // added this if else to change color + title for both trainee & trainee
+        if ($_SESSION['role'] == 'Trainer') {
+            $traineeId = $event['traineeid'];
+            $title = $event['title'];
+            $color = '#005800';
+            // echo 'alert("'. $event['eventType'] .'");';
+
+            if ($traineeId == NULL && $event['eventType'] == 'pt') { // no trainee sign up
+                $title = $event['starttime'] . " " . $title;
+                $color = $color;
+            } else if ($event['eventType'] == 'ot') { // trainer's own training session
+                $title = $event['starttime'] . " " . $title;
+                $color = '#b6abfb';
+            } else if ($event['eventType'] == 'pt' && $traineeId != NULL) { // trainee signed up for training
+                $title = $event['starttime'] . " /" . $traineeId . " /" . $title;
+                $color = '#67d967';
+            }
+        } else if ($_SESSION['role'] == 'Trainee') {
+            $traineeId = $event['traineeid'];
+            $title = $event['title'];
+
+            if ($event['eventType'] == 'ot') { // trainee own training session
+                $title = $event['starttime'] . " " . $title;
+                $color = '#b6abfb';
+            } else if ($event['eventType'] == 'pt' && $traineeId == $_SESSION['username']) { // trainee signed up for personal training session
+                $title = $traineeId . " " . $title;
+                $color = '#67d967';
+            }
+
+            // TODO: cancelled trainings by trainers need to put?
+        }
+
+        // if no recur
+        if ($recur == "") {
+            ?>
+                            {
+                            id: '<?php echo $event['trainingid']; ?>',
+                                    title: '<?php echo $title; ?>',
+                                    start: '<?php echo $event['startdate']; ?>',
+                                    end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
+                                    name: '<?php echo $event['name']; ?>',
+                                    eventType: '<?php echo $event['eventType']; ?>',
+                                    realStartDate: '<?php echo $event['startdate']; ?>',
+                                    realEndDate: '<?php echo $event['enddate']; ?>',
+                                    recur: '<?php echo $recur; ?>',
+                                    trainingCategory: '<?php echo $trainingCategory; ?>',
+                                    gymLocation: '<?php echo $venue; ?>',
+                                    facility: '<?php echo $facility; ?>',
+                                    rate: '<?php echo $event['rate']; ?>',
+                                    startT: '<?php echo $event['starttime']; ?>',
+                                    traineeId: '<?php echo $traineeId; ?>',
+                                    color: '<?php echo $color; ?>',
+                            },
+            <?php
+        }
+        // if got recur
+        else {
+            ?>
+                            {
+                            id: '<?php echo $event['trainingid']; ?>',
+                                    title: '<?php echo $title; ?>',
+                                    start: '10:00',
+                                    end: '12:00',
+                                    dow: '<?php echo $recur; ?>',
+                                    ranges: [{
+                                    start: '<?php echo $event['startdate']; ?>',
+                                            end: '<?php echo $end[0]; ?>T23:59:00',
+                                    }],
+                                    name: '<?php echo $event['name']; ?>',
+                                    eventType: '<?php echo $event['eventType']; ?>',
+                                    realStartDate: '<?php echo $event['startdate']; ?>',
+                                    realEndDate: '<?php echo $event['enddate']; ?>',
+                                    recur: '<?php echo $recur; ?>',
+                                    trainingCategory: '<?php echo $trainingCategory; ?>',
+                                    gymLocation: '<?php echo $venue; ?>',
+                                    facility: '<?php echo $facility; ?>',
+                                    rate: '<?php echo $event['rate']; ?>',
+                                    startT: '<?php echo $event['starttime']; ?>',
+                                    traineeId: '<?php echo $traineeId; ?>',
+                                    color: '<?php echo $color; ?>',
+                            },
+            <?php
+        }
     }
-    // if got recur
-    else {
-        ?>
-                        {
-                        id: '<?php echo $event['trainingid']; ?>',
-                                title: '<?php echo $title; ?>',
-                                start: '10:00',
-                                end: '12:00',
-                                dow: '<?php echo $recur; ?>',
-                                ranges: [{
-                                start: '<?php echo $event['startdate']; ?>',
-                                        end: '<?php echo $end[0]; ?>T23:59:00',
-                                }],
-                                name: '<?php echo $event['name']; ?>',
-                                eventType: '<?php echo $event['eventType']; ?>',
-                                realStartDate: '<?php echo $event['startdate']; ?>',
-                                realEndDate: '<?php echo $event['enddate']; ?>',
-                                recur: '<?php echo $recur; ?>',
-                                trainingCategory: '<?php echo $trainingCategory; ?>',
-                                gymLocation: '<?php echo $venue; ?>',
-                                facility: '<?php echo $facility; ?>',
-                                rate: '<?php echo $event['rate']; ?>',
-                                startT: '<?php echo $event['starttime']; ?>',
-                                traineeId: '<?php echo $traineeId; ?>',
-                                color: '<?php echo $color; ?>',
-                        },
-    <?php }
     ?>
 
 <?php endforeach; ?>
