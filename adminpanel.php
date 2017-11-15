@@ -66,7 +66,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
         $sql = "INSERT INTO users (userid, password,role,phoneNumber,emailAddress,verified) VALUES (?, ?,?,?,?,?)";
         if ($stmt = mysqli_prepare($link, $sql)) {
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssssss", $param_username, $param_password, $param_role, $param_telephone, $param_email,$param_verified);
+            mysqli_stmt_bind_param($stmt, "ssssss", $param_username, $param_password, $param_role, $param_telephone, $param_email, $param_verified);
             // Set parameters
             $param_username = $username;
             $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
@@ -94,7 +94,7 @@ if (!empty($_POST['create_traineracc_submit'])) {
 }
 //Create gym location
 // Define variables and initialize with empty values
-    $gymName = $gymLocation = $gymCountry = $gymOperatingHours = $gymName_err = "";
+$gymName = $gymLocation = $gymCountry = $gymOperatingHours = $gymName_err = "";
 // Processing form data when form is submitted
 if (!empty($_POST['create_gym_submit'])) {
 // Validate gymName
@@ -123,7 +123,7 @@ if (!empty($_POST['create_gym_submit'])) {
         // Close statement
         mysqli_stmt_close($stmt);
     }
-    
+
     // Check input errors before inserting in database
     if (empty($gymName_err)) {
         // Prepare an insert statement
@@ -165,39 +165,38 @@ if (!empty($_POST['create_gymFacility_submit'])) {
 //    if (empty(trim($_POST["gymid"]))) {
 //        $gymid_err = "Please enter a Gym Name.";
 //    }
-    
     //Fetch Gym 
-        $sql = "SELECT id FROM gym WHERE id = ?";
-        //$sql = "SELECT gymName FROM gym WHERE id = ?";
-        if ($stmt = mysqli_prepare($link, $sql)) {
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "s", $param_gymid);
-            // Set parameters
-            $param_gymid = $_POST['gymLocationDropDown'];
-            // Attempt to execute the prepared statement
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_store_result($stmt);
-                if (mysqli_stmt_num_rows($stmt) == 1) {
-                    mysqli_stmt_bind_result($stmt, $ID);
-                    while ($stmt->fetch()) {
-                        $gym = $ID;
-                    }
-                } else {
-                    $errorMessage = "Invalid Gym";
-                    $_SESSION['errorMessage'] = "Please try again later";
+    $sql = "SELECT id FROM gym WHERE id = ?";
+    //$sql = "SELECT gymName FROM gym WHERE id = ?";
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        // Bind variables to the prepared statement as parameters
+        mysqli_stmt_bind_param($stmt, "s", $param_gymid);
+        // Set parameters
+        $param_gymid = $_POST['gymLocationDropDown'];
+        // Attempt to execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            mysqli_stmt_store_result($stmt);
+            if (mysqli_stmt_num_rows($stmt) == 1) {
+                mysqli_stmt_bind_result($stmt, $ID);
+                while ($stmt->fetch()) {
+                    $gym = $ID;
                 }
             } else {
-                //  echo "Oops! Something went wrong. Please try again later.";
-                $errorMessage = "Please try again later";
+                $errorMessage = "Invalid Gym";
                 $_SESSION['errorMessage'] = "Please try again later";
             }
+        } else {
+            //  echo "Oops! Something went wrong. Please try again later.";
+            $errorMessage = "Please try again later";
+            $_SESSION['errorMessage'] = "Please try again later";
         }
-        // Close statement
-        mysqli_stmt_close($stmt);
-        
+    }
+    // Close statement
+    mysqli_stmt_close($stmt);
+
 // Check input errors before inserting in database (errorMessage)
     if (empty($errorMessage)) {
-    //if (empty($gymid_err) && empty($facilityCapacity_err)) {
+        //if (empty($gymid_err) && empty($facilityCapacity_err)) {
         // Prepare an insert statement
         $sql = "INSERT INTO gymfacility (gymid, facilityName,facilityDesc,facilityCapacity) VALUES (?,?,?,?)";
         if ($stmt = mysqli_prepare($link, $sql)) {
@@ -208,7 +207,7 @@ if (!empty($_POST['create_gymFacility_submit'])) {
             $param_facilityName = $_POST["facilityName"];
             $param_facilityDesc = $_POST["facilityDesc"];
             $param_facilityCapacity = $_POST["facilityCapacity"];
-            
+
             // Attempt to execute the prepared statement
             if (mysqli_stmt_execute($stmt)) {
                 // Redirect to login page
@@ -227,7 +226,7 @@ if (!empty($_POST['create_gymFacility_submit'])) {
 
 //Create training types
 // Define variables and initialize with empty values
-    $TRAINING_NAME = $TRAINING_RATE = $TRAINING_NAME_err = "";
+$TRAINING_NAME = $TRAINING_RATE = $TRAINING_NAME_err = "";
 // Processing form data when form is submitted
 if (!empty($_POST['create_trainingType_submit'])) {
 // Validate TRAINING_NAME
@@ -256,7 +255,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
         // Close statement
         mysqli_stmt_close($stmt);
     }
-    
+
     // Check input errors before inserting in database
     if (empty($TRAINING_NAME_err)) {
         // Prepare an insert statement
@@ -334,13 +333,13 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Mange Gym Facilities<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                         <li><a href="#tab5primary" data-toggle="tab">Add Gym</a></li>
+                                        <li><a href="#tab5primary" data-toggle="tab">Add Gym</a></li>
                                         <li><a href="#tab6primary" data-toggle="tab">Add Gym Facility</a></li>
                                         <li><a href="#tab9primary" data-toggle="tab">Delete Gym</a></li>
                                         <li><a href="#tab8primary" data-toggle="tab">Delete Gym Facility Limit</a></li>
                                         <li><a href="#tab4primary" data-toggle="tab">View All Gym</a></li>
                                         <li><a href="#tab7primary" data-toggle="tab">View All Gym Facility</a></li>
-                                       
+
                                     </ul>
                                 </li>
 
@@ -352,7 +351,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                         <li><a href="#tab13primary" data-toggle="tab">Rejected Group Training Plans</a></li>
                                     </ul>
                                 </li>
-                                
+
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Manage Training Types<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
@@ -379,7 +378,8 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableAllVerifiedUsers"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -400,7 +400,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableNotVerifiedUsers"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -456,7 +456,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                         </form>
 
                                     </div> <!-- ./container --></div>
-                                
+
                                 <div class="tab-pane fade" id="tab4primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="col-md-12">
@@ -470,7 +470,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableAllGyms"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -478,10 +478,10 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
-                                 <div class="tab-pane fade" id="tab5primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
+
+                                <div class="tab-pane fade" id="tab5primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
                                         <h2>Create Gym</h2>
-                                        
+
                                         <?php
                                         if (isset($_SESSION['createdGymMsg']) && $_SESSION['createdGymMsg'] != '') {
                                             ?>
@@ -492,7 +492,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             unset($_SESSION['createdGymMsg']);
                                         }
                                         ?>
-                                        
+
                                         <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                                             <div class="form-group <?php echo (!empty($gymName_err)) ? 'has-error' : ''; ?>">
                                                 <label>Gym name:<sup>*</sup></label>
@@ -522,10 +522,10 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                         </form>
 
                                     </div> <!-- ./container --></div>
-                                
+
                                 <div class="tab-pane fade" id="tab6primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
                                         <h2>Create Gym Facility</h2>
-                                         <?php
+                                        <?php
                                         if (isset($_SESSION['createdGymFacilityMsg']) && $_SESSION['createdGymFacilityMsg'] != '') {
                                             ?>
                                             <div class="alert alert-success">
@@ -535,34 +535,34 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             unset($_SESSION['createdGymFacilityMsg']);
                                         }
                                         ?>
-                                        
+
                                         <?php
-                                            if (isset($_SESSION['errorMessage']) && $_SESSION['errorMessage'] != '') {
-                                                ?>
-                                                <div class="alert alert-danger">
-                                                    <strong>Error!</strong> <?php echo $_SESSION['errorMessage']; ?>
-                                                </div>
-                                                <?php
-                                                unset($_SESSION['errorMessage']);
-                                            }
+                                        if (isset($_SESSION['errorMessage']) && $_SESSION['errorMessage'] != '') {
                                             ?>
+                                            <div class="alert alert-danger">
+                                                <strong>Error!</strong> <?php echo $_SESSION['errorMessage']; ?>
+                                            </div>
+                                            <?php
+                                            unset($_SESSION['errorMessage']);
+                                        }
+                                        ?>
 
                                         <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                                             <div class="form-group ">
-                                                            <select class="form-control" name="gymLocationDropDown" id="gymLocationDropDown">
-                                                                <?php
-                                                            $sql = "SELECT * FROM gym ";
-                                                            $res = mysqli_query($link, $sql);
-                                                            //mysqli_close($link);
-                                                            ?>
-                                                                <?php
-                                                                while ($row = $res->fetch_assoc()) {
-                                                                    echo '<option value=" ' . $row['id'] . ' "> ' . $row['gymName'] . ' </option>';
-                                                                }
-                                                                ?>
-                                                            </select>
+                                                <select class="form-control" name="gymLocationDropDown" id="gymLocationDropDown">
+                                                    <?php
+                                                    $sql = "SELECT * FROM gym ";
+                                                    $res = mysqli_query($link, $sql);
+                                                    //mysqli_close($link);
+                                                    ?>
+                                                    <?php
+                                                    while ($row = $res->fetch_assoc()) {
+                                                        echo '<option value=" ' . $row['id'] . ' "> ' . $row['gymName'] . ' </option>';
+                                                    }
+                                                    ?>
+                                                </select>
                                             </div>
-                                            
+
                                             <div class="form-group ">
                                                 <label>Facility Name<sup></sup></label>
                                                 <input type="text" name="facilityName" class="form-control" value="<?php echo $facilityName; ?>">
@@ -586,7 +586,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                         </form>
 
                                     </div> <!-- ./container --></div>
-                                
+
 
                                 <div class="tab-pane fade" id="tab7primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
@@ -601,7 +601,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableAllGymsFacility"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -609,7 +609,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
+
                                 <div class="tab-pane fade" id="tab8primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="col-md-12">
@@ -623,7 +623,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableAllFacilityDelete"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -631,7 +631,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
+
                                 <div class="tab-pane fade" id="tab9primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="col-md-12">
@@ -645,7 +645,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableAllGymsDelete"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -653,9 +653,9 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
-                               
-                                
+
+
+
                                 <!--                                <div class="tab-pane fade" id="tab4primary">Primary 4</div>-->
 
                                 <div class="tab-pane fade" id="tab11primary">
@@ -671,7 +671,9 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tablePendingGroupTraining"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-detail-view="true"
+                                                                   data-detail-formatter="detailFormatter"
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -693,7 +695,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableVerifiedGroupTraining"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -715,7 +717,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableRejectedGroupTraining"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -723,7 +725,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
+
                                 <div class="tab-pane fade" id="tab14primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="col-md-12">
@@ -737,7 +739,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableAllTrainingTypes"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -745,10 +747,10 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
+
                                 <div class="tab-pane fade" id="tab15primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
                                         <h2>Create Training Type</h2>
-                                        
+
                                         <?php
                                         if (isset($_SESSION['createdTrainingTypeMsg']) && $_SESSION['createdTrainingTypeMsg'] != '') {
                                             ?>
@@ -759,7 +761,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             unset($_SESSION['createdTrainingTypeMsg']);
                                         }
                                         ?>
-                                        
+
                                         <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                                             <div class="form-group <?php echo (!empty($TRAINING_NAME_err)) ? 'has-error' : ''; ?>">
                                                 <label>Training name:<sup>*</sup></label>
@@ -771,7 +773,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                                 <input type="text" name="TRAINING_RATE" class="form-control" value="<?php echo $TRAINING_RATE; ?>">
                                                 <span class="help-block"></span>
                                             </div>
-                                            
+
                                             <div class="form-group">
 
                                                 <input type="submit"  name="create_trainingType_submit"  class="btn btn-primary" value="Create">
@@ -780,7 +782,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                         </form>
 
                                     </div> <!-- ./container --></div>
-                                
+
                                 <div class="tab-pane fade" id="tab17primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="col-md-12">
@@ -794,7 +796,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
 
                                                             <table id="tableTrainingTypesDelete"
                                                                    data-show-columns="true"
-                                                                   data-height="460">
+                                                                   data-height="600">
                                                             </table>
                                                         </div>
                                                     </div>
@@ -802,8 +804,8 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                             </div>
                                         </div>
                                     </div></div>
-                                
-                                
+
+
                                 <div class="tab-pane fade" id="tab16primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="col-md-12">
@@ -815,72 +817,71 @@ if (!empty($_POST['create_trainingType_submit'])) {
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div id="Training_table"> 
-                                                            <table class ="table table-bordered"
-                                                                   data-show-columns="true"
-                                                                   data-height="460">
-                                                                
-                                                                <tr>  
-                                                                    <th width="40%">Training Name</th>  
-                                                                    <th width="40%">Training Rate</th>  
-                                                                    <th width="20%">View</th>  
-                                                                </tr>
-                                                                
-                                                                <?php
-                                                            $sql = "SELECT * FROM trainingtype ";
-                                                            $res = mysqli_query($link, $sql);
-                                                            //mysqli_close($link);
-                                                            ?>
-                                                                <?php
-                                                                while ($row = $res->fetch_assoc())
-                                                                //while($row = mysqli_fetch_array($res))
-                                                                 {
+                                                                <table class ="table table-bordered"
+                                                                       data-show-columns="true"
+                                                                       data-height="600">
+
+                                                                    <tr>  
+                                                                        <th width="40%">Training Name</th>  
+                                                                        <th width="40%">Training Rate</th>  
+                                                                        <th width="20%">View</th>  
+                                                                    </tr>
+
+                                                                    <?php
+                                                                    $sql = "SELECT * FROM trainingtype ";
+                                                                    $res = mysqli_query($link, $sql);
+                                                                    //mysqli_close($link);
                                                                     ?>
-                                                                <tr>
-                                                                    <td><?php echo $row["TRAINING_NAME"]; ?></td>
-                                                                    <td><?php echo $row["TRAINING_RATE"]; ?></td>
-                                                                    <td><input type="button" name="edit" value="Edit" id="<?php echo $row["ID"]; ?>" class="btn btn-info btn-xs edit_data" /></td> 
-                                                                </tr>
-                                                                     
-                                                               <?php
-                                                                }
-                                                                ?>
-                                                            </table>
+                                                                    <?php
+                                                                    while ($row = $res->fetch_assoc()) {
+                                                                        //while($row = mysqli_fetch_array($res))
+                                                                        ?>
+                                                                        <tr>
+                                                                            <td><?php echo $row["TRAINING_NAME"]; ?></td>
+                                                                            <td><?php echo $row["TRAINING_RATE"]; ?></td>
+                                                                            <td><input type="button" name="edit" value="Edit" id="<?php echo $row["ID"]; ?>" class="btn btn-info btn-xs edit_data" /></td> 
+                                                                        </tr>
+
+                                                                        <?php
+                                                                    }
+                                                                    ?>
+                                                                </table>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>				
                                             </div>
                                         </div>
-                                        
+
                                     </div></div>
-                                
+
                                 <div id="add_data_Modal" class="modal fade">  
-                                            <div class="modal-dialog">  
-                                                <div class="modal-content">  
-                                                    <div class="modal-header">  
-                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>  
-                                                        <h4 class="modal-title">Update</h4>  
-                                                    </div>  
-                                                    <div class="modal-body">  
-                                                        <form method="post" id="insert_form">  
-                                                            <label>Training Name</label>  
-                                                            <input type="text" name="TRAINING_NAME" id="TRAINING_NAME" class="form-control" />  
-                                                            <br />  
-                                                            <label>Training Rate</label>  
-                                                            <input type="text" name="TRAINING_RATE" id="TRAINING_RATE" class="form-control" />   
-                                                            <br />  
-                                                            <input type="hidden" name="ID" id="ID" />  
-                                                            <input type="submit" name="insert" id="insert" value="Insert" class="btn btn-success" />  
-                                                        </form>  
-                                                    </div>  
-                                                    <div class="modal-footer">  
-                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  
-                                                    </div>  
-                                                </div>  
+                                    <div class="modal-dialog">  
+                                        <div class="modal-content">  
+                                            <div class="modal-header">  
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>  
+                                                <h4 class="modal-title">Update</h4>  
                                             </div>  
-                                        </div>
-                              
-                                
+                                            <div class="modal-body">  
+                                                <form method="post" id="insert_form">  
+                                                    <label>Training Name</label>  
+                                                    <input type="text" name="TRAINING_NAME" id="TRAINING_NAME" class="form-control" />  
+                                                    <br />  
+                                                    <label>Training Rate</label>  
+                                                    <input type="text" name="TRAINING_RATE" id="TRAINING_RATE" class="form-control" />   
+                                                    <br />  
+                                                    <input type="hidden" name="ID" id="ID" />  
+                                                    <input type="submit" name="insert" id="insert" value="Insert" class="btn btn-success" />  
+                                                </form>  
+                                            </div>  
+                                            <div class="modal-footer">  
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  
+                                            </div>  
+                                        </div>  
+                                    </div>  
+                                </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -891,54 +892,52 @@ if (!empty($_POST['create_trainingType_submit'])) {
     <?php include("footer.html"); ?>
     <!--This is the Javascript for the table for view all user details--> 
     <script type="text/javascript">
-  $(document).ready(function(){  
-      $(document).on('click', '.edit_data', function(){  
-           var ID = $(this).attr("ID");  
-           $.ajax({  
-                url:"PHPCodes/fetch.php",  
-                method:"POST",  
-                data:{ID:ID},  
-                dataType:"json",  
-                success:function(data){  
-                     $('#TRAINING_NAME').val(data.TRAINING_NAME);  
-                     $('#TRAINING_RATE').val(data.TRAINING_RATE); 
-                     $('#ID').val(data.ID);  
-                     $('#insert').val("Update");  
-                     $('#add_data_Modal').modal('show');  
-                }  
-           });  
-      });  
-      $('#insert_form').on("submit", function(event){  
-           event.preventDefault();  
-           if($('#TRAINING_NAME').val() == "")  
-           {  
-                alert("Training name is required");  
-           }  
-           else if($('#TRAINING_RATE').val() == '')  
-           {  
-                alert("Training rate is required");  
-           } 
-           else  
-           {  
-                $.ajax({  
-                     url:"PHPCodes/insert.php",  
-                     method:"POST",  
-                     data:$('#insert_form').serialize(),  
-                     beforeSend:function(){  
-                          $('#insert').val("Inserting");  
-                     },  
-                     success:function(data){  
-                          $('#insert_form')[0].reset();  
-                          $('#add_data_Modal').modal('hide');  
-                          $('#Training_table').html(data);  
-                     }  
-                });  
-           }  
-      });  
- });
-        
- 
-        
+        $(document).ready(function () {
+            $(document).on('click', '.edit_data', function () {
+                var ID = $(this).attr("ID");
+                $.ajax({
+                    url: "PHPCodes/fetch.php",
+                    method: "POST",
+                    data: {ID: ID},
+                    dataType: "json",
+                    success: function (data) {
+                        $('#TRAINING_NAME').val(data.TRAINING_NAME);
+                        $('#TRAINING_RATE').val(data.TRAINING_RATE);
+                        $('#ID').val(data.ID);
+                        $('#insert').val("Update");
+                        $('#add_data_Modal').modal('show');
+                    }
+                });
+            });
+            $('#insert_form').on("submit", function (event) {
+                event.preventDefault();
+                if ($('#TRAINING_NAME').val() == "")
+                {
+                    alert("Training name is required");
+                } else if ($('#TRAINING_RATE').val() == '')
+                {
+                    alert("Training rate is required");
+                } else
+                {
+                    $.ajax({
+                        url: "PHPCodes/insert.php",
+                        method: "POST",
+                        data: $('#insert_form').serialize(),
+                        beforeSend: function () {
+                            $('#insert').val("Inserting");
+                        },
+                        success: function (data) {
+                            $('#insert_form')[0].reset();
+                            $('#add_data_Modal').modal('hide');
+                            $('#Training_table').html(data);
+                        }
+                    });
+                }
+            });
+        });
+
+
+
         function sendAjaxRequest(value, urlToSend) {
 
             $.ajax({type: "POST",
@@ -956,13 +955,13 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 }
             });
         }
-        
-        function sendAjax(id,msg, urlToSend) {
+
+        function sendAjax(id, msg, urlToSend) {
 
             $.ajax({type: "POST",
                 url: urlToSend,
                 data: {id: id,
-                msg:msg},
+                    msg: msg},
                 success: function (result) {
                     // alert('ok');
                     // alert(value);
@@ -976,6 +975,14 @@ if (!empty($_POST['create_trainingType_submit'])) {
             });
         }
         //To deactivate valid accounts
+        function detailFormatter(index, row) {
+//            var html = [];
+//            $.each(row, function (key, value) {
+//                html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+//            });
+//            return html.join('');
+            $('#add_data_Modal').modal('show');
+        }
         window.operateEventDeactivate = {
             'click .remove': function (e, value, row, index) {
                 var userid = '';
@@ -1308,7 +1315,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 // alert('You click like action, row: ' + JSON.stringify(row));
             },
             'click .remove': function (e, value, row, index) {
-                var msg=window.prompt("Reason for rejecting:","");
+                var msg = window.prompt("Reason for rejecting:", "");
                 var x = 'groupId';
                 for (var key in row) {
                     if (row.hasOwnProperty(key)) {
@@ -1317,7 +1324,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                     }
                 }
                 var linkToUpdate = 'PHPCodes/rejectGroupTraining.php';
-                sendAjax(groupId,msg,linkToUpdate);
+                sendAjax(groupId, msg, linkToUpdate);
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
@@ -1462,8 +1469,8 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 },
             ],
         });
-        
-         var $table = $('#tableAllGyms');
+
+        var $table = $('#tableAllGyms');
         $table.bootstrapTable({
             url: 'PHPCodes/listGym.php',
             search: true,
@@ -1500,7 +1507,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 },
             ],
         });
-        
+
         window.operateEventDeactivateGym = {
             'click .remove': function (e, value, row, index) {
                 var id = '';
@@ -1516,7 +1523,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-        
+
         var $table = $('#tableAllGymsDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listGym.php',
@@ -1529,12 +1536,12 @@ if (!empty($_POST['create_trainingType_submit'])) {
                     field: 'num',
                     title: '#',
                     sortable: true,
-                },{
+                }, {
                     field: 'id',
                     title: 'Gym ID',
                     sortable: true,
                     visible: false,
-                }, 
+                },
                 {
                     field: 'gymName',
                     title: 'Gym Name',
@@ -1562,7 +1569,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 }
             ],
         });
-        
+
         //To delete facility
         window.operateEventDeactivateFacility = {
             'click .remove': function (e, value, row, index) {
@@ -1579,7 +1586,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-        
+
         var $table = $('#tableAllFacilityDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listGymFacility.php',
@@ -1625,8 +1632,8 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 }
             ],
         });
-        
-         var $table = $('#tableAllTrainingTypes');
+
+        var $table = $('#tableAllTrainingTypes');
         $table.bootstrapTable({
             url: 'PHPCodes/listTrainingTypes.php',
             search: true,
@@ -1646,10 +1653,10 @@ if (!empty($_POST['create_trainingType_submit'])) {
                     field: 'TRAINING_RATE',
                     title: 'Training Rate',
                     sortable: true,
-                }, 
+                },
             ],
         });
-        
+
         window.operateEventDeactivateTrainingTypes = {
             'click .remove': function (e, value, row, index) {
                 var x = 'ID';
@@ -1664,7 +1671,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-        
+
         var $table = $('#tableTrainingTypesDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listTrainingTypes.php',
@@ -1677,12 +1684,12 @@ if (!empty($_POST['create_trainingType_submit'])) {
                     field: 'num',
                     title: '#',
                     sortable: true,
-                },{
+                }, {
                     field: 'ID',
                     title: 'Training Type ID',
                     sortable: true,
                     visible: false,
-                }, 
+                },
                 {
                     field: 'TRAINING_NAME',
                     title: 'Training Name',
@@ -1702,7 +1709,7 @@ if (!empty($_POST['create_trainingType_submit'])) {
                 }
             ],
         });
- 
+
 
     </script>
 
