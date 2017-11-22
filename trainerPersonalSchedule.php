@@ -117,6 +117,7 @@ if (session_status() == PHP_SESSION_NONE) {
         }
         $conflictDates = "";
         $lastInsertedId = "";
+        $conflictArray = array();
         //print_r($datesToStore);
         // Check input errors before inserting in database
         if (empty($errorMessage)) {
@@ -143,21 +144,23 @@ if (session_status() == PHP_SESSION_NONE) {
 //                        header("Location:../testFullCalendar.php?msg=$msg");
                     }
 
-                    $sqlGymAvail = "SELECT * from grouptrainingschedule WHERE trainingDate=? AND trainingTime=? AND trainingGym=? AND trainingFacility=?";
+                    $sqlGymAvail = "SELECT * from grouptrainingschedule WHERE trainingDate=? AND trainingTime=? AND trainingGym=? AND trainingFacility=? AND trainingApprovalStatus='Verified'";
                     $q = $bdd->prepare($sqlGymAvail);
                     $q->execute(array(date('Y-m-d', strtotime($value)), $_POST['startTime'], $gym, $_POST['Facility']));
                     $result = $q->fetchAll(PDO::FETCH_ASSOC);
 
                     if ($result == TRUE) {
 //                        print_r($result);
-                        $_SESSION['errorMessage'] = "Gym Location Not Available for one of the dates";
+//                        $_SESSION['errorMessage'] = "Gym Location Not Available for one of the dates";
 //                        $invalidDates="Not Available location on : ";
 //                        $invalidGymLocationFlag = "true";
                         foreach ($result as $values) {
                             $conflictDates = $conflictDates . "," . $values['trainingDate'];
+                            $conflictArray[] = $values['trainingDate'];
                         }
                     }
                 }
+                print_r($conflictArray);
                 print($conflictDates);
                 echo $duplicateDateFlag;
                 echo $invalidGymLocationFlag;
@@ -198,36 +201,70 @@ if (session_status() == PHP_SESSION_NONE) {
                     }
                     //If no duplicated dates then proceed to store into database 
                     //1. Check if user has any training session in this period of time before allowing of creation 
-                    foreach ($datesToStoreRecurring as $value) {
-                        //Insert the first record and subsequent records insert into recursive table 
-                        $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                        if ($stmt = mysqli_prepare($link, $sql)) {
-                            // Bind variables to the prepared statement as parameters
-                            mysqli_stmt_bind_param($stmt, "sssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID);
-                            // Set parameters
-                            $param_trainerid = $trainerId;
-                            $param_trainingTitle = $_POST['trainingTitle'];
-                            $param_trainingCategory = $trainingType;
-                            $param_rate = $_POST['trainingRate'];
-                            $param_Desc = $_POST['trainingDesc'];
-                            $param_Date = date('Y-m-d', strtotime($value));
-                            $param_Time = $_POST['startTime'];
-                            $param_Gym = $gym;
-                            $param_Facility = $_POST['Facility'];
-                            $param_MaxCap = $_POST['trainingCapacityDropDown'];
-                            $param_Status = "Pending";
-                            $param_trainerName = $_SESSION['username'];
-                            $param_recurrID = $lastInsertedId;
-                            // Attempt to execute the prepared statement
-                            if (mysqli_stmt_execute($stmt)) {
-                                // Redirect to login page
 
-                                $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                        foreach ($datesToStoreRecurring as $value) {
+                                if(in_array( $value ,$conflictArray )){
+                                $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID,invalidLocation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                if ($stmt = mysqli_prepare($link, $sql)) {
+                                    // Bind variables to the prepared statement as parameters
+                                    mysqli_stmt_bind_param($stmt, "ssssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID, $param_invalidLocation);
+                                    // Set parameters
+                                    $param_trainerid = $trainerId;
+                                    $param_trainingTitle = $_POST['trainingTitle'];
+                                    $param_trainingCategory = $trainingType;
+                                    $param_rate = $_POST['trainingRate'];
+                                    $param_Desc = $_POST['trainingDesc'];
+                                    $param_Date = date('Y-m-d', strtotime($value));
+                                    $param_Time = $_POST['startTime'];
+                                    $param_Gym = $gym;
+                                    $param_Facility = $_POST['Facility'];
+                                    $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                                    $param_Status = "Pending";
+                                    $param_trainerName = $_SESSION['username'];
+                                    $param_recurrID = $lastInsertedId;
+                                    $param_invalidLocation = 'yes';
+                                    // Attempt to execute the prepared statement
+                                    if (mysqli_stmt_execute($stmt)) {
+                                        // Redirect to login page
+
+                                        $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                                    } else {
+                                        $errorMessage = "Something went wrong. Please try again later.";
+                                        $_SESSION['errorMessage'] = "Please try again later";
+                                    }
+                                }
                             } else {
-                                $errorMessage = "Something went wrong. Please try again later.";
-                                $_SESSION['errorMessage'] = "Please try again later";
+                                $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID,invalidLocation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                if ($stmt = mysqli_prepare($link, $sql)) {
+                                    // Bind variables to the prepared statement as parameters
+                                    mysqli_stmt_bind_param($stmt, "ssssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID, $param_invalidLocation);
+                                    // Set parameters
+                                    $param_trainerid = $trainerId;
+                                    $param_trainingTitle = $_POST['trainingTitle'];
+                                    $param_trainingCategory = $trainingType;
+                                    $param_rate = $_POST['trainingRate'];
+                                    $param_Desc = $_POST['trainingDesc'];
+                                    $param_Date = date('Y-m-d', strtotime($value));
+                                    $param_Time = $_POST['startTime'];
+                                    $param_Gym = $gym;
+                                    $param_Facility = $_POST['Facility'];
+                                    $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                                    $param_Status = "Pending";
+                                    $param_trainerName = $_SESSION['username'];
+                                    $param_recurrID = $lastInsertedId;
+                                    $param_invalidLocation = 'no';
+                                    // Attempt to execute the prepared statement
+                                    if (mysqli_stmt_execute($stmt)) {
+                                        // Redirect to login page
+
+                                        $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                                    } else {
+                                        $errorMessage = "Something went wrong. Please try again later.";
+                                        $_SESSION['errorMessage'] = "Please try again later";
+                                    }
+                                }
                             }
-                        }
+                        
                     }
                     // Close statement
                     mysqli_stmt_close($stmt);
@@ -278,7 +315,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 echo $_POST['Facility'];
                 echo $duplicateDateFlag;
                 echo $invalidGymLocationFlag;
-                if (($duplicateDateFlag == "true")) {
+                if (($duplicateDateFlag == "true") || ($invalidGymLocationFlag=="true")) {
                     
                 } else {
                     $sql = "INSERT INTO grouptrainings (title,trainername,trainingcategory,trainingrate,trainingstartdate,trainingenddate,trainingtime,trainingcapacity,trainingApprovalStatus,trainingGym,trainingFacility,recurring,dateUnavailable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -314,10 +351,10 @@ if (session_status() == PHP_SESSION_NONE) {
                     }
 
                     //  echo "No Recurr- Inserted";
-                    $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                    $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
                     if ($stmt = mysqli_prepare($link, $sql)) {
                         // Bind variables to the prepared statement as parameters
-                        mysqli_stmt_bind_param($stmt, "ssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName);
+                        mysqli_stmt_bind_param($stmt, "sssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID);
                         // Set parameters
                         $param_trainerid = $trainerId;
                         $param_trainingTitle = $_POST['trainingTitle'];
@@ -330,6 +367,7 @@ if (session_status() == PHP_SESSION_NONE) {
                         $param_Facility = $_POST['Facility'];
                         $param_MaxCap = $_POST['trainingCapacityDropDown'];
                         $param_Status = "Pending";
+                        $param_recurrID = $lastInsertedId;
                         $param_trainerName = $_SESSION['username'];
                         // Attempt to execute the prepared statement
                         if (mysqli_stmt_execute($stmt)) {

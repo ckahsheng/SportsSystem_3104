@@ -1,4 +1,4 @@
- <?php
+<?php
 
 require_once "PHPMailer-master/PHPMailerAutoload.php";
 require_once "DBConfig.php";
@@ -7,16 +7,21 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 $gid = $_POST['id'];
-$query = "SELECT trainerid FROM grouptrainingschedule WHERE id='$gid'";
-$result = mysqli_query($link,$query);
+$query = "SELECT trainername FROM grouptrainings WHERE ID='$gid'";
+$result = mysqli_query($link, $query);
 $row = mysqli_fetch_assoc($result);
-$uid = $row['trainerid'];
+$uid = $row['trainername'];
 echo $uid;
-$sql = "UPDATE grouptrainingschedule SET trainingApprovalStatus='Verified' WHERE id='$gid'";
+$sql2 = "UPDATE grouptrainings SET trainingApprovalStatus='Verified' WHERE ID=?";
+$stmt1 = mysqli_prepare($link, $sql2);
+mysqli_stmt_bind_param($stmt1, "s", $param_id);
+$param_id = $gid;
+mysqli_stmt_execute($stmt1);
 
+$sql = "UPDATE grouptrainingschedule SET trainingApprovalStatus='Verified' WHERE GrpRecurrID='$gid'";
 if (mysqli_query($link, $sql)) {
     //Send email out upon user being verfied 
-    $sql1 = "SELECT emailAddress,userid FROM users WHERE id=?";
+    $sql1 = "SELECT emailAddress,userid FROM users WHERE userid=?";
     if ($stmt = mysqli_prepare($link, $sql1)) {
         mysqli_stmt_bind_param($stmt, "s", $param_username);
         $param_username = $uid;

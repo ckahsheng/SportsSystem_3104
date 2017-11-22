@@ -9,8 +9,6 @@ if (session_status() == PHP_SESSION_NONE) {
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
 $trainingId = $_POST['id'];
-
-
 //If role is Trainer 
 if ($role == "Trainer") {
     //Change Trainerschedule record to Cancelled

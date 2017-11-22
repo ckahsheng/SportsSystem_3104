@@ -5,7 +5,6 @@ $sessionHashed_pw = $_SESSION['hashed_pw'];
 // Include config file
 ob_start();
 require_once 'DBConfig.php';
-
 $sqlID = "SELECT id,image AS imagePath FROM users WHERE userid = '$sessionUsername'";
 $resultID = mysqli_query($link, $sqlID);
 while ($row = mysqli_fetch_assoc($resultID)) {
