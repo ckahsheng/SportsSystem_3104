@@ -22,13 +22,22 @@ if (!isset($_SESSION['username'])) {
         $sql = "SELECT * FROM trainerschedule";
     }
 }
+
+$username = $_SESSION['username'];
+
 $events = array();
 $group = array();
 $req = $bdd->prepare($sql);
 $req->execute();
 $events = $req->fetchAll();
 //array_merge($events, $personal);
-$sql1 = "SELECT * FROM grouptrainingschedule WHERE trainerName='$name'";
+
+if ($_SESSION['role'] == 'Trainee') {
+    $sql1 = "SELECT * FROM grouptrainingschedule LEFT JOIN gttrainees ON grouptrainingschedule.GrpRecurrID = gttrainees.recurringId WHERE gttrainees.username = '$username'";
+} else if ($_SESSION['role'] == 'Trainer') {
+    $sql1 = "SELECT * FROM grouptrainingschedule WHERE trainerName='$username'";
+}
+
 $req = $bdd->prepare($sql1);
 $req->execute();
 $group = $req->fetchAll();
@@ -61,15 +70,25 @@ $events = array_merge($events, $group);
                         <?php if ($_SESSION['role'] == 'Trainer') { ?>
                             <td><input class="circle" style="background: #005800; border: none;" readonly></td>
                             <td style="padding-left: 5px; margin-bottom: 50px;">Available PT</td>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Occupied PT</td>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #6299f7; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Group Training</td>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Group Training (Full)</td>
                         <?php } ?>
-                        <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
-                        <td style="padding-left: 5px;">Occupied PT</td>
+                        <?php if ($_SESSION['role'] == 'Trainee') {?>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Personal Training</td>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #6299f7; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Group Training</td>
+                        <?php } ?>
                         <td style="padding-left: 20px;"><input class="circle" style="background: #b6abfb; border: none;" readonly></td>
                         <td style="padding-left: 5px;">Own Training Schedule</td>
                     </tr>
                 </table>
             </center>
-            <div id="calendar" class="monthly" style="margin-top: 50px;">
+            <div id="calendar" class="monthly" style="margin: 50px 0;">
                 <div class="row">
                     <!-- ADD Modal -->
                     <div class="modal fade" id="ModalAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -504,37 +523,37 @@ $events = array_merge($events, $group);
         // FULL CALENDAR
         $('#calendar').fullCalendar({
         header: {
-        left: 'prev,next today',
-                center: 'title',
-                right: 'month,basicWeek,basicDay'
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,basicWeek,basicDay'
         },
-                eventLimit: true, // allow "more" link when too many events
-<?php if (!isset($_SESSION['username'])) { ?>
+        eventLimit: true, // allow "more" link when too many events
+
+        <?php if (!isset($_SESSION['username'])) { ?>
             editable: false,
-                    selectable: false,
-<?php } else {
-    ?>
+            selectable: false,
+        <?php } else { ?>
             editable: true,
-                    selectable: true,
-<?php }
-?>
+            selectable: true,
+        <?php } ?>
+
         displayEventTime: false, // hide the time. Eg 2a, 12p
 
-                // When you click the cell in the calendar
-                select: function (start, end) { //START OF SELECT FUNC.
-                if (start.isBefore(moment())) {
+        // When you click the cell in the calendar
+        select: function (start, end) { //START OF SELECT FUNC.
+            if (start.isBefore(moment())) {
                 $('#calendar').fullCalendar('unselect');
                 $('#ModalAdd').modal('hide');
-                }
-                else {
+            }
+            else {
                 $('#ModalAdd #startDate').val(moment(start).format('DD-MM-YYYY'));
                 $('#ModalAdd').modal('show');
-                }
-                }, // END OF SELECT FUNC.
+            }
+        }, // END OF SELECT FUNC.
 
                 // When you double click the event in the cell
-                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
-                if (event.start.isBefore(moment().subtract(2, 'days'))) {
+        eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
+            if (event.start.isBefore(moment().subtract(2, 'days'))) {
                 element.bind('dblclick', function () {
                 $('#calendar').fullCalendar('unselect');
                 $('#ModalEdit').modal('hide');
@@ -674,6 +693,17 @@ foreach ($events as $event):
             $recur = "";
             $trainingenddate = "";
         }
+
+        if ($_SESSION['role'] == 'Trainee') {
+            $color = '#6299f7';
+        } else if ($_SESSION['role'] == 'Trainer') {
+            $color = '#6299f7';
+            
+            if ($event['trainingMaxCapacity'] <= $event['currentCap']) {
+                $color = '#adc9fb';
+            }
+        }
+
         ?>
                         {
                         id: '<?php echo $event['id']; ?>',
@@ -687,14 +717,13 @@ foreach ($events as $event):
                         rate: '<?php echo $event['trainingRate']; ?>',
                         startT: '<?php echo $event['trainingTime']; ?>',
                         realStartDate: '<?php echo $event['trainingDate']; ?>',
-                        realEndDate: '<?php echo $trainingenddate; ?>',
                         recur: '<?php echo $recur; ?>',
                         description: '<?php echo $event['trainingDescription']; ?>',
                         capacity: '<?php echo $event['trainingMaxCapacity']; ?>',
-                                 
+                        color: '<?php echo $color; ?>',
                         },
-       <?php
-    } else if (($event['eventType'] == 'ot') || ($event['eventType'] == 'pt')) {
+
+    <?php } else if (($event['eventType'] == 'ot') || ($event['eventType'] == 'pt')) {
 //        $recur = $event['recur'];
         $end = explode(" ", $event['enddate']);
         $titleWithTime = $event['starttime'] . ' ' . $event['title'];
@@ -750,6 +779,7 @@ foreach ($events as $event):
                 $title = $event['starttime'] . " /" . $traineeId . " /" . $title;
                 $color = '#67d967';
             }
+
         } else if ($_SESSION['role'] == 'Trainee') {
             $traineeId = $event['traineeid'];
             $title = $event['title'];
@@ -763,7 +793,7 @@ foreach ($events as $event):
             }
 
             // TODO: cancelled trainings by trainers need to put?
-        }
+        } 
 
        
             ?>
