@@ -89,8 +89,6 @@ if (mysqli_query($link, $sql)) {
 
         mysqli_stmt_close($stmt1);
     }
-
-
     echo "Group traning has been Approved, email has been Sent";
 } else {
     echo "Error updating record: " . mysqli_error($link);

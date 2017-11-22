@@ -19,16 +19,15 @@ $bondedTrainerQuery = mysqli_query($link, "SELECT emailAddress, userid FROM user
 $bondTrainerResult = mysqli_fetch_array($bondedTrainerQuery);
 
 // the date after 2 days
-$currentDate = date("d-m-Y", strtotime("+2 days"));
+$currentDate = date("Y-m-d", strtotime("+2 days"));
 
 if (isset($_POST['bond'])) {
     $updateQuery = mysqli_query($link, "UPDATE users SET bondWithTrainerId ='" . $_POST['trainerId'] . "' WHERE id='" . $selectResult['id'] . "'");
+    
     $row = mysqli_affected_rows($link);
-    if ($row == 1) {
-        
-        $retrieveTraineeSchedule = mysqli_query($link, "SELECT userid, emailAddress, DATE_FORMAT(startdate, '%d-%m-%Y') AS startdate FROM users U INNER JOIN trainerschedule TS ON TS.name = U.userid WHERE traineeid = '" . $_SESSION['username'] . "' AND id <> '".$_POST['trainerId']."' AND DATE_FORMAT(startdate, '%d-%m-%Y') >= '".$currentDate ."'");
-       
-        $updateQuery = mysqli_query($link, "UPDATE trainerschedule TS INNER JOIN users U ON TS.name = U.userid SET traineeid ='".NULL."' WHERE traineeid = '" . $_SESSION['username'] . "' AND id <> '".$_POST['trainerId']."' AND DATE_FORMAT(startdate, '%d-%m-%Y') >= '".$currentDate ."'");
+    if ($row == 1) {       
+        $retrieveTraineeSchedule = mysqli_query($link, "SELECT userid, emailAddress, DATE_FORMAT(startdate, '%d-%m-%Y') AS startdate FROM users U INNER JOIN trainerschedule TS ON TS.name = U.userid WHERE traineeid = '" . $_SESSION['username'] . "' AND id <> '".$_POST['trainerId']."' AND startdate >= '".$currentDate ."'");
+        $updateQuery1 = mysqli_query($link, "UPDATE trainerschedule TS INNER JOIN users U ON TS.name = U.userid SET traineeid ='".NULL."' WHERE traineeid = '" . $_SESSION['username'] . "' AND id <> '".$_POST['trainerId']."' AND startdate >= '".$currentDate ."'");
         echo '<script language="javascript">';
         echo 'alert("Bonded Sucessfully!");';
         echo 'window.location.reload(history.go(-1));';
@@ -37,10 +36,9 @@ if (isset($_POST['bond'])) {
         $groupTrainers = array();
         // group trainer name and email address to their start date of training session.
         while ($row = mysqli_fetch_assoc($retrieveTraineeSchedule)) {     
-            alert($row['emailAddress']);
             $groupTrainers[$row['userid']."^".$row['emailAddress']][] = $row;
         }      
-//        echo '<pre>'; print_r($groupTrainers); echo '</pre>';
+        echo '<pre>'; print_r($groupTrainers); echo '</pre>';
         
         foreach($groupTrainers as $trainers => $values):
             // split trainer and name. 
@@ -80,7 +78,7 @@ if (isset($_POST['bond'])) {
             if (!$mail->send()) {
                 $responseArray = array('type' => 'danger', 'message' => '');
                 echo '<script language="javascript">';
-                echo 'alert("Something went wrong. Please try again later.");';
+                echo 'alert("Something went wrong. Please try again later.Email not sent out");';
                 echo 'window.location.reload(history.go(-1));';
                 echo '</script>';
             } else {

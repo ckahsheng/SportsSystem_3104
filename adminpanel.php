@@ -353,6 +353,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
         <meta name="description" content="">
         <meta name="author" content="">
         <?php include("header.html"); ?>
+
     </head>
     <?php include("navigation.php"); ?>
     <body>
@@ -1221,17 +1222,23 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 </div>
 
 
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </body>
     <?php include("footer.html"); ?>
     <!--This is the Javascript for the table for view all user details--> 
     <script type="text/javascript">
         $(document).ready(function () {
+            $('#view_Recurring_GT').on('hidden.bs.modal', function () {
+                window.location.href = 'adminpanel.php';
+            })
+
             $(document).on('click', '.edit_data', function () {
                 var ID = $(this).attr("ID");
                 $.ajax({
@@ -1274,7 +1281,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             });
         });
-
         $(document).ready(function () {
             $(document).on('click', '.edit_companyInfo', function () {
                 var ID = $(this).attr("id");
@@ -1293,7 +1299,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                         $('#edit_CompanyInfo_Modal').modal('show');
                     }
                 });
-
             });
             $('#companyInfo_form').on("submit", function (event) {
                 alert("TESTING");
@@ -1319,7 +1324,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             });
         });
-
         $(document).ready(function () {
             $(document).on('click', '.edit_trainingTips', function () {
                 var ID = $(this).attr("id");
@@ -1339,7 +1343,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                         $('#edit_TrainingTips_Modal').modal('show');
                     }
                 });
-
             });
             $('#trainingTips_form').on("submit", function (event) {
                 alert("TESTING");
@@ -1368,9 +1371,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             });
         });
-
-
-
         function sendAjaxRequest(value, urlToSend) {
 
             $.ajax({type: "POST",
@@ -1425,12 +1425,15 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                             }
                             var venueDropDown = document.getElementById(trainingid);
                             venueDropDown.innerHTML = "";
+                            var el = document.createElement("option");
+                            el.textContent = "Please Select:";
+                            el.value = "";
+                            venueDropDown.appendChild(el);
                             for (var i = 0; i < venue.length; i++) {
                                 var opt = venue[i];
                                 var el = document.createElement("option");
                                 el.textContent = opt;
                                 el.value = opt;
-
                                 venueDropDown.appendChild(el);
                             }
                         }
@@ -1439,7 +1442,37 @@ if (!empty($_POST['create_trainingTips_submit'])) {
         }
 
         function updateLocation(id) {
+
             alert(id);
+            var e = document.getElementById(id);
+            var updatedFacility = e.options[e.selectedIndex].value;
+            alert("You have selected new location:" + updatedFacility);
+//            $('#view_Recurring_GT').modal('hide');
+//            location.reload();
+//            $('#view_Recurring_GT').modal('show');
+
+            $.ajax({type: "POST",
+                url: 'PHPCodes/updateGTSessionLocation.php',
+                data: {id: id,
+                    updatedFac: updatedFacility},
+                success: function (result) {
+                    alert(result);
+                    var display = "display" + id;
+                    document.getElementById(display).style.display = 'inline';
+//                    location.reload();
+//                    $('#view_Recurring_GT').modal('show');
+                    //alert('ok');
+                    //alert(value);
+//                    alert(result);
+//                    var $table = $('#tableNotVerifiedUsers');
+//                    $table.bootstrapTable('refresh');
+//                    location.reload();
+                },
+                error: function (result)
+                {
+                    // alert('error');
+                }
+            });
             //Call a
         }
         function detailFormatter(index, row) {
@@ -1476,9 +1509,9 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                         container.appendChild(document.createElement("br"));
                         container.appendChild(document.createTextNode("Gym Location: " + gym));
                         container.appendChild(document.createElement("br"));
-                        container.appendChild(document.createTextNode("Requested Location :" + location));
+                        container.appendChild(document.createTextNode("Requested Facility :" + location));
                         container.appendChild(document.createElement("br"));
-                        container.appendChild(document.createTextNode("Location Not Available : " + availability));
+                        container.appendChild(document.createTextNode("Require Change Of Location : " + availability));
                         container.appendChild(document.createElement("br"));
                         container.appendChild(document.createTextNode("Suggested Locations :  "));
                         var selectList = document.createElement("select");
@@ -1496,10 +1529,20 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 false
                                 );
                         container.appendChild(selectList);
+                        link = document.createElement('span');
+                        text = document.createTextNode('Updated,Please refresh');
+                        link.style.color = "green";
+                        link.appendChild(text);
+                        link.title = 'Hide information';
+                        link.href = '#';
+                        link.id = 'display' + id;
+                        link.style.display = 'none';
+//                        link.addEventListener('click', toggle);
+
+                        container.appendChild(link);
                         container.appendChild(document.createElement("br"));
                         retrieveAvailableLocations(selectList.id);
                         container.appendChild(document.createElement("br"));
-
                     }
                     $('#view_Recurring_GT').modal('show');
                     $(document).ready(function () {
@@ -1507,7 +1550,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                     });
                 }
             });
-
         }
         window.operateEventDeactivate = {
             'click .remove': function (e, value, row, index) {
@@ -1524,7 +1566,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         //For the adding and removal for the new users 
         window.operateEvents = {
             'click .like': function (e, value, row, index) {
@@ -1686,7 +1727,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
         });
         function operateFormatter(value, row, index) {
             return [
-                '<a class="like" href="javascript:void(0)" title="Like">',
+                '<a class="like" href="javascript:void(0)" title="Approve">',
                 '<i class="glyphicon glyphicon-ok"></i>',
                 '</a>  ',
                 '<a class="remove" href="javascript:void(0)" title="Remove">',
@@ -1734,7 +1775,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 },
             ],
         });
-
         //To reject ongoing group training
         window.operateEventDisapprove = {
             'click .remove': function (e, value, row, index) {
@@ -1750,7 +1790,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         var $table = $('#tableVerifiedGroupTraining');
         $table.bootstrapTable({
             url: 'PHPCodes/listVerifiedGroupTraining.php',
@@ -1825,7 +1864,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 },
             ],
         });
-
         window.operateApproveDisapprove = {
             'click .like': function (e, value, row, index) {
                 var groupId = '';
@@ -1854,7 +1892,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         var $table = $('#tablePendingGroupTraining');
         $table.bootstrapTable({
             url: 'PHPCodes/listPendingTraining.php',
@@ -1885,9 +1922,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }, {
                     field: 'title',
                     title: 'Title',
-
                     sortable: true,
-
                 }, {
                     field: 'trainingCategory',
                     title: 'Training Category',
@@ -1944,7 +1979,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 },
             ],
         });
-
         var $table = $('#tableRejectedGroupTraining');
         $table.bootstrapTable({
             url: 'PHPCodes/listRejectedGroupTraining.php',
@@ -2011,7 +2045,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 },
             ],
         });
-
         var $table = $('#tableAllGyms');
         $table.bootstrapTable({
             url: 'PHPCodes/listGym.php',
@@ -2049,7 +2082,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 },
             ],
         });
-
         window.operateEventDeactivateGym = {
             'click .remove': function (e, value, row, index) {
                 var id = '';
@@ -2065,7 +2097,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         var $table = $('#tableAllGymsDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listGym.php',
@@ -2111,7 +2142,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             ],
         });
-
         //To delete facility
         window.operateEventDeactivateFacility = {
             'click .remove': function (e, value, row, index) {
@@ -2128,7 +2158,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         var $table = $('#tableAllFacilityDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listGymFacility.php',
@@ -2174,7 +2203,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             ],
         });
-
         var $table = $('#tableAllTrainingTypes');
         $table.bootstrapTable({
             url: 'PHPCodes/listTrainingTypes.php',
@@ -2198,7 +2226,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 },
             ],
         });
-
         window.operateEventDeactivateTrainingTypes = {
             'click .remove': function (e, value, row, index) {
                 var x = 'ID';
@@ -2213,7 +2240,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         var $table = $('#tableTrainingTypesDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listTrainingTypes.php',
@@ -2251,7 +2277,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             ],
         });
-
 //        ADDED BY CP
 
         window.operateEventDeactivateTrainingTips = {
@@ -2268,7 +2293,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
-
         var $table = $('#tableTrainingTipsDelete');
         $table.bootstrapTable({
             url: 'PHPCodes/listTrainingTips.php',
@@ -2306,7 +2330,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             ],
         });
-
         var $table = $('#tableTrainingTipsView');
         $table.bootstrapTable({
             url: 'PHPCodes/listTrainingTips.php',
@@ -2335,7 +2358,8 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                     sortable: true,
                 }
             ],
-        });
+        })
+                ;
 
     </script>
 

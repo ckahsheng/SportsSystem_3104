@@ -98,6 +98,7 @@ if (session_status() == PHP_SESSION_NONE) {
             $repeatDays = implode(",", $_POST['recurring']);
             $startDate = $_POST['trainingDate'];
             $endDate = $_POST['trainingendDate'];
+            echo 'ohmy';
             $start = new DateTime($startDate);
             $end = new DateTime($endDate);
             $interval = new DateInterval('P1D');
@@ -112,9 +113,7 @@ if (session_status() == PHP_SESSION_NONE) {
                     //do something for Monday, Wednesday and Friday
                 }
             }
-        } else {
-            //echo "No Recurring";
-        }
+        } 
         $conflictDates = "";
         $lastInsertedId = "";
         $conflictArray = array();
@@ -126,6 +125,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 //Check for each date if they conflict with any of the records in the Personal , OT , or group training sessions
 
                 foreach ($datesToStoreRecurring as $value) {
+                    echo $value;
                     $sqlDuplicate = "select * from ( "
                             . "select trainerschedule.trainingid,trainerschedule.startdate as 'StartDate', trainerschedule.starttime as 'StartTime',trainerschedule.name as 'TrainerName' from trainerschedule "
                             . "union all "
@@ -222,7 +222,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                     $param_Status = "Pending";
                                     $param_trainerName = $_SESSION['username'];
                                     $param_recurrID = $lastInsertedId;
-                                    $param_invalidLocation = 'yes';
+                                    $param_invalidLocation = 'YES';
                                     // Attempt to execute the prepared statement
                                     if (mysqli_stmt_execute($stmt)) {
                                         // Redirect to login page
@@ -252,7 +252,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                     $param_Status = "Pending";
                                     $param_trainerName = $_SESSION['username'];
                                     $param_recurrID = $lastInsertedId;
-                                    $param_invalidLocation = 'no';
+                                    $param_invalidLocation = 'NO';
                                     // Attempt to execute the prepared statement
                                     if (mysqli_stmt_execute($stmt)) {
                                         // Redirect to login page
@@ -534,7 +534,7 @@ if (session_status() == PHP_SESSION_NONE) {
                                                             <input type="checkbox" value="4" name="recurring[]" id="recurring">Thur
                                                             <input type="checkbox" value="5" name="recurring[]" id="recurring">Fri
                                                             <input type="checkbox" value="6" name="recurring[]" id="recurring">Sat
-                                                            <input type="checkbox" value="0" name="recurring[]" id="recurring">Sun
+                                                            <input type="checkbox" value="7" name="recurring[]" id="recurring">Sun
                                                         </div>
                                                     </div>
                                                     <div class="form-group" style="display:none" id="endDateRecur">
