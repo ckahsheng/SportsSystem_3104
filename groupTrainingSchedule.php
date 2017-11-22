@@ -24,7 +24,7 @@
 
     ?>
     <body>
-        <div class="container" style="padding: 100px">
+        <div class="container" style="padding-top: 100px">
             <center><h1>Group Training Calendar</h1></center>
 
             <!-- calendar legend -->
