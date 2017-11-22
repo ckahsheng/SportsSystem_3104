@@ -31,7 +31,7 @@ $traineeCount = $queryTrainee->fetchColumn(); // number of trainees that signed 
 
 
 // check if the trainee has already joined this session
-$sqlExists = "SELECT count(*) FROM gttrainees WHERE username = '$traineeId'";
+$sqlExists = "SELECT count(*) FROM gttrainees WHERE username = '$traineeId' AND recurringId = '$grpRecurId'";
 $queryExists = $bdd->prepare($sqlExists);
 $queryExists->execute();
 

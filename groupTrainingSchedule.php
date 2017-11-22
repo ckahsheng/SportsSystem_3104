@@ -13,10 +13,7 @@
         <link href='css/circle.css' rel='stylesheet'/>
     </head>
     <?php
-    if (session_status() == PHP_SESSION_NONE) {
     session_start();
-}
-
     include("navigation.php");
     //edit to show only the specific calendar
     $sql = "SELECT * FROM grouptrainingschedule WHERE trainingApprovalStatus='Verified'";
@@ -35,9 +32,7 @@
                 <table>                    
                     <tr>
                         <!-- TODO: color diff for each type of account + not logged in users -->
-                        
-                        <?php 
-                        if ($_SESSION['role'] == 'Trainer') { ?>
+                        <?php if ($_SESSION['role'] == 'Trainer') { ?>
                             <td><input class="circle" style="background: #6299f7; border: none;" readonly></td>
                             <td style="padding-left: 5px; margin-bottom: 50px;">Your GT</td>
                             <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
@@ -302,11 +297,8 @@
                             </div>
                         </div>
                             
-                    <?php } else if ($_SESSION['role'] == 'Trainer') { ?>
-                    <!-- else if user is a trainer, see the info of each session that they are in charge of -->
-
-                    <?php } else if ($_SESSION['role'] == 'Admin') { ?>
-                    <!-- else if is admin, allow editing of the event -->
+                    <?php } else if ($_SESSION['role'] == 'Trainer' || $_SESSION['role'] == 'Admin') { ?>
+                    <!-- else if user is a trainer/ admin, see the info of each session that they are in charge of -->
 
                     <?php } ?>
                 <?php } ?>
@@ -383,7 +375,7 @@
                     // Show the pop up if is after today's date
                     else {
                         element.bind('dblclick', function () {
-                            if ($_SESSION['role'] == 'Trainee') {
+                            if ('<?php echo $_SESSION['role'] ?>' == 'Trainee') {
                                 // ajax to check if class full or if got conflicting events
                                 $.ajax({
                                     url: "CalendarReqCodes/gtCheck.php",
