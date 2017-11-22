@@ -28,3 +28,5 @@ if (isset($_POST['traineeId'])) {
     
     echo "OK";
 }
+
+?>
