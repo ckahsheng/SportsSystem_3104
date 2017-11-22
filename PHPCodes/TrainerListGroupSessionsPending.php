@@ -6,23 +6,54 @@ if (session_status() == PHP_SESSION_NONE) {
 }
     $trainerName= $_SESSION['username'];
 
-$sqltran = mysqli_query($link, "SELECT * FROM grouptrainingschedule WHERE trainerName='$trainerName' && trainingApprovalStatus='Pending'")or die(mysqli_error($link));
+$sqltran = mysqli_query($link, "SELECT * FROM grouptrainings WHERE trainername='$trainerName' && trainingApprovalStatus='Pending'")or die(mysqli_error($link));
 $arrVal = array();
 $i = 1;
+
 while ($rowList = mysqli_fetch_array($sqltran)) {
 
+    $unavail = "";
+    $recurrDate = "";
+    if ($rowList['dateUnavailable'] == "") {
+        $unavail = "Available for All Dates";
+    } else {
+        $unavail = '<b>Certain Dates Are Not available</b>';
+    }
+
+    if ($rowList['recurring'] == "") {
+        $recurrDate = "Only One Session";
+    } else if ($rowList['recurring'] == "1") {
+        $recurrDate = 'Every Monday';
+    } else if ($rowList['recurring'] == "2") {
+        $recurrDate = 'Every Tuesday';
+    } else if ($rowList['recurring'] == "3") {
+        $recurrDate = 'Every Wednesday';
+    } else if ($rowList['recurring'] == "4") {
+        $recurrDate = 'Every Thursday';
+    } else if ($rowList['recurring'] == "5") {
+        $recurrDate = 'Every Monday';
+    } else if ($rowList['recurring'] == "6") {
+        $recurrDate = 'Every Saturday';
+    } else if ($rowList['recurring'] == "7") {
+        $recurrDate = 'Every Sunday';
+    }
+
     $result = array(
-        'num' => $i,
-        'title'=>$rowList['trainingTitle'],
-               'created_at'=>$rowList['trainingDate'],
-        'trainername' => $rowList['trainerName'],
-        'category' => $rowList['trainingCategory'],
-        'rate' => $rowList['trainingRate'],
-        'gym' => $rowList['trainingGym'],
-        'facility' => $rowList['trainingFacility'],
-        'capacity' => $rowList['trainingMaxCapacity'],
-        'status'=>$rowList['trainingApprovalStatus']
- 
+          'num' => $i,
+        'groupId' => $rowList['ID'],
+        'trainerName' => $rowList['trainername'],
+        'title' => $rowList['title'],
+        'trainingCategory' => $rowList['trainingcategory'],
+        'rate' => $rowList['trainingrate'],
+        'trainingSDate' => $rowList['trainingstartdate'],
+        'trainingEDate' => $rowList['trainingenddate'],
+        'venue' => $rowList['trainingGym'],
+        'starttime' => $rowList['trainingtime'],
+        'trainingFacility' => $rowList['trainingFacility'],
+        'trainingMaxCapacity' => $rowList['trainingcapacity'],
+        'recurring' => $recurrDate,
+        'dateUnavailable' => $unavail,
+        'trainingApprovalStatus' => $rowList['trainingApprovalStatus']
     );
     array_push($arrVal, $result);
     $i++;

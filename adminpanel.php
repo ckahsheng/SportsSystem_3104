@@ -379,7 +379,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
 //                                mysqli_close($link);
                                 ?>
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Manage Users<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">User Management<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab2primary" data-toggle="tab">Verify New Users(<?php echo($row_cnt) ?>)</a></li>
                                         <li><a href="#tab1primary" data-toggle="tab">View All Users</a></li>
@@ -390,7 +390,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
 <!--                                <li><a href="#tab2primary" data-toggle="tab">Verify New Users (<?php echo($row_cnt) ?>)</a></li>-->
                                 <!--<li><a href="#tab3primary" data-toggle="tab">Register New Trainer</a></li>-->
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Mange Gym Facilities<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">Gym Facility Management<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab5primary" data-toggle="tab">Add Gym</a></li>
                                         <li><a href="#tab6primary" data-toggle="tab">Add Gym Facility</a></li>
@@ -403,7 +403,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 </li>
 
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Manage Group Training Plans<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">Group Training Proposals<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab11primary" data-toggle="tab">Pending Group Training Plans</a></li>
                                         <li><a href="#tab12primary" data-toggle="tab">Verified Group Training Plans</a></li>
@@ -412,7 +412,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 </li>
 
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Manage Training Types<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">Training Category<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab14primary" data-toggle="tab">View Training Types</a></li>
                                         <li><a href="#tab15primary" data-toggle="tab">Add Training Types</a></li>
@@ -425,13 +425,24 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Company Information<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab18primary" data-toggle="tab">Add company information</a></li>
+<!--                                        <li><a href="#tab18primary" data-toggle="tab">Add company information</a></li>-->
                                         <li><a href="#tab23primary" data-toggle="tab">Update company information</a></li>
+                                        
                                     </ul>
                                 </li>
-
+                                        
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Training Tips<span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#tab19primary" data-toggle="tab">Add Training Tips</a></li>
+                                        <li><a href="#tab20primary" data-toggle="tab">Delete Training Tips</a></li>
+                                        <li><a href="#tab21primary" data-toggle="tab">Update Training Tips</a></li>
+                                        <li><a href="#tab22primary" data-toggle="tab">View Training Tips</a></li>
+                                    </ul>
+                                </li>
+                                
+                                <li class="dropdown">
+                                    <a href="#" data-toggle="dropdown">Manage Promotions<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab19primary" data-toggle="tab">Add Training Tips</a></li>
                                         <li><a href="#tab20primary" data-toggle="tab">Delete Training Tips</a></li>

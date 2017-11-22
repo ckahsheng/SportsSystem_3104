@@ -113,7 +113,7 @@ if (session_status() == PHP_SESSION_NONE) {
                     //do something for Monday, Wednesday and Friday
                 }
             }
-        } 
+        }
         $conflictDates = "";
         $lastInsertedId = "";
         $conflictArray = array();
@@ -202,69 +202,68 @@ if (session_status() == PHP_SESSION_NONE) {
                     //If no duplicated dates then proceed to store into database 
                     //1. Check if user has any training session in this period of time before allowing of creation 
 
-                        foreach ($datesToStoreRecurring as $value) {
-                                if(in_array( $value ,$conflictArray )){
-                                $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID,invalidLocation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                                if ($stmt = mysqli_prepare($link, $sql)) {
-                                    // Bind variables to the prepared statement as parameters
-                                    mysqli_stmt_bind_param($stmt, "ssssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID, $param_invalidLocation);
-                                    // Set parameters
-                                    $param_trainerid = $trainerId;
-                                    $param_trainingTitle = $_POST['trainingTitle'];
-                                    $param_trainingCategory = $trainingType;
-                                    $param_rate = $_POST['trainingRate'];
-                                    $param_Desc = $_POST['trainingDesc'];
-                                    $param_Date = date('Y-m-d', strtotime($value));
-                                    $param_Time = $_POST['startTime'];
-                                    $param_Gym = $gym;
-                                    $param_Facility = $_POST['Facility'];
-                                    $param_MaxCap = $_POST['trainingCapacityDropDown'];
-                                    $param_Status = "Pending";
-                                    $param_trainerName = $_SESSION['username'];
-                                    $param_recurrID = $lastInsertedId;
-                                    $param_invalidLocation = 'YES';
-                                    // Attempt to execute the prepared statement
-                                    if (mysqli_stmt_execute($stmt)) {
-                                        // Redirect to login page
+                    foreach ($datesToStoreRecurring as $value) {
+                        if (in_array($value, $conflictArray)) {
+                            $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID,invalidLocation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                            if ($stmt = mysqli_prepare($link, $sql)) {
+                                // Bind variables to the prepared statement as parameters
+                                mysqli_stmt_bind_param($stmt, "ssssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID, $param_invalidLocation);
+                                // Set parameters
+                                $param_trainerid = $trainerId;
+                                $param_trainingTitle = $_POST['trainingTitle'];
+                                $param_trainingCategory = $trainingType;
+                                $param_rate = $_POST['trainingRate'];
+                                $param_Desc = $_POST['trainingDesc'];
+                                $param_Date = date('Y-m-d', strtotime($value));
+                                $param_Time = $_POST['startTime'];
+                                $param_Gym = $gym;
+                                $param_Facility = $_POST['Facility'];
+                                $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                                $param_Status = "Pending";
+                                $param_trainerName = $_SESSION['username'];
+                                $param_recurrID = $lastInsertedId;
+                                $param_invalidLocation = 'YES';
+                                // Attempt to execute the prepared statement
+                                if (mysqli_stmt_execute($stmt)) {
+                                    // Redirect to login page
 
-                                        $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
-                                    } else {
-                                        $errorMessage = "Something went wrong. Please try again later.";
-                                        $_SESSION['errorMessage'] = "Please try again later";
-                                    }
-                                }
-                            } else {
-                                $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID,invalidLocation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                                if ($stmt = mysqli_prepare($link, $sql)) {
-                                    // Bind variables to the prepared statement as parameters
-                                    mysqli_stmt_bind_param($stmt, "ssssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID, $param_invalidLocation);
-                                    // Set parameters
-                                    $param_trainerid = $trainerId;
-                                    $param_trainingTitle = $_POST['trainingTitle'];
-                                    $param_trainingCategory = $trainingType;
-                                    $param_rate = $_POST['trainingRate'];
-                                    $param_Desc = $_POST['trainingDesc'];
-                                    $param_Date = date('Y-m-d', strtotime($value));
-                                    $param_Time = $_POST['startTime'];
-                                    $param_Gym = $gym;
-                                    $param_Facility = $_POST['Facility'];
-                                    $param_MaxCap = $_POST['trainingCapacityDropDown'];
-                                    $param_Status = "Pending";
-                                    $param_trainerName = $_SESSION['username'];
-                                    $param_recurrID = $lastInsertedId;
-                                    $param_invalidLocation = 'NO';
-                                    // Attempt to execute the prepared statement
-                                    if (mysqli_stmt_execute($stmt)) {
-                                        // Redirect to login page
-
-                                        $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
-                                    } else {
-                                        $errorMessage = "Something went wrong. Please try again later.";
-                                        $_SESSION['errorMessage'] = "Please try again later";
-                                    }
+                                    $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                                } else {
+                                    $errorMessage = "Something went wrong. Please try again later.";
+                                    $_SESSION['errorMessage'] = "Please try again later";
                                 }
                             }
-                        
+                        } else {
+                            $sql = "INSERT INTO grouptrainingschedule (trainerid,trainingTitle,trainingCategory,trainingRate,trainingDescription,trainingDate,trainingTime,trainingGym,trainingFacility,trainingMaxCapacity,trainingApprovalStatus,trainerName,GrpRecurrID,invalidLocation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                            if ($stmt = mysqli_prepare($link, $sql)) {
+                                // Bind variables to the prepared statement as parameters
+                                mysqli_stmt_bind_param($stmt, "ssssssssssssss", $param_trainerid, $param_trainingTitle, $param_trainingCategory, $param_rate, $param_Desc, $param_Date, $param_Time, $param_Gym, $param_Facility, $param_MaxCap, $param_Status, $param_trainerName, $param_recurrID, $param_invalidLocation);
+                                // Set parameters
+                                $param_trainerid = $trainerId;
+                                $param_trainingTitle = $_POST['trainingTitle'];
+                                $param_trainingCategory = $trainingType;
+                                $param_rate = $_POST['trainingRate'];
+                                $param_Desc = $_POST['trainingDesc'];
+                                $param_Date = date('Y-m-d', strtotime($value));
+                                $param_Time = $_POST['startTime'];
+                                $param_Gym = $gym;
+                                $param_Facility = $_POST['Facility'];
+                                $param_MaxCap = $_POST['trainingCapacityDropDown'];
+                                $param_Status = "Pending";
+                                $param_trainerName = $_SESSION['username'];
+                                $param_recurrID = $lastInsertedId;
+                                $param_invalidLocation = 'NO';
+                                // Attempt to execute the prepared statement
+                                if (mysqli_stmt_execute($stmt)) {
+                                    // Redirect to login page
+
+                                    $_SESSION['groupSessionCreated'] = 'Group Training Request Submitted';
+                                } else {
+                                    $errorMessage = "Something went wrong. Please try again later.";
+                                    $_SESSION['errorMessage'] = "Please try again later";
+                                }
+                            }
+                        }
                     }
                     // Close statement
                     mysqli_stmt_close($stmt);
@@ -315,7 +314,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 echo $_POST['Facility'];
                 echo $duplicateDateFlag;
                 echo $invalidGymLocationFlag;
-                if (($duplicateDateFlag == "true") || ($invalidGymLocationFlag=="true")) {
+                if (($duplicateDateFlag == "true") || ($invalidGymLocationFlag == "true")) {
                     
                 } else {
                     $sql = "INSERT INTO grouptrainings (title,trainername,trainingcategory,trainingrate,trainingstartdate,trainingenddate,trainingtime,trainingcapacity,trainingApprovalStatus,trainingGym,trainingFacility,recurring,dateUnavailable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -411,7 +410,7 @@ if (session_status() == PHP_SESSION_NONE) {
                         <div class="panel-heading">
                             <ul class="nav nav-tabs" >
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Group Training Session<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">Manage Group Training<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
 
                                         <li><a href="#tab1primary" data-toggle="tab">View Existing Group Training Request</a></li>
@@ -820,48 +819,75 @@ if (session_status() == PHP_SESSION_NONE) {
             buttonsClass: 'primary',
             showFooter: true,
             minimumCountColumns: 2,
-            columns: [{
+            columns: [
+
+                {
                     field: 'num',
                     title: '#',
                     sortable: true,
-                }, {
-                    field: 'title',
-                    title: 'Training Title',
+                },
+                {
+                    field: 'dateUnavailable',
+                    title: 'Location Available',
                     sortable: true,
                 }, {
-                    field: 'created_at',
-                    title: 'Training Date',
+                    field: 'groupId',
+                    title: 'Group id',
                     sortable: true,
+                    visible: false,
                 }, {
-                    field: 'trainername',
+                    field: 'trainerName',
                     title: 'Trainer Name',
                     sortable: true,
                 }, {
-                    field: 'category',
-                    title: 'Training Type',
+                    field: 'title',
+                    title: 'Title',
+                    sortable: true,
+                }, {
+                    field: 'trainingCategory',
+                    title: 'Training Category',
                     sortable: true,
                 }, {
                     field: 'rate',
-                    title: 'Training Rate',
+                    title: 'Rate',
                     sortable: true,
                 }, {
-                    field: 'gym',
-                    title: 'Gym',
+                    field: 'trainingSDate',
+                    title: 'Start Date',
                     sortable: true,
                 },
                 {
-                    field: 'facility',
-                    title: 'Training Location',
+                    field: 'trainingEDate',
+                    title: 'End Date',
                     sortable: true,
                 },
                 {
-                    field: 'capacity',
+                    field: 'venue',
+                    title: 'Venue',
+                    sortable: true,
+                }, {
+                    field: 'starttime',
+                    title: 'Time',
+                    sortable: true,
+                    visible: false,
+                },
+                {
+                    field: 'recurring',
+                    title: 'Repeated On',
+                    sortable: true,
+                },
+                {
+                    field: 'trainingFacility',
+                    title: 'Facility',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingMaxCapacity',
                     title: 'Max Capacity',
                     sortable: true,
-                },
-                {
-                    field: 'status',
-                    title: 'Application Status',
+                }, {
+                    field: 'trainingApprovalStatus',
+                    title: 'Approval Status',
                     sortable: true,
                 },
             ],
@@ -876,53 +902,74 @@ if (session_status() == PHP_SESSION_NONE) {
             buttonsClass: 'primary',
             showFooter: true,
             minimumCountColumns: 2,
-            columns: [{
+            columns: [
+                 {
                     field: 'num',
                     title: '#',
                     sortable: true,
-                }, {
-                    field: 'title',
-                    title: 'Training Title',
+                },
+                {
+                    field: 'dateUnavailable',
+                    title: 'Location Available',
                     sortable: true,
                 }, {
-                    field: 'created_at',
-                    title: 'Submitted Date',
+                    field: 'groupId',
+                    title: 'Group id',
                     sortable: true,
+                    visible: false,
                 }, {
-                    field: 'trainername',
+                    field: 'trainerName',
                     title: 'Trainer Name',
                     sortable: true,
                 }, {
-                    field: 'category',
-                    title: 'Training Type',
+                    field: 'title',
+                    title: 'Title',
+                    sortable: true,
+                }, {
+                    field: 'trainingCategory',
+                    title: 'Training Category',
                     sortable: true,
                 }, {
                     field: 'rate',
-                    title: 'Training Rate',
+                    title: 'Rate',
                     sortable: true,
                 }, {
-                    field: 'gym',
-                    title: 'Gym',
+                    field: 'trainingSDate',
+                    title: 'Start Date',
                     sortable: true,
                 },
                 {
-                    field: 'facility',
-                    title: 'Training Location',
+                    field: 'trainingEDate',
+                    title: 'End Date',
                     sortable: true,
                 },
                 {
-                    field: 'capacity',
+                    field: 'venue',
+                    title: 'Venue',
+                    sortable: true,
+                }, {
+                    field: 'starttime',
+                    title: 'Time',
+                    sortable: true,
+                    visible: false,
+                },
+                {
+                    field: 'recurring',
+                    title: 'Repeated On',
+                    sortable: true,
+                },
+                {
+                    field: 'trainingFacility',
+                    title: 'Facility',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'trainingMaxCapacity',
                     title: 'Max Capacity',
                     sortable: true,
-                },
-                {
-                    field: 'status',
-                    title: 'Application Status',
-                    sortable: true,
-                },
-                {
-                    field: 'remarks',
-                    title: 'Remarks',
+                }, {
+                    field: 'trainingApprovalStatus',
+                    title: 'Approval Status',
                     sortable: true,
                 },
             ],

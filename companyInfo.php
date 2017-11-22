@@ -28,7 +28,9 @@ if (session_status() == PHP_SESSION_NONE) {
         </div>
         <div class="container" style="padding-top:20px;">
             <div class="row">
+              
                 <div class="col-xs-6">
+                    <center> <h1>ABOUT US</h1></center>
                     <p align="left"><br/><?php
     while ($row = $result->fetch_assoc()) {
         echo $row['companyInfoDesc'];

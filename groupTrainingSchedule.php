@@ -13,7 +13,10 @@
         <link href='css/circle.css' rel='stylesheet'/>
     </head>
     <?php
+    if (session_status() == PHP_SESSION_NONE) {
     session_start();
+}
+
     include("navigation.php");
     //edit to show only the specific calendar
     $sql = "SELECT * FROM grouptrainingschedule WHERE trainingApprovalStatus='Verified'";
@@ -32,7 +35,9 @@
                 <table>                    
                     <tr>
                         <!-- TODO: color diff for each type of account + not logged in users -->
-                        <?php if ($_SESSION['role'] == 'Trainer') { ?>
+                        
+                        <?php 
+                        if ($_SESSION['role'] == 'Trainer') { ?>
                             <td><input class="circle" style="background: #6299f7; border: none;" readonly></td>
                             <td style="padding-left: 5px; margin-bottom: 50px;">Your GT</td>
                             <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
