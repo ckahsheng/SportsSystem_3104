@@ -23,26 +23,9 @@ if (isset($_POST['delete'])) {
 // EDIT FUNCTION
 elseif (isset($_POST['savechanges'])) {
 
-    // VARIABLES
-    $id = $_POST['id'];
-    $name = $_POST['editName'];
-    $title = $_POST['editTitle'];
-    $startdate = date('Y/m/d', strtotime($_POST['editStartDate']));
-    $starttime = $_POST['editStartTime'];
-    $endtimestamp = strtotime($_POST['editStartTime']) + 60 * 60;
-    $endtime = date('H:i', $endtimestamp);
-    $recur = implode(",", $_POST['editRecurring']);
-//    $venue = $_POST['editGymLocation'];
-    // END DATE
-    if ($_POST['editEndDate'] == $startdate && $recur == "") { //if no recur
-        $enddate = $startdate;
-    } else {
-        $enddate = date('Y/m/d', strtotime($_POST['editEndDate']));
-    }
-
-    // RATE AND TRAINING CATEGORY
-    if ($_POST['editEventType'] == "Personal Training") {
+    if ($_POST['editEventType'] == "Personal Training") { //PT
         $rate = $_POST['editRate'];
+        $eventtype = "pt";
         // RETRIEVE TRAINING CATEGORY NAME
         $categoryQuery = mysqli_prepare($link, "SELECT TRAINING_NAME FROM trainingtype WHERE ID = ?");
         mysqli_stmt_bind_param($categoryQuery, "s", $category);
@@ -73,61 +56,145 @@ elseif (isset($_POST['savechanges'])) {
         while ($facilityQuery->fetch()) {
             $facility = $ID;
         }
-        
-    } else {
+        $id = $_POST['id'];
+        $name = $_POST['editName'];
+        $title = $_POST['editTitle'];
+        $startdate = date('Y/m/d', strtotime($_POST['editStartDate']));
+        $starttime = $_POST['editStartTime'];
+        $endtimestamp = strtotime($_POST['editStartTime']) + 60 * 60;
+        $endtime = date('H:i', $endtimestamp);
+    } 
+    else if ($_POST['editEventType'] == "Own Training"){ //OT
+        $id = $_POST['id'];
+        $name = $_POST['editName'];
+        $title = $_POST['editTitle'];
         $rate = "";
         $trainingCategory = "";
         $facility = "";
         $venue = "";
-    }
-
-    // EVENT TYPE
-    if ($_POST['editEventType'] == "Personal Training") {
-        $eventtype = "pt";
-    } else {
         $eventtype = "ot";
+        $startdate = date('Y/m/d', strtotime($_POST['editStartDate']));
+        $starttime = $_POST['editStartTime'];
+        $endtimestamp = strtotime($_POST['editStartTime']) + 60 * 60;
+        $endtime = date('H:i', $endtimestamp);
+    } 
+    else if ($_POST['editEventType'] == "Group Training"){ //GT
+        $id = $_POST['id'];
+        $title = $_POST['editTitle'];
+        $description = $_POST['editDescription'];
+        
+        $startdate = date('Y/m/d', strtotime($_POST['editStartDate']));
+        $starttime = "";
+        $name = $_POST['editName'];
+        if(empty($_POST['editRecurring'])){
+            $recur = "";
+        }
+        else{
+            $recur = implode(",", $_POST['editRecurring']);
+        }
+        
     }
 
-    //get number of rows from the selected date and time
-    $sqlRows = "SELECT count(*) FROM trainerschedule where startdate = ? and starttime = ? ";
-    $q = $bdd->prepare($sqlRows);
-    if (($res = $q->execute(array($startdate, $starttime))) === TRUE) {
-        $v = $q->fetchColumn();
-    } else {
-        echo 'failed';
-    }
+    //check for duplicate
+    $sqlDuplicate = "select * from ( "
+                . "select trainerschedule.trainingid,trainerschedule.startdate as 'StartDate', trainerschedule.starttime as 'StartTime',trainerschedule.name as 'TrainerName' from trainerschedule "
+                . "union all "
+                . "select grouptrainingschedule.trainerid,grouptrainingschedule.trainingDate AS 'StartDate', grouptrainingschedule.trainingTime as 'StartTime',grouptrainingschedule.trainerName as 'TrainerName' from grouptrainingschedule ) "
+                . "a "
+                . "WHERE StartDate=? AND StartTime=? AND TrainerName=?";
+    $q = $bdd->prepare($sqlDuplicate);
+    $q->execute(array($startdate, $starttime, $name));
+    $result = $q->fetchAll(PDO::FETCH_ASSOC);
 
-    if ($v > 10) {
-        $msg = "Slots full";
-        header("Location:../testFullCalendar.php?msg=$msg");
+    if ($result == TRUE) {
+        echo '<script>';
+        echo 'alert("Duplicated slot");';
+        echo 'window.location = "../testFullCalendar.php";';
+        echo '</script>';
     } else {
-        //check for duplicate
-        $sqlDuplicate = "SELECT * FROM trainerschedule where startdate = ? and starttime = ? and name = ? ";
-        $q = $bdd->prepare($sqlDuplicate);
-        $q->execute(array($startdate, $starttime, $name));
-        $result = $q->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($result == TRUE) {
-            $msg = "Duplicated slot";
-            header("Location:../testFullCalendar.php?msg=$msg");
-        } else {
-            // UPDATE TRAINING DETAILS
-            $sql = "UPDATE trainerschedule SET name = ?, title = ?, startdate = ?, enddate = ?, venue = ?, starttime = ?, endtime = ?, rate = ?, recur = ?, eventType = ?, trainingCategory = ?, facility = ?  WHERE trainingid = ? ";
+        // UPDATE TRAINING DETAILS
+        if ($_POST['editEventType'] == "Personal Training" || $_POST['editEventType'] == "Own Training") {
+            $sql = "UPDATE trainerschedule SET name = ?, title = ?, startdate = ?, venue = ?, starttime = ?, endtime = ?, rate = ?, eventType = ?, trainingCategory = ?, facility = ?  WHERE trainingid = ? ";
 
             $query = $bdd->prepare($sql);
             if ($query == false) {
                 print_r($bdd->errorInfo());
                 die('error preparing');
             }
-            $sth = $query->execute(array($name, $title, $startdate, $enddate, $venue, $starttime, $endtime, $rate, $recur, $eventtype, $trainingCategory, $facility, $id));
+            $sth = $query->execute(array($name, $title, $startdate, $venue, $starttime, $endtime, $rate, $eventtype, $trainingCategory, $facility, $id));
             if ($sth == false) {
                 print_r($query->errorInfo());
                 die('error execute');
             }
-            header('Location:../testFullCalendar.php');
+            if ($query->rowCount() == 1) {
+                echo '<script>';
+                echo 'alert("Updated to calendar successfully!");';
+                echo 'window.location = "../testFullCalendar.php";';
+                echo '</script>';
+            }
+        }
+         
+        else if ($_POST['editEventType'] == "Group Training" && $recur != ""){
+            $GTSql = "UPDATE grouptrainings GT INNER JOIN grouptrainingschedule GTS ON GT.ID = GTS.GrpRecurrID SET title = ? WHERE GT.recurring = ? AND GTS.id = ?";
+
+            $GTquery = $bdd->prepare($GTSql);
+            if ($GTquery == false) {
+                print_r($bdd->errorInfo());
+                die('error preparing');
+            }
+            $GTsth = $GTquery->execute(array($title, $recur, $id));
+            if ($GTsth == false) {
+                print_r($GTquery->errorInfo());
+                die('error execute');
+            }
+
+            // To retrieve the GrpRecurrID
+            $recurQuery = mysqli_prepare($link, "SELECT GrpRecurrID FROM grouptrainingschedule WHERE id = ?");
+            mysqli_stmt_bind_param($recurQuery, "i", $id);
+            mysqli_stmt_execute($recurQuery);
+            $recurResult = $recurQuery->get_result();
+            $recurring = mysqli_fetch_assoc($recurResult);
+            
+            // Update the records based on GrpRecurrID
+            $GTSSql = "UPDATE grouptrainingschedule GTS INNER JOIN grouptrainings GT ON GT.ID = GTS.GrpRecurrID SET trainingTitle = ?, trainingDescription = ?  WHERE GT.ID = ?";
+            $GTSquery = $bdd->prepare($GTSSql);
+            if ($GTSquery == false) {
+                print_r($bdd->errorInfo());
+                die('error preparing');
+            }
+            $GTSsth = $GTSquery->execute(array($title, $description, $recurring['GrpRecurrID']));
+            if ($GTSsth == false) {
+                print_r($GTSquery->errorInfo());
+                die('error execute');
+            }
+
+            if ($GTquery->rowCount() == 1 && $GTSquery->rowCount() > 1 ) {
+                echo '<script>';
+                echo 'alert("Updated to calendar successfully2!");';
+                echo 'window.location = "../testFullCalendar.php";';
+                echo '</script>';
+            }       
+        }
+        else if ($_POST['editEventType'] == "Group Training" && $recur == ""){
+            $GTSSql = "UPDATE grouptrainingschedule SET trainingTitle = ?, trainingDescription = ?  WHERE id = ? ";
+
+            $GTSquery = $bdd->prepare($GTSSql);
+            if ($GTSquery == false) {
+                print_r($bdd->errorInfo());
+                die('error preparing');
+            }
+            $GTSsth = $GTSquery->execute(array($title, $description, $id));
+            if ($GTSsth == false) {
+                print_r($GTSquery->errorInfo());
+                die('error execute');
+            }
+            if ($GTSquery->rowCount() == 1) {
+                echo '<script>';
+                echo 'alert("Updated to calendar successfully1!");';
+                echo 'window.location = "../testFullCalendar.php";';
+                echo '</script>';
+            }       
         }
     }
 }
-
-//header('Location: index.php');
 ?>

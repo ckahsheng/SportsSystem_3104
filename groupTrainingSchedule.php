@@ -270,13 +270,14 @@
                     right: 'month,basicWeek,basicDay'
             },
                     eventLimit: true, // allow "more" link when too many events
-<?php if ($_SESSION['role'] == 'Admin') { ?>
+<?php if (isset($_SESSION['role'])) { 
+    if ($_SESSION['role'] == 'Admin') { ?>
                 editable: true,
                         selectable: true,
 <?php } else { ?>
                 editable: false,
                         selectable: false,
-<?php } ?>
+<?php }} ?>
             selectHelper: true,
                     displayEventTime: false, // hide the time. Eg 2a, 12p
                     // when you click the cells in the calendar

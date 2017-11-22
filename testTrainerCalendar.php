@@ -9,38 +9,10 @@ $result = mysqli_query($link, $sql);
 
 
 if (isset($_SESSION['username'])) {
-    $selectQuery = mysqli_query($link, "SELECT * FROM users WHERE userid = '" . $_SESSION['username'] . "'");
+    $selectQuery = mysqli_query($link, "SELECT bondWithTrainerId FROM users WHERE userid = '" . $_SESSION['username'] . "'");
     $selectResult = mysqli_fetch_array($selectQuery);
 }
 
-if (isset($_POST['bond'])) {
-    $updateQuery = mysqli_query($link, "UPDATE users SET bondWithTrainerId ='" . $_POST['trainerId'] . "' WHERE id='" . $selectResult['id'] . "'");
-    $row = mysqli_affected_rows($link);
-    if ($row == 1) {
-        echo '<script language="javascript">';
-        echo 'alert("Bonded Sucessfully!");';
-        echo '</script>';
-        header("Refresh: 0");
-    } else {
-        echo '<script language="javascript">';
-        echo 'alert("Something went wrong. Please try again later.");';
-        echo '</script>';
-    }
-}
-if (isset($_POST['endBond'])) {
-    $updateQuery = mysqli_query($link, "UPDATE users SET bondWithTrainerId ='' WHERE id='" . $selectResult['id'] . "'");
-    $row = mysqli_affected_rows($link);
-    if ($row == 1) {
-        echo '<script language="javascript">';
-        echo 'alert("Bond Ended Sucessfully!");';
-        echo '</script>';
-        header("Refresh: 0");
-    } else {
-        echo '<script language="javascript">';
-        echo 'alert("Something went wrong. Please try again later.");';
-        echo '</script>';
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,17 +65,17 @@ if (isset($_POST['endBond'])) {
                                 </p>
                               
                           
-                                <form method='post'>
+                                <form method='post' action="PHPCodes/updateBond.php">
                                     <input type="hidden" name="trainerId" value="<?php echo $row['id']; ?>">
                                     <?php
                                     if (isset($_SESSION['role'])) {
                                         if ($_SESSION['role'] == 'Trainee' && $selectResult['bondWithTrainerId'] == "") {
                                             ?>
                                             <h3><u>Bond</u><img src="img/questionmark.png" alt="" data-toggle="tooltip" title="Once you are bonded, you are unable to join other trainer's training" style="max-height: 15px; max-width:15px; margin-top: -20px"/></h3> 
-                                            <input type="submit" class="btn btn-primary" name="bond" value="Click here to bond" onclick="return confirm('Confirm to bond with <?php echo $row['userid']; ?>?')">
+                                            <input type="submit" class="btn btn-primary" name="bond" value="Click here to bond" onclick="return confirm('Note that your future training session that is not bonded with <?php echo $row['userid']; ?> will be removed. Confirm to bond with <?php echo $row['userid']; ?>?')">
 
                                         <?php } else if ($_SESSION['role'] == 'Trainee' && $selectResult['bondWithTrainerId'] == $row['id']) { ?>
-                                            <h3><u>Bond</u><img src="img/questionmark.png" alt="" data-toggle="tooltip" title="Once you are bonded, you are unable to join other trainer's training" style="max-height: 15px; max-width:15px; margin-top: -20px"/></h3> 
+                                            <h3><u>Bond</u><img src="img/questionmark.png" alt="" data-toggle="tooltip" title="Once you are bonded, you are unable to join other trainer's training." style="max-height: 15px; max-width:15px; margin-top: -20px"/></h3> 
                                             <input type="submit" class="btn btn-danger" name="endBond" value="Click here to end bond" onclick="return confirm('Are you sure you want to end bond with <?php echo $row['userid']; ?>?')">  
                                         <?php
                                         }
@@ -191,7 +163,7 @@ if (isset($_POST['endBond'])) {
                             <label>Where</label><br/>
                             <input type="text" style="border-style:none;" name="venue" id="venue" readonly><br/><br/>
                             <label>Cost</label><br/>
-                            <input type="text" size="1" style="border-style:none;" name="rate" id="rate" readonly>Per Hour<br/><br/>
+                            <input type="text" size="2" style="border-style:none;" name="rate" id="rate" readonly>Per Hour<br/><br/>
                             
                         <!-- <form action="CalendarReqCodes/traineeJoinPT.php" method="POST"> -->
                             <input type="text" name="id" id="id" hidden>
@@ -231,7 +203,7 @@ if (isset($_POST['endBond'])) {
 
                                 // if trainee is bonded with a trainer, and the bonded trainer's page is not this page, dont show join btn
                                 if ($bondedTrainerName != "" && $bondedTrainerName != $_GET['trainerName']) { ?>
-                                    <input type="submit" id="jnBtn" class="btn btn-primary disabled" name="joinBtn" value="Join this session">
+                                    <input type="submit" id="jnBtn" class="btn btn-primary" disabled name="joinBtn" value="Join this session">
                                 <?php } else if ($bondedTrainerName == $_GET['trainerName'] || $bondedTrainerName == "") { ?>
                                     <input type="submit" id="jnBtn" class="btn btn-primary" name="joinBtn" value="Join this session">
                                 <?php }
@@ -442,7 +414,7 @@ if (isset($_POST['endBond'])) {
                         selectHelper: true,
                         displayEventTime: false, // hide the time. Eg 2a, 12p               
                         eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-                             if (event.start.isBefore(moment())) {
+                             if (event.start.isBefore(moment().subtract(1, 'days'))) {
                                  element.bind('click', function () {
                                      $('#calendar').fullCalendar('unselect');
                                      $('#ModalView').modal('hide');
@@ -564,16 +536,6 @@ if (isset($_POST['endBond'])) {
                                     });
                                 });
                             // }
-
-                            // for recurring
-                            if (event.ranges) {
-                                return (event.ranges.filter(function (range) {
-                                    // window.alert(range.start);
-                                    return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
-                                }).length) > 0;
-                            } else { // if no recurring
-                                return true;
-                            }
                             }
                         }, //END OF EVENT RENDER FUNC.
 
@@ -605,9 +567,7 @@ if (isset($_POST['endBond'])) {
                             } else if ($_SESSION['username'] != $traineeId) { // not signed up trainee go trainer page see
                                 $color = '#bfbfbf'; // grey
                             }
-                            
-                            // if no recur
-                            if ($recur == "") { 
+
                                 ?>
                                 {
                                     id: '<?php echo $event['trainingid']; ?>',
@@ -624,30 +584,7 @@ if (isset($_POST['endBond'])) {
                                     realEndDate: '<?php echo $event['enddate']; ?>',
                                     realEndTime: '<?php echo $endTime; ?>',
                                 },
-                            <?php 
-                            } else { // if got recur
-                                ?>
-                                {
-                                    id: '<?php echo $event['trainingid']; ?>',
-                                    title: '<?php echo $title; ?>',
-                                    start: '10:00',
-                                    end: '12:00',
-                                    dow: '<?php echo $recur; ?>',
-                                    ranges: [{
-                                        start: '<?php echo $event['startdate']; ?>',
-                                        end: '<?php echo $end[0]; ?>T23:59:00',
-                                    }],
-                                    venue: '<?php echo $event['venue']; ?>',
-                                    facility: '<?php echo $event['facility']; ?>',
-                                    realEndTime: '<?php echo $event['endtime']; ?>',
-                                    rate: '<?php echo $event['rate']; ?>',
-                                    realStartDate: '<?php echo $event['startdate']; ?>',
-                                    realEndDate: '<?php echo $event['enddate']; ?>',
-                                },
-                                <?php
-                            }
-                            ?>
-
+                            
                         <?php endforeach; ?>
                         ] //END OF EVENT OBJECT
                     });

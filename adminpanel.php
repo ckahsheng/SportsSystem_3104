@@ -1072,6 +1072,27 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                         </form>
 
                                     </div> <!-- ./container --></div>
+                                <div class="tab-pane fade" id="tab20primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>Delete Training Types</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+
+                                                            <table id="tableTrainingTipsDelete"
+                                                                   data-show-columns="true"
+                                                                   data-height="460">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+                                    </div></div>
 
 
                                 <div class="tab-pane fade" id="tab21primary">
