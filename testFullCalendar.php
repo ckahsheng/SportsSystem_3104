@@ -767,23 +767,23 @@ foreach ($events as $event):
 
        
             ?>
-                            {
-                            id: '<?php echo $event['trainingid']; ?>',
-                                    title: '<?php echo $title; ?>',
-                                    start: '<?php echo $event['startdate']; ?>',
-                                    end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
-                                    name: '<?php echo $event['name']; ?>',
-                                    eventType: '<?php echo $event['eventType']; ?>',
-                                    realStartDate: '<?php echo $event['startdate']; ?>',
-                                    realEndDate: '<?php echo $event['enddate']; ?>',
-                                    trainingCategory: '<?php echo $trainingCategory; ?>',
-                                    gymLocation: '<?php echo $venue; ?>',
-                                    facility: '<?php echo $facility; ?>',
-                                    rate: '<?php echo $event['rate']; ?>',
-                                    startT: '<?php echo $event['starttime']; ?>',
-                                    traineeId: '<?php echo $traineeId; ?>',
-                                    color: '<?php echo $color; ?>',
-                            },
+                {
+                id: '<?php echo $event['trainingid']; ?>',
+                        title: '<?php echo $title; ?>',
+                        start: '<?php echo $event['startdate']; ?>',
+                        end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
+                        name: '<?php echo $event['name']; ?>',
+                        eventType: '<?php echo $event['eventType']; ?>',
+                        realStartDate: '<?php echo $event['startdate']; ?>',
+                        realEndDate: '<?php echo $event['enddate']; ?>',
+                        trainingCategory: '<?php echo $trainingCategory; ?>',
+                        gymLocation: '<?php echo $venue; ?>',
+                        facility: '<?php echo $facility; ?>',
+                        rate: '<?php echo $event['rate']; ?>',
+                        startT: '<?php echo $event['starttime']; ?>',
+                        traineeId: '<?php echo $traineeId; ?>',
+                        color: '<?php echo $color; ?>',
+                },
             <?php
         
     }
