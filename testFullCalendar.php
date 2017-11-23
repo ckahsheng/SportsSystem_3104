@@ -609,7 +609,7 @@ $events = array_merge($events, $group);
                 event.eventType = "Own Training";
                 jQuery("#editRecurring").attr('disabled', 'disabled');
                 }
-                else if (event.eventType == "gt"){
+                else if (event.eventType == "gt" && '<?php echo $_SESSION['role'] ?>' != Trainee){
                 event.eventType = "Group Training";
                 $('#editRateText').show();
                 $('#editTrainingTypeDDL').show();
