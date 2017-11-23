@@ -18,44 +18,36 @@
         <div class="container" style="padding-top:30px;">
             
              <div class="col-md-4">
-                 <center><h2>Promotion</h2></center>
+                <center><h3 style="margin-bottom: 10px;">Promotion</h3></center>
                  
-                        <div class="thumbnail" id="one" style="align-content:center;" >
-                                
-              
-               <a href="promotions.php"><img class="fixed-ratio-resize" src="img/mainpromotion.jpg" alt="img/thumbnail_COVER.JPG"/>
-                        </div>
-                    </div>
-            
-            
+                <div class="thumbnail" id="one" style="align-content:center;" >  
+                    <a href="promotions.php"><img class="fixed-ratio-resize" src="img/mainpromotion.jpg" alt="img/thumbnail_COVER.JPG"/></a>
+                </div>
+            </div>
+
             <div class="col-md-4">
-                
-                <center><h3>Training Tips</h3></center>
-                        <div class="thumbnail" id="one" style="align-content:center;">
-                               
-                 <a href="trainingtips.php"><img class="fixed-ratio-resize" src="img/trainertips2.jpg" alt="img/thumbnail_COVER.JPG"/>
-               
-                        </div>
-                    </div>
+                <center><h3 style="margin-bottom: 10px;">Training Tips</h3></center>
+
+                <div class="thumbnail" id="one" style="align-content:center;">
+                    <a href="trainingtips.php"><img class="fixed-ratio-resize" src="img/trainertips2.jpg" alt="img/thumbnail_COVER.JPG"/></a>
+                </div>
+            </div>
             
              <div class="col-md-4">
-                 <center><h3>Our Vision</h3></center>
-                        <div class="thumbnail" id="one" style="align-content:center;">
-                                 <a href="companyInfo.php"><img class="fixed-ratio-resize" src="img/golds-gym-downtown-la-ca-weight-training.jpg" alt="img/thumbnail_COVER.JPG"/>
-                
-               
-                        </div>
-                    </div>
-            
-            <p><?php
-                if (isset($_SESSION['role'])) {
+                 <center><h3 style="margin-bottom: 10px;">Our Vision</h3></center>
 
-                    echo("{$_SESSION['role']}" . "<br />");
-                }
-                {
-      
-                }
-                ?></p>
+                <div class="thumbnail" id="one" style="align-content:center;">
+                    <a href="companyInfo.php"><img class="fixed-ratio-resize" src="img/golds-gym-downtown-la-ca-weight-training.jpg" alt="img/thumbnail_COVER.JPG"/></a>
+                </div>
+            </div>
+            
+            <p>
+                <?php 
+                    if (isset($_SESSION['role'])) {
+                        // echo("{$_SESSION['role']}" . "<br />");
+                    }
+                ?>
+            </p>
         </div>
     </body>
     <?php include("footer.html"); ?>
