@@ -302,7 +302,38 @@
             </div>
 
         <?php } else if ($_SESSION['role'] == 'Trainer' || $_SESSION['role'] == 'Admin') { ?>
-            <!-- else if user is a trainer/ admin, see the info of each session that they are in charge of -->
+            <!-- else if user is a trainer/ admin, see the info of each session only - editing is done in panel -->
+
+            <div id="trainerSee" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <input type="text" style="border-style:none; font-size:200%; font-weight: bold;" name="title" id="title" readonly>
+                        </div>
+                        <div class="modal-body">
+                            <label>When</label><br/>
+                            <input type="text" style="border-style:none;" size="8.5" name="date" id="date" readonly><br/><br/>
+                            <label>Time</label><br/>
+                            <input type="text" style="border-style:none;" size="2" name="time" id="time" readonly><br/><br/>
+                            <label>Where</label><br/>
+                            <input type="text" style="border-style:none;" name="gym" id="gym" readonly><br/>
+                            <input type="text" style="border-style:none;" name="venue" id="venue" readonly><br/><br/>
+                            <label>Current Status</label><br/>
+                            <input type="text" style="border-style:none; text-align: center;" size="1" name="currentCap" id="currentCap" readonly> of 
+                            <input type="text" style="border-style:none; text-align: center;" size="1" name="maxCapacity" id="maxCapacity" readonly> slots taken<br/><br/>
+                            <label>Cost</label><br/>
+                            <input type="text" size="1" style="border-style:none;" name="rate" id="rate" readonly>Per Hour<br/><br/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
 
         <?php } ?>
     <?php } ?>
@@ -415,7 +446,20 @@ if (isset($_GET['msg'])) {
                         }
                     }
                 });
-            <?php  } ?>
+            <?php  } else if (isset($_SESSION['role']) && ($_SESSION['role']  == 'Trainer' || $_SESSION['role']  == 'admin')) { ?>
+                $('#trainerSee #id').val(event.id);
+                            $('#trainerSee #date').val(event.date);
+                            $('#trainerSee #title').val(event.title);
+                            $('#trainerSee #rate').val(event.rate);
+                            $('#trainerSee #gym').val(event.gym);
+                            $('#trainerSee #venue').val(event.venue);
+                            $('#trainerSee #maxCapacity').val(event.maxCapacity);
+                            $('#trainerSee #currentCap').val(event.currentCap);                            
+                            $('#trainerSee #time').val(event.time);
+                            $('#trainerSee #trainerId').val(event.trainerId);
+                            $('#trainerSee #grpRecurId').val(event.recurId);
+                            $('#trainerSee').modal('show');
+            <?php } ?>
 
             });
             }
