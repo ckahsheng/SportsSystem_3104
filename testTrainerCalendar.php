@@ -117,13 +117,25 @@ if (isset($_SESSION['username'])) {
                 <table>                    
                     <tr>
                       
-                            <td><input class="circle" style="background: #005800; border: none;" readonly></td>
-                            <td style="padding-left: 5px; margin-bottom: 50px;">Available PT</td>
+                        <td><input class="circle" style="background: #005800; border: none;" readonly></td>
+                        <td style="padding-left: 5px; margin-bottom: 50px;">Available PT</td>
      
                         <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
                         <td style="padding-left: 5px;">Your PT</td>
-                         <td style="padding-left: 20px;"><input class="circle" style="background: #bfbfbf; border: none;" readonly></td>
+                        <td style="padding-left: 20px;"><input class="circle" style="background: #bfbfbf; border: none;" readonly></td>
                         <td style="padding-left: 5px;">Occupied PT</td>
+
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Trainer') { ?>
+                            <td><input class="circle" style="background: #6299f7; border: none;" readonly></td>
+                            <td style="padding-left: 5px; margin-bottom: 50px;">Your GT</td>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Your GT (Full)</td>
+                        <?php } ?>
+               
+                        <td style="padding-left: 20px;"><input class="circle" style="background: #396376; border: none;" readonly></td>
+                        <td style="padding-left: 5px;">Available GT</td>
+                        <td style="padding-left: 20px;"><input class="circle" style="background: #a1c3d2; border: none;" readonly></td>
+                        <td style="padding-left: 5px;">Full GT</td>
 
                     </tr>
                 </table>
@@ -271,6 +283,49 @@ if (isset($_SESSION['username'])) {
                 </div>
             </div>
         </div>
+
+        <!-- trainee join group training modal -->
+        <?php if ($_SESSION['role'] == 'Trainee') { ?>
+            <!-- if user is a trainee, show modal that can let them join the session if got space -->
+            <div id="traineeJoin" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <input type="text" style="border-style:none; font-size:200%; font-weight: bold;" name="title" id="title" readonly>
+                        </div>
+                        <div class="modal-body">
+                            <label>When</label><br/>
+                            <input type="text" style="border-style:none;" size="8.5" name="date" id="date" readonly><br/><br/>
+                            <label>Time</label><br/>
+                            <input type="text" style="border-style:none;" size="2" name="time" id="time" readonly><br/><br/>
+                            <label>Where</label><br/>
+                            <input type="text" style="border-style:none;" name="gym" id="gym" readonly><br/>
+                            <input type="text" style="border-style:none;" name="venue" id="venue" readonly><br/><br/>
+                            <label>Current Status</label><br/>
+                            <input type="text" style="border-style:none; text-align: center;" size="1" name="currentCap" id="currentCap" readonly> of 
+                            <input type="text" style="border-style:none; text-align: center;" size="1" name="maxCapacity" id="maxCapacity" readonly> slots taken<br/><br/>
+                            <label>Cost</label><br/>
+                            <input type="text" size="1" style="border-style:none;" name="rate" id="rate" readonly>Per Hour<br/><br/>
+
+                            <input type="text" name="id" id="id" hidden>
+                            <input type="text" name="grpRecurId" id="grpRecurId" hidden>
+                            <input type="text" name="traineeId" value="<?php echo $_SESSION['username']; ?>" hidden>
+                            <input type="text" name="trainerId" id="trainerId" hidden>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" id="jnGrpBtn" class="btn btn-primary" name="joinGTBtn" value="Join this session">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <?php } else if ($_SESSION['role'] == 'Trainer' || $_SESSION['role'] == 'Admin') { ?>
+            <!-- else if user is a trainer/ admin, see the info of each session that they are in charge of -->
+
+        <?php } ?>
 
         <!-- EDIT Modal - for the delete -->
         <!-- HERE BOSS - TO REMOVE THIS LINE OF COMMENT -->
@@ -493,17 +548,19 @@ if (isset($_SESSION['username'])) {
                                                 } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
                                                     if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
 
-                                                        $('#ModalView #id').val(event.id);
-                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #title').val(concatTitle);
-                                                        $('#ModalView #venue').val(event.venue);
-                                                        $('#ModalView #facility').val(event.facility);
-                                                        $('#ModalView #starttime').val(event.startT);
-                                                        $('#ModalView #endtime').val(event.realEndTime);
-                                                        $('#ModalView #rate').val(event.rate);
+                                                        // $('#ModalView #id').val(event.id);
+                                                        // $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                        // $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                        // $('#ModalView #title').val(concatTitle);
+                                                        // $('#ModalView #venue').val(event.venue);
+                                                        // $('#ModalView #facility').val(event.facility);
+                                                        // $('#ModalView #starttime').val(event.startT);
+                                                        // $('#ModalView #endtime').val(event.realEndTime);
+                                                        // $('#ModalView #rate').val(event.rate);
 
-                                                        $('#ModalView').modal('show');    
+                                                        // $('#ModalView').modal('show');    
+
+                                                        alert('You have already joined this session!');
 
                                                     } else if (event.traineeId == "") {
 
@@ -621,6 +678,7 @@ if (isset($_SESSION['username'])) {
                             async: false,
                             success: function(data) {
                                 // alert("added!");
+                                
                                 alert("You have signed up for the session");
                                 $('#addedModal').modal('show');
                             },
@@ -638,6 +696,8 @@ if (isset($_SESSION['username'])) {
             }
         }
 
+
+        // GROUP TRAINING CAL CONFIG STARTS HERE
         function groupTraining(){
             // alert("test123");
             var x = document.getElementById("calendar2");
@@ -647,186 +707,172 @@ if (isset($_SESSION['username'])) {
                 $(document).ready(function () {
                 // alert("test");
                     $('#calendar2').fullCalendar({
-
                         header: {
                             left: 'prev,next today',
                             center: 'title',
                             right: 'month,basicWeek,basicDay'
                         },
                         eventLimit: true, // allow "more" link when too many events
-                        
-                        // TODO: identify username, so other usernames cannot click
-                        // TODO: got to check if bonded - if bonded && not to this trainer, then cannot select (here or L250)
-                        <?php if (!isset($_SESSION['username'])) { ?>
-                        selectable: false,
-                        editable: false,
+
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Admin') { ?>
+                            editable: true,
+                            selectable: true,
                         <?php } else { ?>
-                        selectable: true,
-                        editable: true,
+                            editable: false,
+                            selectable: false,
                         <?php } ?>
 
                         selectHelper: true,
-                        displayEventTime: false, // hide the time. Eg 2a, 12p               
+                        displayEventTime: false, // hide the time. Eg 2a, 12p
+                        // when you click the cells in the calendar
+                        select: function (start, end) { //START OF SELECT FUNC.
+                        // Hide the pop up if past date is before today's date
+                        if (start.isBefore(moment())) {
+                        $('#calendar').fullCalendar('unselect');
+                                $('#ModalAdd').modal('hide');
+                        } else { // Show the pop up if is after today's date
+                        $('#ModalAdd #startDate').val(moment(start).format('YYYY-MM-DD'));
+                                $('#ModalAdd').modal('show');
+                        }
+                        }, // END OF SELECT FUNC.
+
                         eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.
-                            // if (event.start.isBefore(moment())) {
-                            //     element.bind('click', function () {
-                            //         $('#calendar').fullCalendar('unselect');
-                            //         $('#ModalView').modal('hide');
-                            //         alert("You are unable to view past event");
-                            //     });
-                            // } else { // Show the pop up if is after today's date
-                                
-                                element.bind('click', function () {
+                            // Hide the pop up if past date is before today's date
+                            if (event.start.isBefore(moment())) {
+                                element.bind('dblclick', function () {
+                                $('#calendar').fullCalendar('unselect');
+                                        $('#traineeJoin').modal('hide');
+                                        alert("You are unable to make changes to past event dates!");
+                                });
+                            } else { // Show the pop up if is after today's date
+                                element.bind('dblclick', function () {
 
-                                    var eventTitle = (event.title).split(" ");
-                                    var startTime = eventTitle[0];
-
-                                    var realStartDate = (event.realStartDate).split(" ");
-                                    var realEndDate = (event.realEndDate).split(" ");
-
-                                    console.log(event.facility);
-                                    console.log(event.start.format('YYYY-MM-DD'));
-                                    console.log(event.startT);
-                                    console.log(event.traineeId);
-
-                                    // ajax to check if gym has enough capacity for the particular PT session
+                                <?php if (isset($_SESSION['role']) && $_SESSION['role']  == 'Trainee') {?>
+                                    // ajax to check if class full or if got conflicting events
                                     $.ajax({
-                                        url: "CalendarReqCodes/sufCapacity.php",
+                                        url: "CalendarReqCodes/gtCheck.php",
                                         type:"POST",
                                         data:{// whatever data you want to "post" to the processing page, using json format
-                                            'facility': event.facility,
-                                            'startdate': event.start.format('YYYY-MM-DD'),
-                                            'starttime': event.startT
+                                            'trainerId': event.trainerId,
+                                            'traineeId': '<?php echo $_SESSION['username'] ?>',
+                                            'id': event.id
                                         },
                                         async: false,
                                         success: function(data){ // data = what you echo'd back, can just like do if else
+                                            console.log('hui lai liao');
+                                            console.log(data.trim());
 
-                                            // alert(data);
+                                            gtCapStatus = data.trim();
 
-                                            if (data.trim() == "have") { // have space
-
-                                                console.log('have');
-
-                                                if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
-                                                     $('#ModalView #id').val(event.id);
-                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #title').val(eventTitle[1]);
-                                                        $('#ModalView #venue').val(event.venue);
-                                                        $('#ModalView #facility').val(event.facility);
-                                                        $('#ModalView #starttime').val(event.startT);
-                                                        $('#ModalView #endtime').val(event.realEndTime);
-                                                        $('#ModalView #rate').val(event.rate);
-
-                                                        $('#ModalView').modal('show');                                                        
-//                                                    console.log('trainer delete');
-//                                                    // TODO: to add codes for trainee to delete the session 
-//
-//                                                    $('#ModalEdit #id').val(event.id);
-//                                                    $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-//                                                    $('#ModalEdit #title').val(event.title);
-//                                                    $('#ModalEdit #color').val(event.color);
-//                                                    // $('#ModalEdit #startTime').val(event.time);
-//                                                    $('#ModalEdit').modal('show');
-//                                                    //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
-//                                                    if (event.start > (moment().add(2, 'days'))) {
-//                                                        document.getElementById("myBtn").disabled = false;
-//                                                    } else {
-//                                                        document.getElementById("myBtn").disabled = true;
-//                                                    }
-                                                } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
-                                                    if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
-                                                        $('#ModalView #id').val(event.id);
-                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #title').val(eventTitle[1]);
-                                                        $('#ModalView #venue').val(event.venue);
-                                                        $('#ModalView #facility').val(event.facility);
-                                                        $('#ModalView #starttime').val(event.startT);
-                                                        $('#ModalView #endtime').val(event.realEndTime);
-                                                        $('#ModalView #rate').val(event.rate);
-
-                                                        $('#ModalView').modal('show');    
-//                                                        console.log('trainee delete');
-//                                                        // TODO: to add codes for trainee to delete the session 
-//
-//                                                        $('#ModalEdit #id').val(event.id);
-//                                                        $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-//                                                        $('#ModalEdit #title').val(event.title);
-//                                                        $('#ModalEdit #color').val(event.color);
-//                                                        // $('#ModalEdit #startTime').val(event.time);
-//                                                        $('#ModalEdit').modal('show');
-//                                                        //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
-//                                                        if (event.start > (moment().add(2, 'days'))) {
-//                                                            document.getElementById("myBtn").disabled = false;
-//                                                        } else {
-//                                                            document.getElementById("myBtn").disabled = true;
-//                                                        }
-
-                                                    } else if (event.traineeId == "") {
-
-                                                        console.log('no traineeId');
-
-                                                        $('#ModalView #id').val(event.id);
-                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                        $('#ModalView #title').val(eventTitle[1]);
-                                                        $('#ModalView #venue').val(event.venue);
-                                                        $('#ModalView #facility').val(event.facility);
-                                                        $('#ModalView #starttime').val(event.startT);
-                                                        $('#ModalView #endtime').val(event.realEndTime);
-                                                        $('#ModalView #rate').val(event.rate);
-
-                                                        $('#ModalView').modal('show');
-
-                                                    } else if (event.traineeId != "" && event.traineeId != '<?php echo $_SESSION['username']; ?>') {
-
-                                                        console.log('other training sesh');
-
-                                                        $('#noAccessModal').modal('show');
-                                                    }
-                                                }
-                                            } else if (data.trim() == "nope") { // no space
-                                                // alert("no space");
-
-                                                $('#noSpaceModal').modal('show');
+                                            if (gtCapStatus == 'full') {
+                                                alert('Sorry, this group training is fully booked!');
+                                            } else if (gtCapStatus == 'free') {
+                                                $('#traineeJoin #id').val(event.id);
+                                                $('#traineeJoin #date').val(event.date);
+                                                $('#traineeJoin #title').val(event.title);
+                                                $('#traineeJoin #rate').val(event.rate);
+                                                $('#traineeJoin #gym').val(event.gym);
+                                                $('#traineeJoin #venue').val(event.venue);
+                                                $('#traineeJoin #maxCapacity').val(event.maxCapacity);
+                                                $('#traineeJoin #currentCap').val(event.currentCap);                            
+                                                $('#traineeJoin #time').val(event.time);
+                                                $('#traineeJoin #trainerId').val(event.trainerId);
+                                                $('#traineeJoin #grpRecurId').val(event.recurId);
+                                                $('#traineeJoin').modal('show');
+                                            } else if (gtCapStatus == 'exists') {
+                                                alert('You have already joined this group training session!');
                                             }
-                                        },
-                                        error: function (data) {
-                                            alert("Error-Please try again later");
-                                            console.log("GOT ERROR LAH");
                                         }
                                     });
-                                });
-                            // }
+                                <?php  } ?>
+
+                            });
+                        }
 
                             // for recurring
                             if (event.ranges) {
                                 return (event.ranges.filter(function (range) {
-                                    // window.alert(range.start);
                                     return (event.start.isBefore(range.end) && event.end.isAfter(range.start));
                                 }).length) > 0;
                             } else { // if no recurring
                                 return true;
                             }
-                        }, //END OF EVENT RENDER FUNC.
+                        },
 
-                        events: [ // START OF EVENT OBJECT
+                        events: [// START OF EVENT OBJECT
 
-                        <?php foreach ($events1 as $event): ?>
-                        {
-                                id: '<?php echo $event['id']; ?>',
-                                title: '<?php echo $event['trainingTitle']; ?>',
-                                start: '<?php echo $event['trainingDate']; ?>',
-                                time: '<?php echo $event['trainingTime']; ?>',
-                                color: '<?php echo $event['trainingRate']; ?>',
-                            },
-                        <?php endforeach; ?>
+                            <?php
+                            foreach ($events1 as $event):
+
+                            $color = '#396376';
+
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'Trainer' && $_SESSION['username'] == $event['trainerName']) {
+                                // your training sessions
+                                $color = '#6299f7';
+
+                                if ($event['currentCap'] >= $event['trainingMaxCapacity']) {
+                                    $color = '#adc9fb';
+                                }
+                            } else if ($event['currentCap'] >= $event['trainingMaxCapacity']) { // full
+                                $color = '#a1c3d2';
+                            }
+
+                            // TODO: find a way to let trainees see their signed up classes
+                            ?>
+                                {
+                                    id: '<?php echo $event['id']; ?>',
+                                    title: '<?php echo $event['trainingTitle']; ?>',
+                                    category: '<?php echo $event['trainingCategory']; ?>',
+                                    rate: '<?php echo $event['trainingRate']; ?>',
+                                    gym: '<?php echo $event['trainingGym']; ?>',
+                                    maxCapacity: '<?php echo $event['trainingMaxCapacity']; ?>',
+                                    currentCap: '<?php echo $event['currentCap']; ?>',
+                                    date: '<?php echo $event['trainingDate']; ?>',
+                                    time: '<?php echo $event['trainingTime']; ?>',
+                                    desc: '<?php echo $event['trainingDescription'] ?>',
+                                    venue: '<?php echo $event['trainingFacility'] ?>'.split(/[(]/g)[0], // removing the '(room size:xx)' ending
+                                    recurId: '<?php echo $event['GrpRecurrID']; ?>',
+                                    trainerId: '<?php echo $event['trainerid']; ?>',
+                                    color: '<?php echo $color; ?>',
+                                },
+                            <?php endforeach; ?>
                         ] //END OF EVENT OBJECT
                     });
+
+                    // when click on the particular join button in the current/ selected modal
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Trainee') { ?>
+                            document.getElementById("jnGrpBtn").onclick = function() {addTraineeGT()};
+                    <?php } ?>
+
+                    // ajax to add selected PT 
+                    function addTraineeGT() {
+                    $('#traineeJoin').modal('hide');
+                            $.ajax ({
+                                url: "CalendarReqCodes/traineeJoinGT.php",
+                                data: {
+                                    'traineeId': $('input[name=traineeId]').val(),
+                                    'trainerId': $('input[name=trainerId]').val(),
+                                    'id': $('input[name=id]').val(),
+                                    'grpRecurId': $('input[name=grpRecurId]').val()
+                                },
+                                type: "POST",
+                                async: false,
+                                success: function(data) {
+                                    if (data.trim() == 'inserted') {
+                                        alert("You have signed up for the session successfully!");
+                                    }
+                                },
+                                error: function(data) {
+                                    alert("Error joining this session");
+                                }
+                            });
+
+                            location.reload();
+                    }
+
                 });
-            }
-            else{
+
+            } else {
                 x.style.display="none";
             }
         }
