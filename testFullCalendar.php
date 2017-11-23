@@ -453,221 +453,230 @@ $events = array_merge($events, $group);
 
         $(document).ready(function(){
 
-        // END-DATE DATEPICKER
-        var date = new Date();
-        var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        $("#datePicker, #editStartDatePicker, #editEndDatePicker").datepicker({
-        autoclose: true,
+            // END-DATE DATEPICKER
+            var date = new Date();
+            var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            $("#datePicker, #editStartDatePicker, #editEndDatePicker").datepicker({
+                autoclose: true,
                 format: 'dd-mm-yyyy',
                 startDate: today
-        });
-        //prevent user to type anything in start date during editing
-        $('#editStartDate').keypress(function(e) {
-        e.preventDefault();
-        });
-        // TO DISPLAY END DATE IF RECUR IS CHECKED
-        $("input[name='recurring[]']").click(function(){
-        if (jQuery('#recur input[type=checkbox]:checked').length){
-        $("#endDateRecur").show();
-        }
-        else{
-        $("#endDateRecur").hide();
-        }
-        });
-        // TO DISPLAY RATE, TRAINING TYPE, LOCATION, FACILITY IF PT IS CHECKED
-        $("#ot, #pt").change(function(){
-        if ($("#pt").is(":checked")){
-        $("#rateText").show();
-        $("#trainingTypeDDL").show();
-        $("#gymLocationDDL").show();
-        $("#facilityText").show();
-        jQuery("#trainingType").removeAttr("disabled");
-        jQuery("#gymLocation").removeAttr("disabled");
-        } else {
-        $("#rateText").hide();
-        $("#trainingTypeDDL").hide();
-        $("#gymLocationDDL").hide();
-        $("#facilityText").hide();
-        jQuery("#trainingType").attr("disabled", 'disabled');
-        jQuery("#gymLocation").attr("disabled", 'disabled');
-        }
-        });
-        //Upon training type being selected, the price of the category of training will be updated as well 
-        $("#trainingType, #editTrainingType").change(function(){
-        var id = $(this).find(":selected").val();
-        var trainingId = id;
-        $.ajax({
-        type: "POST",
-                url: 'PHPCodes/getTrainingRate.php',
-                data: {trainingId: trainingId},
-                cache: false,
-                success: function (r)
-                {
-                document.getElementById("rate").value = r;
-                document.getElementById("editRate").value = r;
+            });
+            //prevent user to type anything in start date during editing
+            $('#editStartDate').keypress(function(e) {
+                e.preventDefault();
+            });
+            // TO DISPLAY END DATE IF RECUR IS CHECKED
+            $("input[name='recurring[]']").click(function(){
+                if (jQuery('#recur input[type=checkbox]:checked').length){
+                    $("#endDateRecur").show();
+                } else {
+                    $("#endDateRecur").hide();
                 }
-        });
-        });
-        // TO PREVENT HIDE/SHOW BUGS FOR EDIT MODAL
-        $('#ModalEdit').on('hidden.bs.modal', function () {
-        location.reload();
-        });
+            });
+            // TO DISPLAY RATE, TRAINING TYPE, LOCATION, FACILITY IF PT IS CHECKED
+            $("#ot, #pt").change(function(){
+                if ($("#pt").is(":checked")){
+                    $("#rateText").show();
+                    $("#trainingTypeDDL").show();
+                    $("#gymLocationDDL").show();
+                    $("#facilityText").show();
+                    jQuery("#trainingType").removeAttr("disabled");
+                    jQuery("#gymLocation").removeAttr("disabled");
+                } else {
+                    $("#rateText").hide();
+                    $("#trainingTypeDDL").hide();
+                    $("#gymLocationDDL").hide();
+                    $("#facilityText").hide();
+                    jQuery("#trainingType").attr("disabled", 'disabled');
+                    jQuery("#gymLocation").attr("disabled", 'disabled');
+                }
+            });
+            //Upon training type being selected, the price of the category of training will be updated as well 
+            $("#trainingType, #editTrainingType").change(function(){
+                var id = $(this).find(":selected").val();
+                var trainingId = id;
+
+                $.ajax({
+                    type: "POST",
+                    url: 'PHPCodes/getTrainingRate.php',
+                    data: {trainingId: trainingId},
+                    cache: false,
+                    success: function (r) {
+                    document.getElementById("rate").value = r;
+                    document.getElementById("editRate").value = r;
+                    }
+                });
+            });
+            // TO PREVENT HIDE/SHOW BUGS FOR EDIT MODAL
+            $('#ModalEdit').on('hidden.bs.modal', function () {
+                location.reload();
+            });
         // FULL CALENDAR
         $('#calendar').fullCalendar({
-        header: {
-        left: 'prev,next today',
+            header: {
+                left: 'prev,next today',
                 center: 'title',
                 right: 'month,basicWeek,basicDay'
-        },
-                eventLimit: true, // allow "more" link when too many events
+            },
+            eventLimit: true, // allow "more" link when too many events
 
-<?php if (!isset($_SESSION['username'])) { ?>
-            editable: false,
-                    selectable: false,
-<?php } else { ?>
-            editable: true,
-                    selectable: true,
-<?php } ?>
+            <?php if (!isset($_SESSION['username'])) { ?>
+                editable: false,
+                selectable: false,
+            <?php } else { ?>
+                editable: true,
+                selectable: true,
+            <?php } ?>
 
-        displayEventTime: false, // hide the time. Eg 2a, 12p
+            displayEventTime: false, // hide the time. Eg 2a, 12p
 
-                // When you click the cell in the calendar
-                select: function (start, end) { //START OF SELECT FUNC.
+            // When you click the cell in the calendar
+            select: function (start, end) { //START OF SELECT FUNC.
                 if (start.isBefore(moment())) {
-                $('#calendar').fullCalendar('unselect');
-                $('#ModalAdd').modal('hide');
+                    $('#calendar').fullCalendar('unselect');
+                    $('#ModalAdd').modal('hide');
                 }
                 else {
-                $('#ModalAdd #startDate').val(moment(start).format('DD-MM-YYYY'));
-                $('#ModalAdd').modal('show');
+                    $('#ModalAdd #startDate').val(moment(start).format('DD-MM-YYYY'));
+                    $('#ModalAdd').modal('show');
                 }
-                }, // END OF SELECT FUNC.
+            }, // END OF SELECT FUNC.
 
-                // When you double click the event in the cell
-                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
+            // When you double click the event in the cell
+            eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
                 if (event.start.isBefore(moment().subtract(2, 'days'))) {
-                element.bind('dblclick', function () {
-                $('#calendar').fullCalendar('unselect');
-                $('#ModalEdit').modal('hide');
-                alert("You are unable to make changes to past event dates!");
-                });
+                    element.bind('dblclick', function () {
+                        $('#calendar').fullCalendar('unselect');
+                        $('#ModalEdit').modal('hide');
+                        alert("You are unable to make changes to past event dates!");
+                    });
                 }
                 else {
-                element.bind('dblclick', function () {
-                var eventTitle = (event.title).split(" ");
-                var realStartDate = (event.realStartDate).split(" ");
-                var concatTitle = "";
-                if (event.color == "#67d967"){
-<?php if ($_SESSION['role'] == 'Trainer') { ?>
-                    for (var i = 2; i < eventTitle.length; i++) {
-                    eventTitle[i]
-                            concatTitle += eventTitle[i] + " ";
-                    }
-<?php } else { ?>
-                    for (var i = 1; i < eventTitle.length; i++) {
-                    concatTitle += eventTitle[i] + " ";
-                    }
-<?php } ?>
-                } else{
-                for (var i = 1; i < eventTitle.length; i++) {
-                concatTitle += eventTitle[i] + " ";
-                }
-                }
-                concatTitle = concatTitle.replace("/", "");
-                // based on color code, change the label name (trainer's name / trainee's name)
-<?php if ($_SESSION['role'] == 'Trainer') { ?>
-                    if (event.color == "#005800" || event.color == "#b6abfb" || event.color == "#67d967"){
-                    document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
-                    }
-                    else{
-                    document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
-                    }
-<?php } else { ?>
-                    if (event.color == "#005800" || event.color == "#b6abfb"){
-                    document.getElementById('editNameLabel').innerHTML = "Trainee's Name";
-                    }
-                    else if (event.color == "#67d967"){
-                    document.getElementById("editNameLabel").innerHTML = "Trainer's Name";
-                    }
-                    else{
-                    document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
-                    }
-<?php } ?>
+                    element.bind('dblclick', function () {
+                        var eventTitle = (event.title).split(" ");
+                        var realStartDate = (event.realStartDate).split(" ");
+                        var concatTitle = "";
+                        if (event.color == "#67d967"){
+                            <?php if ($_SESSION['role'] == 'Trainer') { ?>
+                                for (var i = 2; i < eventTitle.length; i++) {
+                                    eventTitle[i]
+                                    concatTitle += eventTitle[i] + " ";
+                                }
+                            <?php } else { ?>
+                                for (var i = 1; i < eventTitle.length; i++) {
+                                    concatTitle += eventTitle[i] + " ";
+                                }
+                            <?php } ?>
+                        } else {
+                            for (var i = 1; i < eventTitle.length; i++) {
+                                concatTitle += eventTitle[i] + " ";
+                            }
+                        }
+                        concatTitle = concatTitle.replace("/", "");
+                        // based on color code, change the label name (trainer's name / trainee's name)
+                        <?php if ($_SESSION['role'] == 'Trainer') { ?>
+                            if (event.color == "#005800" || event.color == "#b6abfb" || event.color == "#67d967") {
+                                document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
+                            } else {
+                                document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
+                            }
+                        <?php } else { ?>
+                            if (event.color == "#005800" || event.color == "#b6abfb"){
+                                document.getElementById('editNameLabel').innerHTML = "Trainee's Name";
+                            } else if (event.color == "#67d967"){
+                                document.getElementById("editNameLabel").innerHTML = "Trainer's Name";
+                            } else{
+                                document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
+                            }
+                        <?php } ?>
 
 
-                if (event.eventType == "pt"){
-                event.eventType = "Personal Training";
-                $('#editRateText').show();
-                $('#editTrainingTypeDDL').show();
-                $('#editGymLocationDDL').show();
-                $('#editFacilityText').show();
-                jQuery("#editTrainingType").removeAttr("disabled");
-                jQuery("#editGymLocation").removeAttr("disabled");
-                jQuery("#editRecurring").attr('disabled', 'disabled');
-                }
-                else if (event.eventType == "ot"){
-                event.eventType = "Own Training";
-                jQuery("#editRecurring").attr('disabled', 'disabled');
-                }
-                else if (event.eventType == "gt"){
-                event.eventType = "Group Training";
-                $('#editRateText').show();
-                $('#editTrainingTypeDDL').show();
-                $('#editGymLocationDDL').show();
-                $('#editFacilityText').show();
-                $('#editDescriptionText').show();
-                $('#editCapacityText').show();
-                $('#myBtn').hide();
-                jQuery("#editDescription").removeAttr("disabled");
-                jQuery("#editGymLocation").attr('readonly', true);
-                jQuery("#editTrainingType").attr('readonly', true);
-                jQuery("#editStartDate").attr('readonly', true);
-                jQuery("#editStartTime").attr('readonly', true);
-                jQuery("#editTrainingType").attr('disabled', 'disabled');
-                jQuery("#editStartTime").attr('disabled', 'disabled');
-                $("#editRecurring").prop("checked", false);
-                $('#editStartDatePicker').datepicker('remove');
-                var arrayValues = (event.recur).split(",");
-                if (arrayValues == ""){
-                $('#editEndDateRecur').hide();
-                }
-                else{
-                for (var i = 0; i < arrayValues.length; i++) {
-                $('#ModalEdit #editRecurring').val(arrayValues);
-                }
-                $('#editEndDateRecur').show();
-                $('#editRecur').show();
-                }
-                }
+                        if (event.eventType == "pt"){
+                            
+                            event.eventType = "Personal Training";
+                            $('#editRateText').show();
+                            $('#editTrainingTypeDDL').show();
+                            $('#editGymLocationDDL').show();
+                            $('#editFacilityText').show();
+                            jQuery("#editTrainingType").removeAttr("disabled");
+                            jQuery("#editGymLocation").removeAttr("disabled");
+                            jQuery("#editRecurring").attr('disabled', 'disabled');
 
-                if (event.traineeId == "<?php echo $_SESSION['username']; ?>"){
-                $('#editEndDateRecur').hide();
-                $('#savechanges').hide();
-                $('#editRecur').hide();
-                jQuery("#editTitle").attr('readonly', true);
-                jQuery("#editGymLocation").attr('readonly', true);
-                jQuery("#editStartDate").attr('readonly', true);
-                jQuery("#editRecurring").attr('disabled', 'disabled');
-                jQuery("#editGymLocation").attr('disabled', 'disabled');
-                jQuery("#editTrainingType").attr('disabled', 'disabled');
-                jQuery("#editStartTime").attr('disabled', 'disabled');
-                $('#editStartDatePicker').datepicker('remove');
-                }
+                        } else if (event.eventType == "ot") {
 
-                $('#ModalEdit #id').val(event.id);
-                $('#ModalEdit #editEventType').val(event.eventType);
-                $('#ModalEdit #editName').val(event.name);
-                $('#ModalEdit #editTitle').val(concatTitle);
-                $('#ModalEdit #editStartDate').val(moment(realStartDate[0]).format('DD-MM-YYYY'));
-                $('#ModalEdit #editEndDate').val(moment(event.realEndDate).format('DD-MM-YYYY'));
-                $('#ModalEdit #editStartTime').val(event.startT);
-                $('#ModalEdit #editTrainingType').val(event.trainingCategory);
-                $('#ModalEdit #editGymLocation').val(event.gymLocation);
-                $('#ModalEdit #editFacility').val(event.facility);
-                $('#ModalEdit #editRate').val(event.rate);
-                $('#ModalEdit #editDescription').val(event.description);
-                $('#ModalEdit #editCapacity').val(event.capacity);
-                $('#ModalEdit').modal('show');
+                            event.eventType = "Own Training";
+                            jQuery("#editRecurring").attr('disabled', 'disabled');
+
+                        } else if (event.eventType == "gt") {
+
+                            event.eventType = "Group Training";
+
+                            $('#editRateText').show();
+                            $('#editTrainingTypeDDL').show();
+                            $('#editGymLocationDDL').show();
+                            $('#editFacilityText').show();
+                            $('#editDescriptionText').show();
+                            $('#editCapacityText').show();
+                            $('#myBtn').hide();
+
+                            jQuery("#editDescription").removeAttr("disabled");
+                            jQuery("#editGymLocation").attr('readonly', true);
+                            jQuery("#editTrainingType").attr('readonly', true);
+                            jQuery("#editStartDate").attr('readonly', true);
+                            jQuery("#editStartTime").attr('readonly', true);
+                            jQuery("#editTrainingType").attr('disabled', 'disabled');
+                            jQuery("#editStartTime").attr('disabled', 'disabled');
+                            $("#editRecurring").prop("checked", false);
+                            $('#editStartDatePicker').datepicker('remove');
+                            
+                            var arrayValues = (event.recur).split(",");
+                            if (arrayValues == "") {
+                                $('#editEndDateRecur').hide();
+                            } else {
+                                for (var i = 0; i < arrayValues.length; i++) {
+                                    $('#ModalEdit #editRecurring').val(arrayValues);
+                                }
+                                $('#editEndDateRecur').show();
+                                $('#editRecur').show();
+                            }
+                        }
+
+                        if (event.traineeId == "<?php echo $_SESSION['username']; ?>"){
+                            $('#editEndDateRecur').hide();
+                            $('#savechanges').hide();
+                            $('#editRecur').hide();
+                            jQuery("#editTitle").attr('readonly', true);
+                            jQuery("#editGymLocation").attr('readonly', true);
+                            jQuery("#editStartDate").attr('readonly', true);
+                            jQuery("#editRecurring").attr('disabled', 'disabled');
+                            jQuery("#editGymLocation").attr('disabled', 'disabled');
+                            jQuery("#editTrainingType").attr('disabled', 'disabled');
+                            jQuery("#editStartTime").attr('disabled', 'disabled');
+                            $('#editStartDatePicker').datepicker('remove');
+                        }
+
+                        $('#ModalEdit #id').val(event.id);
+                        $('#ModalEdit #editEventType').val(event.eventType);
+                        $('#ModalEdit #editName').val(event.name);
+                        $('#ModalEdit #editTitle').val(concatTitle);
+                        $('#ModalEdit #editStartDate').val(moment(realStartDate[0]).format('DD-MM-YYYY'));
+                        $('#ModalEdit #editEndDate').val(moment(event.realEndDate).format('DD-MM-YYYY'));
+                        $('#ModalEdit #editStartTime').val(event.startT);
+                        $('#ModalEdit #editTrainingType').val(event.trainingCategory);
+                        $('#ModalEdit #editGymLocation').val(event.gymLocation);
+                        $('#ModalEdit #editFacility').val(event.facility);
+                        $('#ModalEdit #editRate').val(event.rate);
+                        $('#ModalEdit #editDescription').val(event.description);
+                        $('#ModalEdit #editCapacity').val(event.capacity);
+
+                        if ("<?php echo $_SESSION['role']; ?>" != "Trainee") {
+                            $('#ModalEdit').modal('show');
+                        } else {
+                            if (event.eventType != "Group Training") {
+                                $('#ModalEdit').modal('show');
+                            }
+                        }
+                        
 //                document.getElementById("savechanges").style.visibility = 'visible';
 //                document.getElementById("savechanges").show();
                 //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
