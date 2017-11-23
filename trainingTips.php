@@ -23,11 +23,9 @@ if (session_status() == PHP_SESSION_NONE) {
     </head>
     <?php include("navigation.php"); ?>
     <body>
-        <div class="container" style="padding-top:70px;">
-            <img class="fixed-ratio-resize" src="img/personaltrainer.jpg" alt="img/thumbnail_COVER.JPG"/>
-        </div>
+         
 
-        <div class="container" style="padding-top:20px;">
+        <div class="container" style="padding-top:90px;">
             <center><h1>Training Tips</h1></center>
             <hr>
             <div class="row">
