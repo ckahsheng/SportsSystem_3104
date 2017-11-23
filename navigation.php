@@ -248,7 +248,9 @@ if (!empty($_POST['login_submit'])) {
                                 <div class="row">
 
                                     <div class="col-md-11" style="width:300px;">
-                                        <center> <a href="trainerPersonalSchedule.php">COACH PANEL</a></center> <br>
+                                        <?php if ($_SESSION['role'] == 'Trainer') { ?>
+                                            <center> <a href="trainerPersonalSchedule.php">COACH PANEL</a></center> <br>
+                                        <?php } ?>
                                         <center> <a href="editTraineeProfile.php">VIEW PROFILE DETAILS</a></center> <br>
                                         <center> <a href="changePassword.php">CHANGE PASSWORD</a></center> <br>
                                     </div>

@@ -29,15 +29,13 @@
             <!-- calendar legend -->
             <center>
                 <table>                    
-                    <tr>
-                        <!-- TODO: color diff for each type of account + not logged in users -->
-               
-                            <?php if ($_SESSION['role'] == 'Trainer') { ?>
-                                <td><input class="circle" style="background: #6299f7; border: none;" readonly></td>
-                                <td style="padding-left: 5px; margin-bottom: 50px;">Your GT</td>
-                                <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
-                                <td style="padding-left: 5px;">Your GT (Full)</td>
-                            <?php } ?>
+                    <tr>               
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Trainer') { ?>
+                            <td><input class="circle" style="background: #6299f7; border: none;" readonly></td>
+                            <td style="padding-left: 5px; margin-bottom: 50px;">Your GT</td>
+                            <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
+                            <td style="padding-left: 5px;">Your GT (Full)</td>
+                        <?php } ?>
                    
                         <td style="padding-left: 20px;"><input class="circle" style="background: #396376; border: none;" readonly></td>
                         <td style="padding-left: 5px;">Available GT</td>
@@ -284,6 +282,9 @@
                             <label>Where</label><br/>
                             <input type="text" style="border-style:none;" name="gym" id="gym" readonly><br/>
                             <input type="text" style="border-style:none;" name="venue" id="venue" readonly><br/><br/>
+                            <label>Current Status</label><br/>
+                            <input type="text" style="border-style:none; text-align: center;" size="1" name="currentCap" id="currentCap" readonly> of 
+                            <input type="text" style="border-style:none; text-align: center;" size="1" name="maxCapacity" id="maxCapacity" readonly> slots taken<br/><br/>
                             <label>Cost</label><br/>
                             <input type="text" size="1" style="border-style:none;" name="rate" id="rate" readonly>Per Hour<br/><br/>
 
@@ -333,28 +334,22 @@ if (isset($_GET['msg'])) {
     // full calendar
     $(document).ready(function () {
     $('#calendar').fullCalendar({
-    header: {
-    left: 'prev,next today',
+        header: {
+            left: 'prev,next today',
             center: 'title',
             right: 'month,basicWeek,basicDay'
-    },
-            eventLimit: true, // allow "more" link when too many events
+        },
+        eventLimit: true, // allow "more" link when too many events
 
-<?php
-
-    if ($_SESSION['role'] == 'Admin') {
-        ?>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Admin') { ?>
             editable: true,
-                    selectable: true,
-    <?php } else { ?>
+            selectable: true,
+        <?php } else { ?>
             editable: false,
-                    selectable: false,
-        <?php
-    }
+            selectable: false,
+        <?php } ?>
 
-?>
-
-    selectHelper: true,
+            selectHelper: true,
             displayEventTime: false, // hide the time. Eg 2a, 12p
             // when you click the cells in the calendar
             select: function (start, end) { //START OF SELECT FUNC.
@@ -383,44 +378,44 @@ if (isset($_GET['msg'])) {
             else {
             element.bind('dblclick', function () {
 
-           <?php 
-           if ( $_SESSION['role']  == 'Trainee') {?>
-            // ajax to check if class full or if got conflicting events
-            $.ajax({
-            url: "CalendarReqCodes/gtCheck.php",
+            <?php if (isset($_SESSION['role']) && $_SESSION['role']  == 'Trainee') {?>
+                // ajax to check if class full or if got conflicting events
+                $.ajax({
+                    url: "CalendarReqCodes/gtCheck.php",
                     type:"POST",
                     data:{// whatever data you want to "post" to the processing page, using json format
-                    'trainerId': event.trainerId,
-                            'traineeId': '<?php echo $_SESSION['username'] ?>',
-                            'id': event.id
+                        'trainerId': event.trainerId,
+                        'traineeId': '<?php echo $_SESSION['username'] ?>',
+                        'id': event.id
                     },
                     async: false,
                     success: function(data){ // data = what you echo'd back, can just like do if else
-                    console.log('hui lai liao');
-                            console.log(data.trim());
-                            gtCapStatus = data.trim();
-                            if (gtCapStatus == 'full') {
-                    alert('Sorry, this group training is fully booked!');
-                    } else if (gtCapStatus == 'free') {
-                    $('#traineeJoin #id').val(event.id);
+                        console.log('hui lai liao');
+                        console.log(data.trim());
+
+                        gtCapStatus = data.trim();
+
+                        if (gtCapStatus == 'full') {
+                            alert('Sorry, this group training is fully booked!');
+                        } else if (gtCapStatus == 'free') {
+                            $('#traineeJoin #id').val(event.id);
                             $('#traineeJoin #date').val(event.date);
                             $('#traineeJoin #title').val(event.title);
                             $('#traineeJoin #rate').val(event.rate);
                             $('#traineeJoin #gym').val(event.gym);
                             $('#traineeJoin #venue').val(event.venue);
                             $('#traineeJoin #maxCapacity').val(event.maxCapacity);
+                            $('#traineeJoin #currentCap').val(event.currentCap);                            
                             $('#traineeJoin #time').val(event.time);
                             $('#traineeJoin #trainerId').val(event.trainerId);
                             $('#traineeJoin #grpRecurId').val(event.recurId);
                             $('#traineeJoin').modal('show');
-                    } else if (gtCapStatus == 'exists') {
-                    alert('You have already joined this group training session!');
+                        } else if (gtCapStatus == 'exists') {
+                            alert('You have already joined this group training session!');
+                        }
                     }
-                    }
-            });
+                });
             <?php  } ?>
-
-            }
 
             });
             }
@@ -465,6 +460,7 @@ foreach ($events as $event):
                         rate: '<?php echo $event['trainingRate']; ?>',
                         gym: '<?php echo $event['trainingGym']; ?>',
                         maxCapacity: '<?php echo $event['trainingMaxCapacity']; ?>',
+                        currentCap: '<?php echo $event['currentCap']; ?>',
                         date: '<?php echo $event['trainingDate']; ?>',
                         time: '<?php echo $event['trainingTime']; ?>',
                         desc: '<?php echo $event['trainingDescription'] ?>',
@@ -477,7 +473,7 @@ foreach ($events as $event):
             ] //END OF EVENT OBJECT
     });
             // when click on the particular join button in the current/ selected modal
-<?php if ($_SESSION['role'] == 'Trainee') { ?>
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Trainee') { ?>
         document.getElementById("jnGrpBtn").onclick = function() {addTraineeGT()};
 <?php } ?>
 
