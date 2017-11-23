@@ -33,7 +33,7 @@ if (isset($_POST['traineeId'])) {
 
     // echo $traineeCount;
 
-    $update = "UPDATE grouptrainingschedule SET currentCap = 30 WHERE GrpRecurrID = '$grpRecurId' ";
+    $update = "UPDATE grouptrainingschedule SET currentCap = $traineeCount WHERE GrpRecurrID = '$grpRecurId' ";
     $qryUpdate = $bdd->prepare($update);
     $qryUpdate->execute();
 
