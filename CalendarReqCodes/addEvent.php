@@ -93,6 +93,15 @@ if (isset($_POST['add'])) {
 //        $msg = "Slots full";
 //        header("Location:../testFullCalendar.php?msg=$msg");
 //    } else {
+    
+    // Compare start date and end date. start date cannot be bigger than end date.
+    if($startdate > $enddate){
+        echo '<script>';
+        echo 'alert("Start date cannot be greater than end date!");';
+        echo 'window.location = "../testFullCalendar.php";';
+        echo '</script>';
+    }
+    else{
         $sqlDuplicate = "select * from ( "
                     . "select trainerschedule.trainingid,trainerschedule.startdate as 'StartDate', trainerschedule.starttime as 'StartTime',trainerschedule.name as 'TrainerName' from trainerschedule "
                     . "union all "
@@ -152,6 +161,6 @@ if (isset($_POST['add'])) {
                 }
             }
         }
-//    }
+    }
 }
 ?>

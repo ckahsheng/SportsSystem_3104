@@ -425,12 +425,12 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Company Information<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-<!--                                        <li><a href="#tab18primary" data-toggle="tab">Add company information</a></li>-->
+                                        <!--                                        <li><a href="#tab18primary" data-toggle="tab">Add company information</a></li>-->
                                         <li><a href="#tab23primary" data-toggle="tab">Update company information</a></li>
-                                        
+
                                     </ul>
                                 </li>
-                                        
+
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Training Tips<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
@@ -440,14 +440,12 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                         <li><a href="#tab22primary" data-toggle="tab">View Training Tips</a></li>
                                     </ul>
                                 </li>
-                                
+
                                 <li class="dropdown">
                                     <a href="#" data-toggle="dropdown">Manage Promotions<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#tab19primary" data-toggle="tab">Add Training Tips</a></li>
-                                        <li><a href="#tab20primary" data-toggle="tab">Delete Training Tips</a></li>
-                                        <li><a href="#tab21primary" data-toggle="tab">Update Training Tips</a></li>
-                                        <li><a href="#tab22primary" data-toggle="tab">View Training Tips</a></li>
+                                        <li><a href="#tab18primary" data-toggle="tab">Manage Promotion</a></li>
+
                                     </ul>
                                 </li>
                             </ul>
@@ -970,24 +968,59 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                     </div>  
                                 </div>
 
-                                <!--added by CHING PIN-->                                
-                                <div class="tab-pane fade" id="tab18primary">  <div class="container" style="padding-left:50px; padding-right:200px;" >
-                                        <h2>Create Company Information</h2>
 
-                                        <form  class="form-horizontal" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                                            <div class="form-group <?php echo (!empty($companyInfoDesc_err)) ? 'has-error' : ''; ?>">
-                                                <label>Company Information</label>
-                                                <textarea name="companyInfoDesc"class="form-control" value="" maxlength="255"></textarea>
-                                                <span class="help-block"><?php echo $companyInfoDesc_err; ?></span>
-                                            </div>   
-                                            <div class="form-group">
-
-                                                <input type="submit"  name="create_companyInfo_submit"  class="btn btn-primary" value="Create">
-                                                <input type="reset" class="btn btn-default" value="Reset">
+                                <div class="tab-pane fade" id="tab18primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="container" style="width:900px;">  
+                                            <center><h1> Manage Promotions </h1></center>
+                                            
+                                            <br />
+                                            <div align="right">
+                                                <button type="button" name="add" id="add" class="btn btn-success">Add</button>
                                             </div>
-                                        </form>
+                                            <br />
+                                            <div id="image_data">
 
-                                    </div> <!-- ./container --></div>
+                                            </div>
+                                        </div>  
+                                        </body>  
+                                        </html>
+
+                                        <div id="imageModal" class="modal fade" role="dialog">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title">Add Promotions</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="image_form" method="post" enctype="multipart/form-data">
+                                                            <p><label>Select Image</label>
+                                                                <input type="file" name="image" id="image" /></p><br />
+                                                            <input type="hidden" name="action" id="action" value="insert" />
+                                                            <input type="hidden" name="image_id" id="image_id" />
+                                                            <div class="form-group">
+                                                                <label>Promotion Title:<sup>*</sup></label>
+                                                                <input type="text" name="addpromotiontitle"class="form-control">
+
+                                                            </div>   
+                                                            <div class="form-group ">
+                                                                <label>Promotion Description<sup></sup></label>
+                                                                <input type="text" name="addpromotiondescription" class="form-control"  >
+                                                                <span class="help-block"></span>
+                                                            </div>
+
+                                                            <input type="submit" name="insert" id="insert" value="Add Promotion" class="btn btn-info" />
+
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div></div>
 
                                 <div class="tab-pane fade" id="tab23primary">
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
@@ -2369,8 +2402,100 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                     sortable: true,
                 }
             ],
-        })
-                ;
+        });
+
+
+        $(document).ready(function () {
+
+            fetch_data();
+
+            function fetch_data()
+            {
+                var action = "fetch";
+                $.ajax({
+                    url: "action.php",
+                    method: "POST",
+                    data: {action: action},
+                    success: function (data)
+                    {
+                        $('#image_data').html(data);
+                    }
+                })
+            }
+            $('#add').click(function () {
+                $('#imageModal').modal('show');
+                $('#image_form')[0].reset();
+                $('.modal-title').text("Add Image");
+                $('#image_id').val('');
+                $('#addpromotiontitle').val('insert');
+                $('#addpromotiondescription').val('insert');
+                $('#action').val('insert');
+                $('#insert').val("Insert");
+            });
+            $('#image_form').submit(function (event) {
+                event.preventDefault();
+                var image_name = $('#image').val();
+                if (image_name == '')
+                {
+                    alert("Please Select Image");
+                    return false;
+                } else
+                {
+                    var extension = $('#image').val().split('.').pop().toLowerCase();
+                    if (jQuery.inArray(extension, ['gif', 'png', 'jpg', 'jpeg']) == -1)
+                    {
+                        alert("Invalid Image File");
+                        $('#image').val('');
+                        return false;
+                    } else
+                    {
+                        $.ajax({
+                            url: "action.php",
+                            method: "POST",
+                            data: new FormData(this),
+                            contentType: false,
+                            processData: false,
+                            success: function (data)
+                            {
+                                alert(data);
+                                fetch_data();
+                                $('#image_form')[0].reset();
+                                $('#imageModal').modal('hide');
+                            }
+                        });
+                    }
+                }
+            });
+            $(document).on('click', '.update', function () {
+                $('#image_id').val($(this).attr("id"));
+                $('#addpromotiontitle').val('insert');
+                $('#addpromotiondescription').val('insert');
+                $('#action').val("update");
+                $('.modal-title').text("Update Image");
+                $('#insert').val("Update");
+                $('#imageModal').modal("show");
+            });
+            $(document).on('click', '.delete', function () {
+                var image_id = $(this).attr("id");
+                var action = "delete";
+                if (confirm("Are you sure you want to remove this image from database?"))
+                {
+                    $.ajax({
+                        url: "action.php",
+                        method: "POST",
+                        data: {image_id: image_id, action: action},
+                        success: function (data)
+                        {
+                            alert(data);
+                            fetch_data();
+                        }
+                    })
+                } else
+                {
+                    return false;
+                }
+            });
+        });
 
     </script>
 

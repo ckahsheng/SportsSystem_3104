@@ -276,7 +276,7 @@ if (isset($_SESSION['username'])) {
         <!-- HERE BOSS - TO REMOVE THIS LINE OF COMMENT -->
         <!-- remove this line: removed the color label + dropdown, removed checkbox for deleting event, -->
         <!-- remove this line: edited to check if is trainer, able to edit fields, if trainee, read only -->
-        <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<!--        <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form class="form-horizontal" method="POST" action="CalendarReqCodes/editEventTitle.php">
@@ -323,7 +323,7 @@ if (isset($_SESSION['username'])) {
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <!--<button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>-->
+                            <button type="submit" class="btn btn-primary" name="savechanges">Save changes</button>
                             
                             <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -350,14 +350,14 @@ if (isset($_SESSION['username'])) {
                                 </div>
                             </div>
 
-                            <!--<input type="button" id="myBtn" class="btn btn-danger" value="Cancel training"  data-toggle="modal" data-target="#confirm-delete"></a><br>-->
-                            <!-- Button for cancelling training Plus modal inside-->
+                            <input type="button" id="myBtn" class="btn btn-danger" value="Cancel training"  data-toggle="modal" data-target="#confirm-delete"></a><br>
+                             Button for cancelling training Plus modal inside
                             <span></span>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
+        </div>-->
         
         
     </body>
@@ -426,7 +426,11 @@ if (isset($_SESSION['username'])) {
 
                                     var eventTitle = (event.title).split(" ");
                                     var startTime = eventTitle[0];
-
+                                    var concatTitle = "";
+                                    for (var i = 1; i < eventTitle.length; i++) {
+                                        concatTitle += eventTitle[i] + " ";
+                                    }                                   
+                                    
                                     var realStartDate = (event.realStartDate).split(" ");
                                     var realEndDate = (event.realEndDate).split(" ");
 
@@ -460,39 +464,46 @@ if (isset($_SESSION['username'])) {
                                                 
 
                                                 if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
-                                                    console.log('trainer delete');
-                                                    // TODO: to add codes for trainee to delete the session 
+                                                        $('#ModalView #id').val(event.id);
+                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #title').val(concatTitle);
+                                                        $('#ModalView #venue').val(event.venue);
+                                                        $('#ModalView #facility').val(event.facility);
+                                                        $('#ModalView #starttime').val(event.startT);
+                                                        $('#ModalView #endtime').val(event.realEndTime);
+                                                        $('#ModalView #rate').val(event.rate);
 
-                                                    $('#ModalEdit #id').val(event.id);
-                                                    $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                                                    $('#ModalEdit #title').val(event.title);
-                                                    $('#ModalEdit #color').val(event.color);
-                                                    // $('#ModalEdit #startTime').val(event.time);
-                                                    $('#ModalEdit').modal('show');
-                                                    //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
-                                                    if (event.start > (moment().add(2, 'days'))) {
-                                                        document.getElementById("myBtn").disabled = false;
-                                                    } else {
-                                                        document.getElementById("myBtn").disabled = true;
-                                                    }
+                                                        $('#ModalView').modal('show');                                  
+//                                                    console.log('trainer delete');
+//                                                    // TODO: to add codes for trainee to delete the session 
+//
+//                                                    $('#ModalEdit #id').val(event.id);
+//                                                    $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+//                                                    $('#ModalEdit #title').val(event.title);
+//                                                    $('#ModalEdit #color').val(event.color);
+//                                                    // $('#ModalEdit #startTime').val(event.time);
+//                                                    $('#ModalEdit').modal('show');
+//                                                    //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+//                                                    if (event.start > (moment().add(2, 'days'))) {
+//                                                        document.getElementById("myBtn").disabled = false;
+//                                                    } else {
+//                                                        document.getElementById("myBtn").disabled = true;
+//                                                    }
                                                 } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
                                                     if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
 
-                                                        console.log('trainee delete');
-                                                        // TODO: to add codes for trainee to delete the session 
+                                                        $('#ModalView #id').val(event.id);
+                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #title').val(concatTitle);
+                                                        $('#ModalView #venue').val(event.venue);
+                                                        $('#ModalView #facility').val(event.facility);
+                                                        $('#ModalView #starttime').val(event.startT);
+                                                        $('#ModalView #endtime').val(event.realEndTime);
+                                                        $('#ModalView #rate').val(event.rate);
 
-                                                        $('#ModalEdit #id').val(event.id);
-                                                        $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                                                        $('#ModalEdit #title').val(event.title);
-                                                        $('#ModalEdit #color').val(event.color);
-                                                        // $('#ModalEdit #startTime').val(event.time);
-                                                        $('#ModalEdit').modal('show');
-                                                        //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
-                                                        if (event.start > (moment().add(2, 'days'))) {
-                                                            document.getElementById("myBtn").disabled = false;
-                                                        } else {
-                                                            document.getElementById("myBtn").disabled = true;
-                                                        }
+                                                        $('#ModalView').modal('show');    
 
                                                     } else if (event.traineeId == "") {
 
@@ -506,7 +517,7 @@ if (isset($_SESSION['username'])) {
                                                             $('#ModalView #id').val(event.id);
                                                             $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
                                                             $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
-                                                            $('#ModalView #title').val(eventTitle[1]);
+                                                            $('#ModalView #title').val(concatTitle);
                                                             $('#ModalView #venue').val(event.venue);
                                                             $('#ModalView #facility').val(event.facility);
                                                             $('#ModalView #starttime').val(event.startT);
@@ -563,6 +574,7 @@ if (isset($_SESSION['username'])) {
                                 $title = $traineeId . "/" . $title;
                                 $color = '#67d967'; // light green
                             } else if ($_SESSION['username'] == $traineeId)  { // signed up trainee go back trainer page see
+                                 $title = $event['starttime'] . " " . $title;
                                 $color = '#67d967'; // light green
                             } else if ($_SESSION['username'] != $traineeId) { // not signed up trainee go trainer page see
                                 $color = '#bfbfbf'; // grey
@@ -696,39 +708,60 @@ if (isset($_SESSION['username'])) {
                                                 console.log('have');
 
                                                 if ('<?php echo $_SESSION['role'];?>' == 'Trainer'){ // if the trainer is viewing, just double click to delete
-                                                    console.log('trainer delete');
-                                                    // TODO: to add codes for trainee to delete the session 
+                                                     $('#ModalView #id').val(event.id);
+                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #title').val(eventTitle[1]);
+                                                        $('#ModalView #venue').val(event.venue);
+                                                        $('#ModalView #facility').val(event.facility);
+                                                        $('#ModalView #starttime').val(event.startT);
+                                                        $('#ModalView #endtime').val(event.realEndTime);
+                                                        $('#ModalView #rate').val(event.rate);
 
-                                                    $('#ModalEdit #id').val(event.id);
-                                                    $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                                                    $('#ModalEdit #title').val(event.title);
-                                                    $('#ModalEdit #color').val(event.color);
-                                                    // $('#ModalEdit #startTime').val(event.time);
-                                                    $('#ModalEdit').modal('show');
-                                                    //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
-                                                    if (event.start > (moment().add(2, 'days'))) {
-                                                        document.getElementById("myBtn").disabled = false;
-                                                    } else {
-                                                        document.getElementById("myBtn").disabled = true;
-                                                    }
+                                                        $('#ModalView').modal('show');                                                        
+//                                                    console.log('trainer delete');
+//                                                    // TODO: to add codes for trainee to delete the session 
+//
+//                                                    $('#ModalEdit #id').val(event.id);
+//                                                    $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+//                                                    $('#ModalEdit #title').val(event.title);
+//                                                    $('#ModalEdit #color').val(event.color);
+//                                                    // $('#ModalEdit #startTime').val(event.time);
+//                                                    $('#ModalEdit').modal('show');
+//                                                    //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+//                                                    if (event.start > (moment().add(2, 'days'))) {
+//                                                        document.getElementById("myBtn").disabled = false;
+//                                                    } else {
+//                                                        document.getElementById("myBtn").disabled = true;
+//                                                    }
                                                 } else if ('<?php echo $_SESSION['role'];?>' == 'Trainee') {
                                                     if (event.traineeId == '<?php echo $_SESSION['username']; ?>') {
+                                                        $('#ModalView #id').val(event.id);
+                                                        $('#ModalView #startdate').val(moment(realStartDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #enddate').val(moment(realEndDate[0]).format('DD MMM YYYY'));
+                                                        $('#ModalView #title').val(eventTitle[1]);
+                                                        $('#ModalView #venue').val(event.venue);
+                                                        $('#ModalView #facility').val(event.facility);
+                                                        $('#ModalView #starttime').val(event.startT);
+                                                        $('#ModalView #endtime').val(event.realEndTime);
+                                                        $('#ModalView #rate').val(event.rate);
 
-                                                        console.log('trainee delete');
-                                                        // TODO: to add codes for trainee to delete the session 
-
-                                                        $('#ModalEdit #id').val(event.id);
-                                                        $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
-                                                        $('#ModalEdit #title').val(event.title);
-                                                        $('#ModalEdit #color').val(event.color);
-                                                        // $('#ModalEdit #startTime').val(event.time);
-                                                        $('#ModalEdit').modal('show');
-                                                        //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
-                                                        if (event.start > (moment().add(2, 'days'))) {
-                                                            document.getElementById("myBtn").disabled = false;
-                                                        } else {
-                                                            document.getElementById("myBtn").disabled = true;
-                                                        }
+                                                        $('#ModalView').modal('show');    
+//                                                        console.log('trainee delete');
+//                                                        // TODO: to add codes for trainee to delete the session 
+//
+//                                                        $('#ModalEdit #id').val(event.id);
+//                                                        $('#ModalEdit #date').val((event.start).format('YYYY-MM-DD'));
+//                                                        $('#ModalEdit #title').val(event.title);
+//                                                        $('#ModalEdit #color').val(event.color);
+//                                                        // $('#ModalEdit #startTime').val(event.time);
+//                                                        $('#ModalEdit').modal('show');
+//                                                        //kee for cancelling training - special requirement where todays date is > 2 button will be disable //
+//                                                        if (event.start > (moment().add(2, 'days'))) {
+//                                                            document.getElementById("myBtn").disabled = false;
+//                                                        } else {
+//                                                            document.getElementById("myBtn").disabled = true;
+//                                                        }
 
                                                     } else if (event.traineeId == "") {
 

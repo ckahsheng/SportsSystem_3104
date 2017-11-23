@@ -77,7 +77,7 @@ $events = array_merge($events, $group);
                             <td style="padding-left: 20px;"><input class="circle" style="background: #adc9fb; border: none;" readonly></td>
                             <td style="padding-left: 5px;">Group Training (Full)</td>
                         <?php } ?>
-                        <?php if ($_SESSION['role'] == 'Trainee') {?>
+                        <?php if ($_SESSION['role'] == 'Trainee') { ?>
                             <td style="padding-left: 20px;"><input class="circle" style="background: #67d967; border: none;" readonly></td>
                             <td style="padding-left: 5px;">Personal Training</td>
                             <td style="padding-left: 20px;"><input class="circle" style="background: #6299f7; border: none;" readonly></td>
@@ -263,12 +263,8 @@ $events = array_merge($events, $group);
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="editName" class="col-md-4 control-label"><span style="color: red">*</span>
-                                                    <?php if ($_SESSION['role'] == 'Trainer') { ?>
-                                                        Trainer Name:
-                                                    <?php } else { ?>
-                                                        Trainee Name:
-                                                    <?php } ?>
+                                                <label for="editName" id="editNameLabel" class="col-md-4 control-label"><span style="color: red">*</span>
+                                                    
                                                 </label>
                                                 <div class="col-md-7">
                                                     <input type="text" name="editName" class="form-control" id="editName" readonly>
@@ -281,7 +277,7 @@ $events = array_merge($events, $group);
                                                     <input type="text" name="editTitle" class="form-control" id="editTitle" placeholder="Training Title" required>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group" id="editDescriptionText" style="display:none">
                                                 <label for="editDescription" class="col-md-4 control-label"><span style="color: red">*</span>Training Description:</label>
                                                 <div class="col-md-7">
@@ -391,7 +387,7 @@ $events = array_merge($events, $group);
                                                     <input type="text" class="form-control" id="editFacility" name="editFacility" readonly>    
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group" style="display:none !important;" id="editCapacityText">
                                                 <label for="editCapacity" class="col-md-4 control-label"><span style="color: red">*</span>Maximum Capacity:</label>
                                                 <div class="col-md-7">
@@ -461,99 +457,95 @@ $events = array_merge($events, $group);
         var date = new Date();
         var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         $("#datePicker, #editStartDatePicker, #editEndDatePicker").datepicker({
-            autoclose: true,
-            format: 'dd-mm-yyyy',
-            startDate: today
+        autoclose: true,
+                format: 'dd-mm-yyyy',
+                startDate: today
         });
         //prevent user to type anything in start date during editing
         $('#editStartDate').keypress(function(e) {
-            e.preventDefault();
+        e.preventDefault();
         });
         // TO DISPLAY END DATE IF RECUR IS CHECKED
         $("input[name='recurring[]']").click(function(){
-            if (jQuery('#recur input[type=checkbox]:checked').length){
-                $("#endDateRecur").show();
-            }
-            else{
-                $("#endDateRecur").hide();
-            }
+        if (jQuery('#recur input[type=checkbox]:checked').length){
+        $("#endDateRecur").show();
+        }
+        else{
+        $("#endDateRecur").hide();
+        }
         });
-        
         // TO DISPLAY RATE, TRAINING TYPE, LOCATION, FACILITY IF PT IS CHECKED
         $("#ot, #pt").change(function(){
-            if ($("#pt").is(":checked")){
-                $("#rateText").show();
-                $("#trainingTypeDDL").show();
-                $("#gymLocationDDL").show();
-                $("#facilityText").show();
-                jQuery("#trainingType").removeAttr("disabled");
-                jQuery("#gymLocation").removeAttr("disabled");
-            } else {
-                $("#rateText").hide();
-                $("#trainingTypeDDL").hide();
-                $("#gymLocationDDL").hide();
-                $("#facilityText").hide();
-                jQuery("#trainingType").attr("disabled", 'disabled');
-                jQuery("#gymLocation").attr("disabled", 'disabled');
-            }
+        if ($("#pt").is(":checked")){
+        $("#rateText").show();
+        $("#trainingTypeDDL").show();
+        $("#gymLocationDDL").show();
+        $("#facilityText").show();
+        jQuery("#trainingType").removeAttr("disabled");
+        jQuery("#gymLocation").removeAttr("disabled");
+        } else {
+        $("#rateText").hide();
+        $("#trainingTypeDDL").hide();
+        $("#gymLocationDDL").hide();
+        $("#facilityText").hide();
+        jQuery("#trainingType").attr("disabled", 'disabled');
+        jQuery("#gymLocation").attr("disabled", 'disabled');
+        }
         });
-        
         //Upon training type being selected, the price of the category of training will be updated as well 
         $("#trainingType, #editTrainingType").change(function(){
-            var id = $(this).find(":selected").val();
-            var trainingId = id;
-            $.ajax({
-                type: "POST",
+        var id = $(this).find(":selected").val();
+        var trainingId = id;
+        $.ajax({
+        type: "POST",
                 url: 'PHPCodes/getTrainingRate.php',
                 data: {trainingId: trainingId},
                 cache: false,
                 success: function (r)
                 {
-                    document.getElementById("rate").value = r;
-                    document.getElementById("editRate").value = r;
+                document.getElementById("rate").value = r;
+                document.getElementById("editRate").value = r;
                 }
-            });
         });
-        
+        });
         // TO PREVENT HIDE/SHOW BUGS FOR EDIT MODAL
         $('#ModalEdit').on('hidden.bs.modal', function () {
-            location.reload();
+        location.reload();
         });
-        
         // FULL CALENDAR
         $('#calendar').fullCalendar({
         header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'month,basicWeek,basicDay'
+        left: 'prev,next today',
+                center: 'title',
+                right: 'month,basicWeek,basicDay'
         },
-        eventLimit: true, // allow "more" link when too many events
+                eventLimit: true, // allow "more" link when too many events
 
-        <?php if (!isset($_SESSION['username'])) { ?>
+<?php if (!isset($_SESSION['username'])) { ?>
             editable: false,
-            selectable: false,
-        <?php } else { ?>
+                    selectable: false,
+<?php } else { ?>
             editable: true,
-            selectable: true,
-        <?php } ?>
+                    selectable: true,
+<?php } ?>
 
         displayEventTime: false, // hide the time. Eg 2a, 12p
 
-        // When you click the cell in the calendar
-        select: function (start, end) { //START OF SELECT FUNC.
-            if (start.isBefore(moment())) {
+                // When you click the cell in the calendar
+                select: function (start, end) { //START OF SELECT FUNC.
+                if (start.isBefore(moment())) {
                 $('#calendar').fullCalendar('unselect');
                 $('#ModalAdd').modal('hide');
-            }
-            else {
+                }
+                else {
                 $('#ModalAdd #startDate').val(moment(start).format('DD-MM-YYYY'));
                 $('#ModalAdd').modal('show');
-            }
-        }, // END OF SELECT FUNC.
+                }
+                }, // END OF SELECT FUNC.
 
                 // When you double click the event in the cell
-        eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
-            if (event.start.isBefore(moment().subtract(2, 'days'))) {
+                eventRender: function (event, element, view) { //START OF EVENT RENDER FUNC.                
+                if (event.start.isBefore(moment().subtract(2, 'days'))) {
                 element.bind('dblclick', function () {
                 $('#calendar').fullCalendar('unselect');
                 $('#ModalEdit').modal('hide');
@@ -564,6 +556,44 @@ $events = array_merge($events, $group);
                 element.bind('dblclick', function () {
                 var eventTitle = (event.title).split(" ");
                 var realStartDate = (event.realStartDate).split(" ");
+                var concatTitle = "";
+                if (event.color == "#67d967"){
+<?php if ($_SESSION['role'] == 'Trainer') { ?>
+                    for (var i = 2; i < eventTitle.length; i++) {
+                    eventTitle[i]
+                            concatTitle += eventTitle[i] + " ";
+                    }
+<?php } else { ?>
+                    for (var i = 1; i < eventTitle.length; i++) {
+                    concatTitle += eventTitle[i] + " ";
+                    }
+<?php } ?>
+                } else{
+                for (var i = 1; i < eventTitle.length; i++) {
+                concatTitle += eventTitle[i] + " ";
+                }
+                }
+                concatTitle = concatTitle.replace("/", "");
+                // based on color code, change the label name (trainer's name / trainee's name)
+<?php if ($_SESSION['role'] == 'Trainer') { ?>
+                    if (event.color == "#005800" || event.color == "#b6abfb" || event.color == "#67d967"){
+                    document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
+                    }
+                    else{
+                    document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
+                    }
+<?php } else { ?>
+                    if (event.color == "#005800" || event.color == "#b6abfb"){
+                    document.getElementById('editNameLabel').innerHTML = "Trainee's Name";
+                    }
+                    else if (event.color == "#67d967"){
+                    document.getElementById("editNameLabel").innerHTML = "Trainer's Name";
+                    }
+                    else{
+                    document.getElementById('editNameLabel').innerHTML = "Trainer's Name";
+                    }
+<?php } ?>
+
 
                 if (event.eventType == "pt"){
                 event.eventType = "Personal Training";
@@ -587,6 +617,7 @@ $events = array_merge($events, $group);
                 $('#editFacilityText').show();
                 $('#editDescriptionText').show();
                 $('#editCapacityText').show();
+                $('#myBtn').hide();
                 jQuery("#editDescription").removeAttr("disabled");
                 jQuery("#editGymLocation").attr('readonly', true);
                 jQuery("#editTrainingType").attr('readonly', true);
@@ -594,9 +625,8 @@ $events = array_merge($events, $group);
                 jQuery("#editStartTime").attr('readonly', true);
                 jQuery("#editTrainingType").attr('disabled', 'disabled');
                 jQuery("#editStartTime").attr('disabled', 'disabled');
-                $("#editRecurring").prop("checked",false)
-                $('#editStartDatePicker').datepicker('remove')
-
+                $("#editRecurring").prop("checked", false);
+                $('#editStartDatePicker').datepicker('remove');
                 var arrayValues = (event.recur).split(",");
                 if (arrayValues == ""){
                 $('#editEndDateRecur').hide();
@@ -614,12 +644,20 @@ $events = array_merge($events, $group);
                 $('#editEndDateRecur').hide();
                 $('#savechanges').hide();
                 $('#editRecur').hide();
+                jQuery("#editTitle").attr('readonly', true);
+                jQuery("#editGymLocation").attr('readonly', true);
+                jQuery("#editStartDate").attr('readonly', true);
+                jQuery("#editRecurring").attr('disabled', 'disabled');
+                jQuery("#editGymLocation").attr('disabled', 'disabled');
+                jQuery("#editTrainingType").attr('disabled', 'disabled');
+                jQuery("#editStartTime").attr('disabled', 'disabled');
+                $('#editStartDatePicker').datepicker('remove');
                 }
-                
+
                 $('#ModalEdit #id').val(event.id);
                 $('#ModalEdit #editEventType').val(event.eventType);
                 $('#ModalEdit #editName').val(event.name);
-                $('#ModalEdit #editTitle').val(eventTitle[1]);
+                $('#ModalEdit #editTitle').val(concatTitle);
                 $('#ModalEdit #editStartDate').val(moment(realStartDate[0]).format('DD-MM-YYYY'));
                 $('#ModalEdit #editEndDate').val(moment(event.realEndDate).format('DD-MM-YYYY'));
                 $('#ModalEdit #editStartTime').val(event.startT);
@@ -627,9 +665,8 @@ $events = array_merge($events, $group);
                 $('#ModalEdit #editGymLocation').val(event.gymLocation);
                 $('#ModalEdit #editFacility').val(event.facility);
                 $('#ModalEdit #editRate').val(event.rate);
-                $('#ModalEdit #editDescription').val(event.description);   
-                $('#ModalEdit #editCapacity').val(event.capacity);   
-                
+                $('#ModalEdit #editDescription').val(event.description);
+                $('#ModalEdit #editCapacity').val(event.capacity);
                 $('#ModalEdit').modal('show');
 //                document.getElementById("savechanges").style.visibility = 'visible';
 //                document.getElementById("savechanges").show();
@@ -652,7 +689,7 @@ foreach ($events as $event):
     //Search for PT / OT 
     if ($event['eventType'] == 'gt') {
         $title = $event['trainingTime'] . ' ' . $event['trainingTitle'];
-        
+
         // RETRIEVE GYM NAME 
         $gymLocationQuery = mysqli_prepare($link, "SELECT id FROM gym WHERE gymName = ?");
         mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
@@ -662,7 +699,7 @@ foreach ($events as $event):
         while ($gymLocationQuery->fetch()) {
             $venue = $ID;
         }
-        
+
         // Retrieve training category id
         if ($event['trainingCategory'] != "") {
             $categoryQuery = mysqli_prepare($link, "SELECT ID FROM trainingtype WHERE TRAINING_NAME = ?");
@@ -676,7 +713,7 @@ foreach ($events as $event):
         } else {
             $trainingCategory = "";
         }
-        
+
         // Retrieve training category id
         if ($event['GrpRecurrID'] != "") {
             $recurQuery = mysqli_prepare($link, "SELECT recurring, trainingenddate FROM grouptrainings GT INNER JOIN grouptrainingschedule GTS ON GT.ID = ?");
@@ -684,7 +721,7 @@ foreach ($events as $event):
             $recur = $event['GrpRecurrID'];
             mysqli_stmt_execute($recurQuery);
             $recurResult = $recurQuery->get_result();
-            
+
             while ($recurring = mysqli_fetch_assoc($recurResult)) {
                 $recur = $recurring['recurring'];
                 $trainingenddate = $recurring['trainingenddate'];
@@ -698,36 +735,35 @@ foreach ($events as $event):
             $color = '#6299f7';
         } else if ($_SESSION['role'] == 'Trainer') {
             $color = '#6299f7';
-            
+
             if ($event['trainingMaxCapacity'] <= $event['currentCap']) {
                 $color = '#adc9fb';
             }
         }
-
         ?>
                         {
                         id: '<?php echo $event['id']; ?>',
-                        title: '<?php echo $title; ?>',
-                        start: '<?php echo $event['trainingDate']; ?>T00:00:00',
-                        name: '<?php echo $event['trainerName']; ?>',
-                        eventType: '<?php echo $event['eventType']; ?>',
-                        trainingCategory: '<?php echo $trainingCategory ?>',
-                        gymLocation: '<?php echo $venue; ?>',
-                        facility: '<?php echo $event['trainingFacility']; ?>',
-                        rate: '<?php echo $event['trainingRate']; ?>',
-                        startT: '<?php echo $event['trainingTime']; ?>',
-                        realStartDate: '<?php echo $event['trainingDate']; ?>',
-                        recur: '<?php echo $recur; ?>',
-                        description: '<?php echo $event['trainingDescription']; ?>',
-                        capacity: '<?php echo $event['trainingMaxCapacity']; ?>',
-                        color: '<?php echo $color; ?>',
+                                title: '<?php echo $title; ?>',
+                                start: '<?php echo $event['trainingDate']; ?>T00:00:00',
+                                name: '<?php echo $event['trainerName']; ?>',
+                                eventType: '<?php echo $event['eventType']; ?>',
+                                trainingCategory: '<?php echo $trainingCategory ?>',
+                                gymLocation: '<?php echo $venue; ?>',
+                                facility: '<?php echo $event['trainingFacility']; ?>',
+                                rate: '<?php echo $event['trainingRate']; ?>',
+                                startT: '<?php echo $event['trainingTime']; ?>',
+                                realStartDate: '<?php echo $event['trainingDate']; ?>',
+                                recur: '<?php echo $recur; ?>',
+                                description: '<?php echo $event['trainingDescription']; ?>',
+                                capacity: '<?php echo $event['trainingMaxCapacity']; ?>',
+                                color: '<?php echo $color; ?>',
                         },
-
-    <?php } else if (($event['eventType'] == 'ot') || ($event['eventType'] == 'pt')) {
+    <?php
+    } else if (($event['eventType'] == 'ot') || ($event['eventType'] == 'pt')) {
 //        $recur = $event['recur'];
         $end = explode(" ", $event['enddate']);
         $titleWithTime = $event['starttime'] . ' ' . $event['title'];
-        
+
         // RETRIEVE GYM NAME 
         $gymLocationQuery = mysqli_prepare($link, "SELECT id FROM gym WHERE gymName = ?");
         mysqli_stmt_bind_param($gymLocationQuery, "s", $gymLocation);
@@ -779,7 +815,6 @@ foreach ($events as $event):
                 $title = $event['starttime'] . " /" . $traineeId . " /" . $title;
                 $color = '#67d967';
             }
-
         } else if ($_SESSION['role'] == 'Trainee') {
             $traineeId = $event['traineeid'];
             $title = $event['title'];
@@ -793,29 +828,26 @@ foreach ($events as $event):
             }
 
             // TODO: cancelled trainings by trainers need to put?
-        } 
-
-       
-            ?>
-                {
-                id: '<?php echo $event['trainingid']; ?>',
-                        title: '<?php echo $title; ?>',
-                        start: '<?php echo $event['startdate']; ?>',
-                        end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
-                        name: '<?php echo $event['name']; ?>',
-                        eventType: '<?php echo $event['eventType']; ?>',
-                        realStartDate: '<?php echo $event['startdate']; ?>',
-                        realEndDate: '<?php echo $event['enddate']; ?>',
-                        trainingCategory: '<?php echo $trainingCategory; ?>',
-                        gymLocation: '<?php echo $venue; ?>',
-                        facility: '<?php echo $facility; ?>',
-                        rate: '<?php echo $event['rate']; ?>',
-                        startT: '<?php echo $event['starttime']; ?>',
-                        traineeId: '<?php echo $traineeId; ?>',
-                        color: '<?php echo $color; ?>',
-                },
-            <?php
-        
+        }
+        ?>
+                        {
+                        id: '<?php echo $event['trainingid']; ?>',
+                                title: '<?php echo $title; ?>',
+                                start: '<?php echo $event['startdate']; ?>',
+                                end: '<?php echo $end[0]; ?>T23:59:00', // add T23:59:00, is to end the date on $end. Otherwise, it will end the date before $end
+                                name: '<?php echo $event['name']; ?>',
+                                eventType: '<?php echo $event['eventType']; ?>',
+                                realStartDate: '<?php echo $event['startdate']; ?>',
+                                realEndDate: '<?php echo $event['enddate']; ?>',
+                                trainingCategory: '<?php echo $trainingCategory; ?>',
+                                gymLocation: '<?php echo $venue; ?>',
+                                facility: '<?php echo $facility; ?>',
+                                rate: '<?php echo $event['rate']; ?>',
+                                startT: '<?php echo $event['starttime']; ?>',
+                                traineeId: '<?php echo $traineeId; ?>',
+                                color: '<?php echo $color; ?>',
+                        },
+        <?php
     }
     ?>
 
