@@ -403,11 +403,12 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                 </li>
 
                                 <li class="dropdown">
-                                    <a href="#" data-toggle="dropdown">Group Training Proposals<span class="caret"></span></a>
+                                    <a href="#" data-toggle="dropdown">Group Trainings<span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab11primary" data-toggle="tab">Pending Group Training Plans</a></li>
                                         <li><a href="#tab12primary" data-toggle="tab">Verified Group Training Plans</a></li>
                                         <li><a href="#tab13primary" data-toggle="tab">Rejected Group Training Plans</a></li>
+                                        <li><a href="#tab30primary" data-toggle="tab">Manage Existing Group Trainings</a></li>
                                     </ul>
                                 </li>
 
@@ -436,7 +437,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab19primary" data-toggle="tab">Add Training Tips</a></li>
                                         <li><a href="#tab20primary" data-toggle="tab">Delete Training Tips</a></li>
-                                        <li><a href="#tab21primary" data-toggle="tab">Update Training Tips</a></li>
+                                        <!--<li><a href="#tab21primary" data-toggle="tab">Update Training Tips</a></li>-->
                                         <li><a href="#tab22primary" data-toggle="tab">View Training Tips</a></li>
                                     </ul>
                                 </li>
@@ -973,7 +974,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                     <div class="container" style="padding-top:20px;padding-right:80px;">
                                         <div class="container" style="width:900px;">  
                                             <center><h1> Manage Promotions </h1></center>
-                                            
+
                                             <br />
                                             <div align="right">
                                                 <button type="button" name="add" id="add" class="btn btn-success">Add</button>
@@ -1242,21 +1243,19 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                         <div class="modal-content">  
                                             <div class="modal-header">  
                                                 <button type="button" class="close" data-dismiss="modal">&times;</button>  
-                                                <h4 class="modal-title">TRAINING SESSIONS WITH INVALID LOCATIONS</h4>  
+                                                <h4 class="modal-title">Update</h4>  
                                             </div>  
                                             <div class="modal-body">  
-                                                <!--                                                <form method="post" id="update_location_gt_form">  
-                                                                                                    <label>Date Of Training</label>  
-                                                                                                    <input type="text" name="training_date" id="training_date" class="form-control" />  
-                                                                                                 <label>Location</label>  
-                                                                                                    <input type="text" name="training_location" id="training_location" class="form-control" />   
-                                                                                                    <br />  
-                                                                                                    <input type="hidden" name="ID" id="ID" />  
-                                                                                                    <input type="submit" name="update" id="insert" value="update" class="btn btn-success" />  
-                                                                                                </form>  -->
-                                                <div id="wrapper">
-
-                                                </div>
+                                                <form method="post" id="trainingTips_form">  
+                                                    <label>Training Tips Type</label>  
+                                                    <input type="text" name="trainingTipsType" id="trainingTipsType" class="form-control" />  
+                                                    <br />  
+                                                    <label>Training Rate</label>  
+                                                    <input type="text" name="trainingTipsDesc" id="trainingTipsDesc" class="form-control" />   
+                                                    <br />  
+                                                    <input type="hidden" name="id" id="id" />  
+                                                    <input type="submit" name="editTrainingTips" id="editTrainingTips" value="Update" class="btn btn-success" />  
+                                                </form>  
                                             </div>  
                                             <div class="modal-footer">  
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  
@@ -1264,6 +1263,207 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                         </div>  
                                     </div>  
                                 </div>
+
+
+
+                                <!--Code for Managing Group Training Sessions-->
+                                <div class="tab-pane fade" id="tab30primary">
+                                    <div class="container" style="padding-top:20px;padding-right:80px;">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-success">
+                                                <div class="panel-heading "> 
+                                                    <b>Manage Existing Group Trainings</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div id="Training_table"> 
+                                                                <table class ="table table-bordered"
+                                                                       data-show-columns="true"
+                                                                       data-height="600">
+
+                                                                    <tr>  
+                                                                        <th width="1%">#</th>  
+                                                                        <th width="15%">Training Title</th>  
+                                                                        <th width="15%">Trainer Name</th>  
+                                                                        <th width="15%">Gym Location</th>  
+                                                                        <th width="15%">Facility</th>  
+                                                                        <th width="15%">Training Date</th>  
+                                                                        <th width="15%">Training Time</th>  
+                                                                        <th width="10%">Current Capacity</th>  
+                                                                        <th width="10%">Max Capacity </th>  
+
+                                                                        <th width="20%">View</th>  
+                                                                    </tr>
+
+                                                                    <?php
+                                                                    $sql = "SELECT * FROM `grouptrainingschedule` WHERE trainingDate > NOW() + interval 2 day AND trainingApprovalStatus='Verified' ORDER BY trainingDate ASC";
+                                                                    $res = mysqli_query($link, $sql);
+//mysqli_close($link);
+                                                                    ?>
+                                                                    <?php
+                                                                    $i = 1;
+                                                                    while ($row = $res->fetch_assoc()) {
+                                                                        //while($row = mysqli_fetch_array($res))
+                                                                        ?>
+                                                                        <tr>
+                                                                            <td><?php echo $i; ?></td>
+                                                                            <td><?php echo $row["trainingTitle"]; ?></td>
+                                                                            <td><?php echo $row["trainerName"]; ?></td>
+                                                                            <td><?php echo $row["trainingGym"]; ?></td>
+                                                                            <td><?php echo $row["trainingFacility"]; ?></td>
+
+                                                                            <td><?php echo $row["trainingDate"]; ?></td>
+                                                                            <td><?php echo $row["trainingTime"]; ?></td>
+                                                                            <td><?php echo $row["currentCap"]; ?></td>
+                                                                            <td><?php echo $row["trainingMaxCapacity"]; ?></td>
+
+                                                                            <td><input type="button" name="edit" value="Postpone" id="<?php echo $row["id"]; ?>" class="btn btn-info btn-xs postpone_training" />
+                                                                                <input type="button" name="edit" value="Cancel" id="<?php echo $row["id"]; ?>" class="btn btn-danger btn-xs cancel_training" /></td> 
+                                                                        </tr>
+
+                                                                        <?php
+                                                                        $i++;
+                                                                    }
+                                                                    ?>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>				
+                                            </div>
+                                        </div>
+
+                                    </div></div>
+
+
+                                <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+                                    <div class="modal-header">
+                                        <h1>Processing...</h1>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="progress progress-striped active">
+                                            <div class="bar" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!--Cancel group training modal-->
+                                <div id="cancel_grouptraining_modal" class="modal fade">  
+                                    <div class="modal-dialog">  
+                                        <div class="modal-content">  
+                                            <div class="modal-header">  
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>  
+                                                <h4 class="modal-title">CANCEL GROUP TRAINING</h4>  
+                                            </div>  
+                                            <div class="modal-body">  
+                                                <b> <h3>Confirm Cancel Group Training ?</h3></b><i> (All Trainees/Trainers will be notified through E-Mail) </i>
+                                                <div id="wrapper">
+
+                                                </div>
+
+                                            </div>  
+                                            <div class="modal-footer">  
+
+                                                <input type="button" name="cfmCancelGroupTraining" id="cfmCancelGroupTraining" value="Confirm Cancel" class="btn btn-danger" />  
+                                                <div class="loading_msg" style="display:none"><b>Processing,please wait.......</b></div>
+                                                <button type="button" class="btn btn-info" data-dismiss="modal">Back</button>  
+
+                                            </div>  
+                                        </div>  
+                                    </div>  
+                                </div>
+
+
+                                <!--Modal for postpone of training-->
+                                <div id="postpone_training_modal" class="modal fade">  
+                                    <div class="modal-dialog">  
+                                        <div class="modal-content">  
+                                            <div class="modal-header">  
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>  
+                                                <h4 class="modal-title">Postpone Training</h4>  
+                                            </div>  
+                                            <div class="modal-body">  
+                                                <form method="post" id="postpone_GroupTraining">  
+                                                    <label>Training Title</label>  
+                                                    <input type="text" name="TRAINING_TITLE" id="TRAINING_TITLE" class="form-control" />  
+                                                    <br />  
+
+                                                    <label>Training Initial Date</label>  
+                                                    <input type="text" name="TRAINING_DATE" id="TRAINING_DATE" class="form-control" disabled/>   
+                                                    <br />  
+                                                    <label>Training Postponed Date:</label>
+                                                    <div class='input-group input-append date' id='datePicker'>
+                                                        <input type='datepicker' class="form-control" name="trainingUpdatedDate" id="trainingUpdatedDate" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                    <br/>
+                                                    <div class = "form-group">
+                                                        <label>Training Time:</label>
+                                                        <select name="startTime" class="form-control" id="startTime" required>
+                                                            <option value="" selected disabled hidden>Choose Time</option>
+                                                            <option value="10:00">10:00</option>
+                                                            <option value="11:00">11:00</option>
+                                                            <option value="12:00">12:00</option>						  
+                                                            <option value="13:00">13:00</option>
+                                                            <option value="14:00">14:00</option>
+                                                            <option value="15:00">15:00</option>
+                                                            <option value="16:00">16:00</option>
+                                                            <option value="17:00">17:00</option>
+                                                            <option value="18:00">18:00</option>
+                                                            <option value="19:00">19:00</option>
+                                                            <option value="20:00">20:00</option>
+                                                            <option value="20:00">21:00</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Gym Location:</label>
+
+                                                        <?php
+                                                        $sql = "SELECT * FROM gym ";
+                                                        $res = mysqli_query($link, $sql);
+                                                        mysqli_close($link);
+                                                        ?>
+                                                        <select class="form-control" name="gymLocationDropDown1" id="gymLocationDropDown1">
+                                                            <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
+                                                            -->                                                                                                                                <option value="">Please Select Gym Location:</option>
+
+                                                            <?php
+                                                            while ($row = $res->fetch_assoc()) {
+                                                                echo '<option value=" ' . $row['id'] . ' "> ' . $row['gymName'] . ' </option>';
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                            <!--<input type = "text" class = "form-control" required = "required" id = "trainingCategory" name = "trainingCategory" > -->
+                                                    </div>
+                                                    <div class = "form-group">
+                                                        <label>Facility:</label>
+
+
+                                                        <select class="form-control" id="Facility" name="Facility">
+                                                            <option value="">Please Select Gym Location</option>
+                                                        </select>
+                                                        <!--<input type = "text" class = "form-control" required = "required" id = "trainingVenue" name = "trainingVenue" >-->
+                                                    </div>
+
+
+
+
+                                                    <input type="hidden" name="id" id="id" />  
+                                                    <input type="submit" name="editTrainingTips" id="editTrainingTips" value="Confirm Postpone" class="btn btn-success" />  
+                                                </form>  
+                                            </div>  
+                                            <div class="modal-footer">  
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  
+                                            </div>  
+                                        </div>
+                                    </div>  
+                                </div>  
+
 
 
 
@@ -1279,6 +1479,52 @@ if (!empty($_POST['create_trainingTips_submit'])) {
     <!--This is the Javascript for the table for view all user details--> 
     <script type="text/javascript">
         $(document).ready(function () {
+            var date = new Date();
+             var today = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 4);
+            $('#trainingUpdatedDate')
+                    .datepicker({
+                        autoclose: true,
+                        format: 'mm/dd/yyyy',
+                        startDate: today
+
+                    })
+
+            $("#gymLocationDropDown1").change(function ()
+            {
+                //Upon gym location selected update 
+                var id = $(this).find(":selected").val();
+                var gymId = id;
+                $.ajax
+                        ({
+                            type: "POST",
+                            url: 'PHPCodes/getGymFacilities.php',
+                            data: {gymId: gymId},
+                            cache: false,
+                            success: function (r)
+                            {
+                                //Fetch the locations in the gym and display out 
+                                id_numbers = JSON.parse(r);
+                                var venue = [];
+                                for (var x in id_numbers) {
+                                    venue.push(id_numbers[x]);
+                                }
+                                var venueDropDown = document.getElementById("Facility");
+
+                                venueDropDown.innerHTML = "";
+                                for (var i = 0; i < venue.length; i++) {
+                                    var opt = venue[i];
+                                    var el = document.createElement("option");
+                                    el.textContent = opt;
+                                    el.value = opt;
+                                    venueDropDown.appendChild(el);
+                                }
+                            }
+
+
+                        })
+                        ;
+            });
+
             $('#view_Recurring_GT').on('hidden.bs.modal', function () {
                 window.location.href = 'adminpanel.php';
             })
@@ -1325,27 +1571,120 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             });
         });
+
+
+
+        $(document).ready(function () {
+            //Code to cancel training - Group Training
+            var groupSessionId = "";
+            $(document).on('click', '.cancel_training', function () {
+                groupSessionId = $(this).attr("id");
+                //                alert(id);
+                $('#cancel_grouptraining_modal').modal('show');
+            });
+            $('#cfmCancelGroupTraining').on("click", function (event) {
+                event.preventDefault();
+                alert("Please hold while we inform the affected users");
+
+                $.ajax({
+                    url: "cancelGroupTrainingEmail.php",
+                    method: "POST",
+                    beforeSend: function () {
+                        $(".loading_msg").show();
+                    },
+                    data: {id: groupSessionId},
+                    success: function (data) {
+                        alert(data);
+                        location.reload();
+                    }
+                });
+                //                
+            });
+
+
+            //Code to postpone training - Group
+            $(document).on('click', '.postpone_training', function () {
+                var id = $(this).attr("id");
+                //                alert(id);
+//                $.ajax
+//                        ({
+//                            type: "POST",
+//                            url: 'PHPCodes/fetchSuggestedLocations.php',
+//                            data: {trainingUID: id},
+//                            cache: false,
+//                            success: function (r)
+//                            {
+//                                //Fetch the locations in the gym and display out 
+//                                id_numbers = JSON.parse(r);
+//                                var venue = [];
+//                                for (var x in id_numbers) {
+//                                    venue.push(id_numbers[x]);
+//                                }
+//                                var venueDropDown = document.getElementById("Facility");
+//
+//                                venueDropDown.innerHTML = "";
+//                                for (var i = 0; i < venue.length; i++) {
+//                                    var opt = venue[i];
+//                                    var el = document.createElement("option");
+//                                    el.textContent = opt;
+//                                    el.value = opt;
+//                                    venueDropDown.appendChild(el);
+//                                }
+//                            }
+//                        }) ;
+                $.ajax({
+                    url: "PHPCodes/fetchGroupTrainingDetails.php",
+                    method: "POST",
+                    data: {ID: id},
+                    dataType: "json",
+                    success: function (data) {
+                        $('#TRAINING_TITLE').val(data.trainingTitle);
+                        $('#TRAINING_DATE').val(data.trainingDate);
+                        $('#startTime').val(data.trainingTime);     
+                         $('#postpone_training_modal').modal('show');
+//                        $('#gymLocationDropDown1').val(data.trainingGym);
+//                        $('#Facility').val(data.trainingFacility);
+//                        $('#TRAINING_NAME').val(data.TRAINING_NAME);
+//                        $('#TRAINING_RATE').val(data.TRAINING_RATE);
+//                        $('#ID').val(data.ID);
+//                        $('#insert').val("Update");
+//                        $('#add_data_Modal').modal('show');
+                       
+                    }
+                });
+            });
+
+        });
+
+
+
+
+
+
+
+
+
         $(document).ready(function () {
             $(document).on('click', '.edit_companyInfo', function () {
                 var ID = $(this).attr("id");
-//           alert("TESTING 3"+" "+ ID);
+                //           alert("TESTING 3"+" "+ ID);
                 $.ajax({url: "PHPCodes/listCompanyInfo.php",
                     method: "POST",
                     data: {id: ID},
                     dataType: "json",
                     success: function (result) {
-////                     alert('ok');
-//                     alert(result.trainingTipsType);
+                        ////                     alert('ok');
+                        //                     alert(result.trainingTipsType);
                         $('#companyInfoDesc').val(result.companyInfoDesc);
                         $('#id').val(result.companyInfoId);
-//                     alert("TESTING2" + " " +result.trainingTipsId);
+                        //                     alert("TESTING2" + " " +result.trainingTipsId);
                         $('#editCompanyInfo').val("Update");
                         $('#edit_CompanyInfo_Modal').modal('show');
                     }
                 });
             });
             $('#companyInfo_form').on("submit", function (event) {
-                alert("TESTING");
+                //                alert("TESTING");
                 event.preventDefault();
                 if ($('#companyInfoDesc').val() == "")
                 {
@@ -1371,25 +1710,25 @@ if (!empty($_POST['create_trainingTips_submit'])) {
         $(document).ready(function () {
             $(document).on('click', '.edit_trainingTips', function () {
                 var ID = $(this).attr("id");
-//           alert("TESTING 3"+" "+ ID);
+                //           alert("TESTING 3"+" "+ ID);
                 $.ajax({url: "PHPCodes/fetchTrainingTips.php",
                     method: "POST",
                     data: {id: ID},
                     dataType: "json",
                     success: function (result) {
-////                     alert('ok');
-//                     alert(result.trainingTipsType);
+                        ////                     alert('ok');
+                        //                     alert(result.trainingTipsType);
                         $('#trainingTipsType').val(result.trainingTipsType);
                         $('#trainingTipsDesc').val(result.trainingTipsDesc);
                         $('#id').val(result.trainingTipsId);
-//                     alert("TESTING2" + " " +result.trainingTipsId);
+                        //                     alert("TESTING2" + " " +result.trainingTipsId);
                         $('#editTrainingTips').val("Update");
                         $('#edit_TrainingTips_Modal').modal('show');
                     }
                 });
             });
             $('#trainingTips_form').on("submit", function (event) {
-                alert("TESTING");
+                // alert("TESTING");
                 event.preventDefault();
                 if ($('#trainingTipsType').val() == "")
                 {
@@ -1407,6 +1746,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                             $('#editTrainingTips').val("Inserting");
                         },
                         success: function (data) {
+                            alert(data);
                             $('#trainingTips_form')[0].reset();
                             $('#edit_TrainingTips_Modal').modal('hide');
                             $('#TrainingTips_table').html(data);
@@ -1491,9 +1831,9 @@ if (!empty($_POST['create_trainingTips_submit'])) {
             var e = document.getElementById(id);
             var updatedFacility = e.options[e.selectedIndex].value;
             alert("You have selected new location:" + updatedFacility);
-//            $('#view_Recurring_GT').modal('hide');
-//            location.reload();
-//            $('#view_Recurring_GT').modal('show');
+            //            $('#view_Recurring_GT').modal('hide');
+            //            location.reload();
+            //            $('#view_Recurring_GT').modal('show');
 
             $.ajax({type: "POST",
                 url: 'PHPCodes/updateGTSessionLocation.php',
@@ -1503,14 +1843,14 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                     alert(result);
                     var display = "display" + id;
                     document.getElementById(display).style.display = 'inline';
-//                    location.reload();
-//                    $('#view_Recurring_GT').modal('show');
+                    //                    location.reload();
+                    //                    $('#view_Recurring_GT').modal('show');
                     //alert('ok');
                     //alert(value);
-//                    alert(result);
-//                    var $table = $('#tableNotVerifiedUsers');
-//                    $table.bootstrapTable('refresh');
-//                    location.reload();
+                    //                    alert(result);
+                    //                    var $table = $('#tableNotVerifiedUsers');
+                    //                    $table.bootstrapTable('refresh');
+                    //                    location.reload();
                 },
                 error: function (result)
                 {
@@ -1560,10 +1900,10 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                         container.appendChild(document.createTextNode("Suggested Locations :  "));
                         var selectList = document.createElement("select");
                         selectList.id = id;
-//                        selectList.setAttribute("onchange", function(){updateLocation(selectList.id);});
-//                        selectList.setAttribute("onchange", function () {
-//                            updateLocation(selectList.id);
-//                        });
+                        //                        selectList.setAttribute("onchange", function(){updateLocation(selectList.id);});
+                        //                        selectList.setAttribute("onchange", function () {
+                        //                            updateLocation(selectList.id);
+                        //                        });
                         selectList.addEventListener(
                                 'change',
                                 function () {
@@ -1581,7 +1921,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                         link.href = '#';
                         link.id = 'display' + id;
                         link.style.display = 'none';
-//                        link.addEventListener('click', toggle);
+                        //                        link.addEventListener('click', toggle);
 
                         container.appendChild(link);
                         container.appendChild(document.createElement("br"));
@@ -1590,7 +1930,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                     }
                     $('#view_Recurring_GT').modal('show');
                     $(document).ready(function () {
-//                        alert("hi");
+                        //                        alert("hi");
                     });
                 }
             });
@@ -2321,7 +2661,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                 }
             ],
         });
-//        ADDED BY CP
+        //        ADDED BY CP
 
         window.operateEventDeactivateTrainingTips = {
             'click .remove': function (e, value, row, index) {
