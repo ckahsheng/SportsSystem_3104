@@ -2808,8 +2808,16 @@ if (!empty($_POST['create_trainingTips_submit'])) {
             });
             $(document).on('click', '.update', function () {
                 $('#image_id').val($(this).attr("id"));
-                $('#addpromotiontitle').val('insert');
-                $('#addpromotiondescription').val('insert');
+               var id = $(this).attr("id");
+               alert($('input[name=title]').val());
+               var title=$('input[name=title]').val();
+               var descrip=$('input[name=description]').val()
+               alert(id);
+//               alert(id1);
+$('input[name="addpromotiontitle"]').val(title)
+$('input[name="addpromotiondescription"]').val(descrip)
+//                $('#addpromotiontitle').val("insert");
+//                $('#addpromotiondescription').val("insert");
                 $('#action').val("update");
                 $('.modal-title').text("Update Image");
                 $('#insert').val("Update");
