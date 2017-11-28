@@ -93,7 +93,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             $mail->isHTML(true);
             $emailTextHtml = "<span>Dear <b>.$emailAddress.</b></span>";
             $emailTextHtml .= "<table>";
-            $emailTextHtml .= "</table>";
+            $emailTextHtml .= "</table>";   
             $emailTextHtml .= "<p>Your Group Training $trainingTitle on $PrevTrainingDate: $PrevTrainingTime has been postponed to $startDate : $startTime  ! </p>";
             $emailTextHtml .= "<p>If you are unavailable to make it for the session, please drop a text to $trainerName. Thank you!</p>";
             $emailTextHtml .= "<p>Do email us at <b><i>LifeStyleSportsSystem@support.com</i></b> if you encounter any problems </p>";

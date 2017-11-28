@@ -200,6 +200,7 @@ $bondResult = mysqli_fetch_array($bondQuery);
                                 <div class="col-lg-8">
                                     <?php if ($selectResult['bondWithTrainerId'] != ""){?>
                                     <u><a href="testTrainerCalendar.php?trainerName=<?php echo $bondResult['userid']; ?>" style="color:blue; font-size:18px"><?php echo $bondResult['userid']; ?></a></u>
+                                    - <?php echo $selectResult['bondApprovalStatus'];?>
                                     <?php } else{?>
                                     <p style="display: inline;">-</p>
                                     <?php } ?>

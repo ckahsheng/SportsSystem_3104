@@ -418,6 +418,13 @@ if (session_status() == PHP_SESSION_NONE) {
                                         <li><a href="#tab3primary" data-toggle="tab">Past Group Trainings</a></li>
                                     </ul>
                                 </li>
+                                <li class="dropdown">
+                                    <a href="#" data-toggle="dropdown">Bond Management<span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#pendingbondtab" data-toggle="tab">Pending Trainee Bonding</a></li>
+                                        <li><a href="#viewbondtab" data-toggle="tab">View Approved Bond With Trainees</a></li>
+                                    </ul>
+                                </li>
                             </ul>
                         </div>
                         <center>
@@ -672,6 +679,52 @@ if (session_status() == PHP_SESSION_NONE) {
 
 
                                         </div> <!-- ./container --></div>
+
+
+                                    <div class="tab-pane fade" id="pendingbondtab">
+                                        <div class="container" style="padding-top:20px;padding-right:80px;">
+                                            <div class="col-md-12">
+                                                <div class="panel panel-success">
+                                                    <div class="panel-heading "> 
+                                                        <b>Pending Trainee Bond</b>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+
+                                                                <table id="tablePendingBond"
+                                                                       data-show-columns="true"
+                                                                       data-height="600">
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>				
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="viewbondtab">
+                                        <div class="container" style="padding-top:20px;padding-right:80px;">
+                                            <div class="col-md-12">
+                                                <div class="panel panel-success">
+                                                    <div class="panel-heading "> 
+                                                        <b>View Approved Bond With Trainees</b>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+
+                                                                <table id="tableApprovedBond"
+                                                                       data-show-columns="true"
+                                                                       data-height="600">
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>				
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="tab-pane fade" id="tab4primary">Primary 4</div>
                                     <div class="tab-pane fade" id="tab5primary">Primary 5</div>
                                 </div>
@@ -732,7 +785,6 @@ if (session_status() == PHP_SESSION_NONE) {
                             cache: false,
                             success: function (r)
                             {
-                               
                                 //Fetch the locations in the gym and display out 
                                 id_numbers = JSON.parse(r);
                                 var venue = [];
@@ -765,6 +817,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 maxPax = maxPax.replace(")", "");
                 alert(maxPax);
                 var capacityDropDown = document.getElementById("trainingCapacityDropDown");
+
                 capacityDropDown.innerHTML = "";
                 for (var i = 0; i <= maxPax; i++) {
                     var opt = i;
@@ -903,7 +956,7 @@ if (session_status() == PHP_SESSION_NONE) {
             showFooter: true,
             minimumCountColumns: 2,
             columns: [
-                 {
+                {
                     field: 'num',
                     title: '#',
                     sortable: true,
@@ -970,6 +1023,151 @@ if (session_status() == PHP_SESSION_NONE) {
                 }, {
                     field: 'trainingApprovalStatus',
                     title: 'Approval Status',
+                    sortable: true,
+                },
+            ],
+        });
+        function sendAjaxRequest(value, urlToSend) {
+
+            $.ajax({type: "POST",
+                url: urlToSend,
+                data: {id: value},
+                success: function (result) {
+                    // alert('ok');
+                    // alert(value);
+                    alert("Approved Successfully");
+                    location.reload();
+                },
+                error: function (result)
+                {
+                    alert('error');
+                }
+            });
+        }
+
+        function sendAjax(id, msg, urlToSend) {
+
+            $.ajax({type: "POST",
+                url: urlToSend,
+                data: {id: id,
+                    msg: msg},
+                success: function (result) {
+                    // alert('ok');
+                    // alert(value);
+                    alert("Rejected Successfully");
+                    location.reload();
+                },
+                error: function (result)
+                {
+                    alert('error');
+                }
+            });
+        }
+
+        function operateFormatter(value, row, index) {
+            return [
+                '<a class="like" href="javascript:void(0)" title="Approve">',
+                '<i class="glyphicon glyphicon-ok"></i>',
+                '</a>  ',
+                '<a class="remove" href="javascript:void(0)" title="Remove">',
+                '<i class="glyphicon glyphicon-remove"></i>',
+                '</a>'
+            ].join('');
+        }
+
+        window.operateApproveDisapprove = {
+            'click .like': function (e, value, row, index) {
+                var groupId = '';
+                var x = 'id';
+                for (var key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        if (key.indexOf('id') == 0) // or any other index.
+                            groupId = row[key];
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/updateApprovedBond.php';
+                sendAjaxRequest(groupId, linkToUpdate);
+                // alert('You click like action, row: ' + JSON.stringify(row));
+            },
+            'click .remove': function (e, value, row, index) {
+                var msg = window.prompt("Reason for rejecting:", "");
+                var groupId = '';
+                var x = 'id';
+                if (msg + '.' == 'null.') {
+                    alert("You have click cancel");
+                    location.reload();
+                } else {
+                    for (var key in row) {
+                        if (row.hasOwnProperty(key)) {
+                            if (key.indexOf('id') == 0) // or any other index.
+                                groupId = row[key];
+                        }
+                    }
+                }
+                var linkToUpdate = 'PHPCodes/rejectBond.php';
+                sendAjax(groupId, msg, linkToUpdate);
+                //alert('You click remove action, row: ' + JSON.stringify(row));
+            }
+        };
+
+        var $bondTable = $('#tablePendingBond');
+        $bondTable.bootstrapTable({
+            url: 'PHPCodes/listPendingBond.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [
+                {
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'id',
+                    title: 'id',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'traineeName',
+                    title: 'Trainee Name',
+                    sortable: true,
+                }, {
+                    field: 'trainingApprovalStatus',
+                    title: 'Approval Status',
+                    sortable: true,
+                }, {
+                    //This is to add the icons into the table
+                    field: 'operate',
+                    title: 'Approve/Reject Bond',
+                    align: 'center',
+                    events: operateApproveDisapprove,
+                    formatter: operateFormatter
+                },
+            ],
+        });
+
+        var $bondTable = $('#tableApprovedBond');
+        $bondTable.bootstrapTable({
+            url: 'PHPCodes/viewApprovedBond.php',
+            search: true,
+            pagination: true,
+            buttonsClass: 'primary',
+            showFooter: true,
+            minimumCountColumns: 2,
+            columns: [
+                {
+                    field: 'num',
+                    title: '#',
+                    sortable: true,
+                }, {
+                    field: 'id',
+                    title: 'id',
+                    sortable: true,
+                    visible: false,
+                }, {
+                    field: 'traineeName',
+                    title: 'Trainee Name',
                     sortable: true,
                 },
             ],

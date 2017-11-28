@@ -473,6 +473,11 @@ $events = array_merge($events, $group);
                     $("#endDateRecur").hide();
                 }
             });
+            // dont allow it to be checked for group recurring editting
+             $("input[name='editRecurring[]']").click(function(){
+                event.preventDefault();
+            });
+            
             // TO DISPLAY RATE, TRAINING TYPE, LOCATION, FACILITY IF PT IS CHECKED
             $("#ot, #pt").change(function(){
                 if ($("#pt").is(":checked")){

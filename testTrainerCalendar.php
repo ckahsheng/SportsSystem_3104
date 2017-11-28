@@ -9,9 +9,13 @@ $result = mysqli_query($link, $sql);
 
 
 if (isset($_SESSION['username'])) {
-    $selectQuery = mysqli_query($link, "SELECT bondWithTrainerId FROM users WHERE userid = '" . $_SESSION['username'] . "'");
+    $selectQuery = mysqli_query($link, "SELECT bondWithTrainerId, bondApprovalStatus FROM users WHERE userid = '" . $_SESSION['username'] . "'");
     $selectResult = mysqli_fetch_array($selectQuery);
 }
+
+// Retrieve bonded trainer name
+$bondQuery = mysqli_query($link, "SELECT userid FROM users WHERE id = '" .$selectResult['bondWithTrainerId'] . "'");
+$bondResult = mysqli_fetch_array($bondQuery);
 
 ?>
 <!DOCTYPE html>
@@ -72,9 +76,13 @@ if (isset($_SESSION['username'])) {
                                         if ($_SESSION['role'] == 'Trainee' && $selectResult['bondWithTrainerId'] == "") {
                                             ?>
                                             <h3><u>Bond</u><img src="img/questionmark.png" alt="" data-toggle="tooltip" title="Once you are bonded, you are unable to join other trainer's training" style="max-height: 15px; max-width:15px; margin-top: -20px"/></h3> 
-                                            <input type="submit" class="btn btn-primary" name="bond" value="Click here to bond" onclick="return confirm('Note that your future training session that is not bonded with <?php echo $row['userid']; ?> will be removed. Confirm to bond with <?php echo $row['userid']; ?>?')">
+                                            <input type="submit" class="btn btn-primary" name="bond" value="Click here to bond" onclick="return confirm('Note that your future training session that is not bonded with <?php echo $row['userid']; ?> will be removed after bonding status changed to approved. Confirm to bond with <?php echo $row['userid']; ?>?')">
 
-                                        <?php } else if ($_SESSION['role'] == 'Trainee' && $selectResult['bondWithTrainerId'] == $row['id']) { ?>
+                                        <?php } else if ($_SESSION['role'] == 'Trainee' && $selectResult['bondWithTrainerId'] != "" && $selectResult['bondApprovalStatus'] == "Pending") { ?>
+                                            <h3><u>Bond</u><img src="img/questionmark.png" alt="" data-toggle="tooltip" title="Once you are bonded, you are unable to join other trainer's training." style="max-height: 15px; max-width:15px; margin-top: -20px"/></h3> 
+                                            <input type="submit" class="btn btn-primary" name="bondPending" value="Click here to bond" onclick="return confirm('You have a pending bond status with <?php echo $bondResult['userid']; ?>. Would you like to cancel it?')">  
+                                       
+                                        <?php } else if ($_SESSION['role'] == 'Trainee' && $selectResult['bondWithTrainerId'] == $row['id'] && $selectResult['bondApprovalStatus'] == "Approved") { ?>
                                             <h3><u>Bond</u><img src="img/questionmark.png" alt="" data-toggle="tooltip" title="Once you are bonded, you are unable to join other trainer's training." style="max-height: 15px; max-width:15px; margin-top: -20px"/></h3> 
                                             <input type="submit" class="btn btn-danger" name="endBond" value="Click here to end bond" onclick="return confirm('Are you sure you want to end bond with <?php echo $row['userid']; ?>?')">  
                                         <?php
@@ -191,7 +199,7 @@ if (isset($_SESSION['username'])) {
 
                             if ($_SESSION['role'] == 'Trainee') {
                                 $checkBondUser = $_SESSION['username'];
-                                $sqlBond = "SELECT bondWithTrainerId FROM `users` WHERE userid = '$checkBondUser'";
+                                $sqlBond = "SELECT bondWithTrainerId, bondApprovalStatus FROM `users` WHERE userid = '$checkBondUser'";
                                 $reqBond = $bdd->prepare($sqlBond);
                                 $reqBond->execute();
         
@@ -201,6 +209,7 @@ if (isset($_SESSION['username'])) {
 
                                 foreach ($bondRes as $bond) {
                                     $bondedTrainerId = $bond[0];
+                                    $bondStatus = $bond[1];
                                 }
 
                                 $sqlCTI = "SELECT userid FROM `users` WHERE id = '$bondedTrainerId'";
@@ -214,7 +223,7 @@ if (isset($_SESSION['username'])) {
                                 }
 
                                 // if trainee is bonded with a trainer, and the bonded trainer's page is not this page, dont show join btn
-                                if ($bondedTrainerName != "" && $bondedTrainerName != $_GET['trainerName']) { ?>
+                                if ($bondedTrainerName != "" && $bondedTrainerName != $_GET['trainerName'] && $bondStatus == "Approved") { ?>
                                     <input type="submit" id="jnBtn" class="btn btn-primary" disabled name="joinBtn" value="Join this session">
                                 <?php } else if ($bondedTrainerName == $_GET['trainerName'] || $bondedTrainerName == "") { ?>
                                     <input type="submit" id="jnBtn" class="btn btn-primary" name="joinBtn" value="Join this session">

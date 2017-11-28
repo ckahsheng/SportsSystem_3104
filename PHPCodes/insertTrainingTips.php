@@ -8,13 +8,13 @@
       $trainingTipsType = $_POST["trainingTipsType"];  
       $trainingTipsDesc = $_POST["trainingTipsDesc"];  
  
-      if($_POST["id"] != '')  
+      if($_POST["trainingTipsId"] != '')  
       {  
            $query = "  
            UPDATE trainingtips   
            SET trainingTipsType='$trainingTipsType',   
            trainingTipsDesc='$trainingTipsDesc'   
-           WHERE trainingTipsId='".$_POST["id"]."'";  
+           WHERE trainingTipsId='".$_POST["trainingTipsId"]."'";  
            $message = 'Data Updated';  
       } 
       

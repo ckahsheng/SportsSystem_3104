@@ -437,7 +437,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                     <ul class="dropdown-menu" role="menu">
                                         <li><a href="#tab19primary" data-toggle="tab">Add Training Tips</a></li>
                                         <li><a href="#tab20primary" data-toggle="tab">Delete Training Tips</a></li>
-                                        <!--<li><a href="#tab21primary" data-toggle="tab">Update Training Tips</a></li>-->
+                                        <li><a href="#tab21primary" data-toggle="tab">Update Training Tips</a></li>
                                         <li><a href="#tab22primary" data-toggle="tab">View Training Tips</a></li>
                                     </ul>
                                 </li>
@@ -1206,7 +1206,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                                     <label>Training Rate</label>  
                                                     <input type="text" name="trainingTipsDesc" id="trainingTipsDesc" class="form-control" />   
                                                     <br />  
-                                                    <input type="hidden" name="id" id="id" />  
+                                                    <input type="hidden" name="trainingTipsId" id="trainingTipsId" />  
                                                     <input type="submit" name="editTrainingTips" id="editTrainingTips" value="Update" class="btn btn-success" />  
                                                 </form>  
                                             </div>  
@@ -1756,7 +1756,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                         //                     alert(result.trainingTipsType);
                         $('#trainingTipsType').val(result.trainingTipsType);
                         $('#trainingTipsDesc').val(result.trainingTipsDesc);
-                        $('#id').val(result.trainingTipsId);
+                        $('#trainingTipsId').val(result.trainingTipsId);
                         //                     alert("TESTING2" + " " +result.trainingTipsId);
                         $('#editTrainingTips').val("Update");
                         $('#edit_TrainingTips_Modal').modal('show');
@@ -1782,10 +1782,14 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                             $('#editTrainingTips').val("Inserting");
                         },
                         success: function (data) {
-                            alert(data);
+//                            alert(data);
                             $('#trainingTips_form')[0].reset();
                             $('#edit_TrainingTips_Modal').modal('hide');
                             $('#TrainingTips_table').html(data);
+
+
+                            location.reload();
+
                         }
                     });
                 }
@@ -2301,15 +2305,20 @@ if (!empty($_POST['create_trainingTips_submit'])) {
             'click .remove': function (e, value, row, index) {
                 var msg = window.prompt("Reason for rejecting:", "");
                 var x = 'groupId';
-                for (var key in row) {
-                    if (row.hasOwnProperty(key)) {
-                        if (key.indexOf('groupId') == 0) // or any other index.
-                            groupId = row[key];
+                if (msg + '.' == 'null.') {
+                    alert("You have click cancel");
+                    location.reload();
+                } else {
+                    for (var key in row) {
+                        if (row.hasOwnProperty(key)) {
+                            if (key.indexOf('groupId') == 0) // or any other index.
+                                groupId = row[key];
+                        }
                     }
+                    var linkToUpdate = 'PHPCodes/rejectGroupTraining.php';
+                    sendAjax(groupId, msg, linkToUpdate);
+                    //alert('You click remove action, row: ' + JSON.stringify(row));
                 }
-                var linkToUpdate = 'PHPCodes/rejectGroupTraining.php';
-                sendAjax(groupId, msg, linkToUpdate);
-                //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };
         var $table = $('#tablePendingGroupTraining');
