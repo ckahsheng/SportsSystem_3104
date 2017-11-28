@@ -44,7 +44,7 @@ if (mysqli_query($link, $sql)) {
                 $mail->SMTPAuth = true;
 //Provide username and password     
                 $mail->Username = "LifeStyleSportsSystem@hotmail.com";
-                $mail->Password = "LIU3104SHUANG";
+                $mail->Password = "LIU3104SHUANG3104";
 //If SMTP requires TLS encryption then set it
                 $mail->SMTPSecure = "tls";
 //Set TCP port to connect to 

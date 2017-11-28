@@ -1000,6 +1000,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                                                 <input type="file" name="image" id="image" /></p><br />
                                                             <input type="hidden" name="action" id="action" value="insert" />
                                                             <input type="hidden" name="image_id" id="image_id" />
+                                                            <div id="image_existing" name="image_existing"></div>
                                                             <div class="form-group">
                                                                 <label>Promotion Title:<sup>*</sup></label>
                                                                 <input type="text" name="addpromotiontitle"class="form-control">
@@ -1387,7 +1388,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                             <div class="modal-body">  
                                                 <form method="post" id="postpone_GroupTraining">  
                                                     <label>Training Title</label>  
-                                                    <input type="text" name="TRAINING_TITLE" id="TRAINING_TITLE" class="form-control" />  
+                                                    <input type="text" name="TRAINING_TITLE" id="TRAINING_TITLE" class="form-control" disabled/>  
                                                     <br />  
 
                                                     <label>Training Initial Date</label>  
@@ -1395,7 +1396,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                                     <br />  
                                                     <label>Training Postponed Date:</label>
                                                     <div class='input-group input-append date' id='datePicker'>
-                                                        <input type='datepicker' class="form-control" name="trainingUpdatedDate" id="trainingUpdatedDate" />
+                                                        <input type='datepicker' class="form-control" name="trainingUpdatedDate" id="trainingUpdatedDate"  required/>
                                                         <span class="input-group-addon">
                                                             <span class="glyphicon glyphicon-calendar"></span>
                                                         </span>
@@ -1419,10 +1420,8 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                                             <option value="20:00">21:00</option>
                                                         </select>
                                                     </div>
-
                                                     <div class="form-group">
                                                         <label>Gym Location:</label>
-
                                                         <?php
                                                         $sql = "SELECT * FROM gym ";
                                                         $res = mysqli_query($link, $sql);
@@ -1431,7 +1430,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                                         <select class="form-control" name="gymLocationDropDown1" id="gymLocationDropDown1">
                                                             <!--                                                                <option value="showTraining" selected="selected">Show All Training Type</option>
                                                             -->                                                                                                                                <option value="">Please Select Gym Location:</option>
-
                                                             <?php
                                                             while ($row = $res->fetch_assoc()) {
                                                                 echo '<option value=" ' . $row['id'] . ' "> ' . $row['gymName'] . ' </option>';
@@ -1442,19 +1440,14 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                                     </div>
                                                     <div class = "form-group">
                                                         <label>Facility:</label>
-
-
                                                         <select class="form-control" id="Facility" name="Facility">
                                                             <option value="">Please Select Gym Location</option>
                                                         </select>
                                                         <!--<input type = "text" class = "form-control" required = "required" id = "trainingVenue" name = "trainingVenue" >-->
                                                     </div>
-
-
-
-
                                                     <input type="hidden" name="id" id="id" />  
-                                                    <input type="submit" name="editTrainingTips" id="editTrainingTips" value="Confirm Postpone" class="btn btn-success" />  
+                                                    <input type="button" name="postponeTraining_Btn" id="postponeTraining_Btn" value="Confirm Postpone" class="btn btn-success" disabled/>  
+                                                    <div class="loading_msg1" style="display:none"><b>Processing,please wait.......</b></div>
                                                 </form>  
                                             </div>  
                                             <div class="modal-footer">  
@@ -1480,7 +1473,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
     <script type="text/javascript">
         $(document).ready(function () {
             var date = new Date();
-             var today = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 4);
+            var today = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 4);
             $('#trainingUpdatedDate')
                     .datepicker({
                         autoclose: true,
@@ -1489,41 +1482,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
 
                     })
 
-            $("#gymLocationDropDown1").change(function ()
-            {
-                //Upon gym location selected update 
-                var id = $(this).find(":selected").val();
-                var gymId = id;
-                $.ajax
-                        ({
-                            type: "POST",
-                            url: 'PHPCodes/getGymFacilities.php',
-                            data: {gymId: gymId},
-                            cache: false,
-                            success: function (r)
-                            {
-                                //Fetch the locations in the gym and display out 
-                                id_numbers = JSON.parse(r);
-                                var venue = [];
-                                for (var x in id_numbers) {
-                                    venue.push(id_numbers[x]);
-                                }
-                                var venueDropDown = document.getElementById("Facility");
 
-                                venueDropDown.innerHTML = "";
-                                for (var i = 0; i < venue.length; i++) {
-                                    var opt = venue[i];
-                                    var el = document.createElement("option");
-                                    el.textContent = opt;
-                                    el.value = opt;
-                                    venueDropDown.appendChild(el);
-                                }
-                            }
-
-
-                        })
-                        ;
-            });
 
             $('#view_Recurring_GT').on('hidden.bs.modal', function () {
                 window.location.href = 'adminpanel.php';
@@ -1605,33 +1564,6 @@ if (!empty($_POST['create_trainingTips_submit'])) {
             //Code to postpone training - Group
             $(document).on('click', '.postpone_training', function () {
                 var id = $(this).attr("id");
-                //                alert(id);
-//                $.ajax
-//                        ({
-//                            type: "POST",
-//                            url: 'PHPCodes/fetchSuggestedLocations.php',
-//                            data: {trainingUID: id},
-//                            cache: false,
-//                            success: function (r)
-//                            {
-//                                //Fetch the locations in the gym and display out 
-//                                id_numbers = JSON.parse(r);
-//                                var venue = [];
-//                                for (var x in id_numbers) {
-//                                    venue.push(id_numbers[x]);
-//                                }
-//                                var venueDropDown = document.getElementById("Facility");
-//
-//                                venueDropDown.innerHTML = "";
-//                                for (var i = 0; i < venue.length; i++) {
-//                                    var opt = venue[i];
-//                                    var el = document.createElement("option");
-//                                    el.textContent = opt;
-//                                    el.value = opt;
-//                                    venueDropDown.appendChild(el);
-//                                }
-//                            }
-//                        }) ;
                 $.ajax({
                     url: "PHPCodes/fetchGroupTrainingDetails.php",
                     method: "POST",
@@ -1640,8 +1572,8 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                     success: function (data) {
                         $('#TRAINING_TITLE').val(data.trainingTitle);
                         $('#TRAINING_DATE').val(data.trainingDate);
-                        $('#startTime').val(data.trainingTime);     
-                         $('#postpone_training_modal').modal('show');
+                        $('#startTime').val(data.trainingTime);
+                        $('#postpone_training_modal').modal('show');
 //                        $('#gymLocationDropDown1').val(data.trainingGym);
 //                        $('#Facility').val(data.trainingFacility);
 //                        $('#TRAINING_NAME').val(data.TRAINING_NAME);
@@ -1649,20 +1581,124 @@ if (!empty($_POST['create_trainingTips_submit'])) {
 //                        $('#ID').val(data.ID);
 //                        $('#insert').val("Update");
 //                        $('#add_data_Modal').modal('show');
-                       
+
                     }
+                });
+                $("#gymLocationDropDown1").change(function ()
+                {
+                    //Upon gym location selected update 
+                    var gymId = $(this).find(":selected").val();
+                    var StartPostDate = $('#trainingUpdatedDate').val();
+                    var e = document.getElementById("startTime");
+                    var startPostTime = e.options[e.selectedIndex].value;
+                    $.ajax
+                            ({
+                                type: "POST",
+                                url: 'PHPCodes/fetchPostPoneAvailableLocation.php',
+                                data: {gymId: gymId, GrpTrainingID: id, startTime: startPostTime, startDate: StartPostDate
+                                },
+                                cache: false,
+                                success: function (r)
+                                {
+                                    alert(r);
+                                    //Fetch the locations in the gym and display out 
+                                    id_numbers = JSON.parse(r);
+                                    var venue = [];
+                                    for (var x in id_numbers) {
+                                        venue.push(id_numbers[x]);
+                                    }
+                                    var venueDropDown = document.getElementById("Facility");
+
+                                    venueDropDown.innerHTML = "";
+                                    for (var i = 0; i < venue.length; i++) {
+                                        var opt = venue[i];
+                                        var el = document.createElement("option");
+                                        el.textContent = opt;
+                                        el.value = opt;
+                                        venueDropDown.appendChild(el);
+                                    }
+                                }
+
+
+                            })
+                            ;
+                });
+
+                $("#Facility").change(function ()
+                {
+                    document.getElementById("postponeTraining_Btn").disabled = false;
+
+                });
+                $('#postponeTraining_Btn').on("click", function (event) {
+                    event.preventDefault();
+                    var StartPostDate = $('#trainingUpdatedDate').val();
+                    //Fetch start time value 
+                    var e = document.getElementById("startTime");
+                    var startPostTime = e.options[e.selectedIndex].value;
+                    //Fetch Gym location this is in ID form
+                    var f = document.getElementById("gymLocationDropDown1");
+                    var gymId = f.options[f.selectedIndex].value;
+                    //Fetch selected facility 
+                    var g = document.getElementById("Facility");
+                    var postponeFac = g.options[g.selectedIndex].value;
+
+//                    alert(id);
+//                    alert(StartPostDate);
+//                    alert(startPostTime);
+                    alert(gymId);
+//                    alert(postponeFac);
+                    $.ajax
+                            ({
+                                type: "POST",
+                                url: 'postponeGTEmailScript.php',
+                                data: {id: id,
+                                    StartPostDate: StartPostDate,
+                                    startPostTime: startPostTime,
+                                    gymId: gymId,
+                                    gymFacility: postponeFac
+                                },
+                                beforeSend: function () {
+                                    $(".loading_msg1").show();
+                                },
+                                cache: false,
+                                success: function (r)
+                                {
+                                    alert(r);
+                                    location.reload();
+
+                                }
+
+
+                            });
+
+
+
+//                    if ($('#TRAINING_NAME').val() == "")
+//                    {
+//                        alert("Training name is required");
+//                    } else if ($('#TRAINING_RATE').val() == '')
+//                    {
+//                        alert("Training rate is required");
+//                    } else
+//                    {
+//                        $.ajax({
+//                            url: "PHPCodes/insert.php",
+//                            method: "POST",
+//                            data: $('#insert_form').serialize(),
+//                            beforeSend: function () {
+//                                $('#insert').val("Inserting");
+//                            },
+//                            success: function (data) {
+//                                $('#insert_form')[0].reset();
+//                                $('#add_data_Modal').modal('hide');
+//                                $('#Training_table').html(data);
+//                            }
+//                        });
+//                    }
                 });
             });
 
         });
-
-
-
-
-
-
-
-
 
         $(document).ready(function () {
             $(document).on('click', '.edit_companyInfo', function () {
@@ -2808,18 +2844,33 @@ if (!empty($_POST['create_trainingTips_submit'])) {
             });
             $(document).on('click', '.update', function () {
                 $('#image_id').val($(this).attr("id"));
-               var id = $(this).attr("id");
-               alert($('input[name=title]').val());
-               var title=$('input[name=title]').val();
-               var descrip=$('input[name=description]').val()
-               alert(id);
-//               alert(id1);
-$('input[name="addpromotiontitle"]').val(title)
-$('input[name="addpromotiondescription"]').val(descrip)
-//                $('#addpromotiontitle').val("insert");
-//                $('#addpromotiondescription').val("insert");
+
+                var id = $(this).attr("id");
+//                alert(id);
+                $.ajax({
+                    url: "PHPCodes/fetchPromotions.php",
+                    method: "POST",
+                    data: {ID: id},
+                    dataType: "json",
+                    success: function (data) {
+                        var preview = document.getElementById("image_existing");
+                        preview.innerHTML = "";
+                        var id = data[0];
+                        var title = data[1];
+                        var description = data[2];
+                        var picBlob = data[3];
+                        $('input[name="addpromotiontitle"]').val(title);
+                        $('input[name="addpromotiondescription"]').val(description);
+                        var img = document.createElement("img");
+                        img.src = "data:image/jpeg;base64," + picBlob;
+                        img.width = "280";
+                        img.height = "190";
+
+                        preview.appendChild(img);
+                    }
+                });
                 $('#action').val("update");
-                $('.modal-title').text("Update Image");
+                $('.modal-title').text("Update Promotion");
                 $('#insert').val("Update");
                 $('#imageModal').modal("show");
             });

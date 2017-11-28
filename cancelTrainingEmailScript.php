@@ -45,7 +45,7 @@ if ($role == "Trainer") {
                 $mail->Subject = "Sports System -Training Session with $trainerName as has been Cancelled";
                 $mail->SMTPAuth = true;
                 $mail->Username = "LifeStyleSportsSystem@hotmail.com";
-                $mail->Password = "LIU3104SHUANG";
+                $mail->Password = "LIU3104SHUANG3104";
                 $mail->SMTPSecure = "tls";
                 $mail->Port = 587;
                 $mail->From = "LifeStyleSportsSystem@hotmail.com";
@@ -125,7 +125,7 @@ else if ($role == "Trainee") {
                 $mail->Subject = "Sports System -Training Session with $traineeName as has been Cancelled";
                 $mail->SMTPAuth = true;
                 $mail->Username = "LifeStyleSportsSystem@hotmail.com";
-                $mail->Password = "LIU3104SHUANG";
+                $mail->Password = "LIU3104SHUANG3104";
                 $mail->SMTPSecure = "tls";
                 $mail->Port = 587;
                 $mail->From = "LifeStyleSportsSystem@hotmail.com";

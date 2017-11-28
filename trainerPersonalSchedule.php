@@ -732,6 +732,7 @@ if (session_status() == PHP_SESSION_NONE) {
                             cache: false,
                             success: function (r)
                             {
+                               
                                 //Fetch the locations in the gym and display out 
                                 id_numbers = JSON.parse(r);
                                 var venue = [];
@@ -764,7 +765,6 @@ if (session_status() == PHP_SESSION_NONE) {
                 maxPax = maxPax.replace(")", "");
                 alert(maxPax);
                 var capacityDropDown = document.getElementById("trainingCapacityDropDown");
-
                 capacityDropDown.innerHTML = "";
                 for (var i = 0; i <= maxPax; i++) {
                     var opt = i;

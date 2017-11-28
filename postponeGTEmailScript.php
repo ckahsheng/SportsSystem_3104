@@ -9,32 +9,54 @@ if (session_status() == PHP_SESSION_NONE) {
 //$username = $_SESSION['username'];
 //$role = $_SESSION['role'];
 $trainingSessionId = $_POST['id'];
+$startDate = (date('Y-m-d', strtotime($_POST['StartPostDate'])));
+$startTime = $_POST['startPostTime'];
+$gymId = $_POST['gymId'];
+$gymFacility = $_POST['gymFacility'];
 $emailList = array();
 $trainerName = "";
 $trainingTitle = "";
-$trainingDate = "";
-$trainingTime = "";
+$PrevTrainingDate = "";
+$PrevTrainingTime = "";
+$gymName = "";
+echo $startTime;
 $sql = "SELECT trainerName,trainingTitle,trainingDate,trainingTime from grouptrainingschedule WHERE id=?";
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "i", $param_GrpId);
     $param_GrpId = $trainingSessionId;
     if (mysqli_execute($stmt)) {
         mysqli_stmt_store_result($stmt);
-        mysqli_stmt_bind_result($stmt, $trainerName, $trainingTitle, $trainingDate, $trainingTime);
+        mysqli_stmt_bind_result($stmt, $trainerName, $trainingTitle, $PrevTrainingDate, $PrevTrainingTime);
         mysqli_stmt_fetch($stmt);
     }
 }
-    $sql = "UPDATE grouptrainingschedule SET trainingApprovalStatus='Cancelled' WHERE id=$trainingSessionId";
-    $result = mysqli_query($link, $sql)
-            or die(mysqli_error($link));
-    if ($result) {
-        $count = mysqli_affected_rows($link);
+
+$sql = "SELECT gymName from gym WHERE id=?";
+if ($stmt = mysqli_prepare($link, $sql)) {
+    mysqli_stmt_bind_param($stmt, "i", $param_gym);
+    $param_gym = $gymId;
+    if (mysqli_execute($stmt)) {
+        mysqli_stmt_store_result($stmt);
+        mysqli_stmt_bind_result($stmt, $gym1);
+        mysqli_stmt_fetch($stmt);
+                $gymName = $gym1;
     }
-    if ($count == 1) {
-        echo "Training ";
-    } else {
-        echo "Error updating record: " . mysqli_error($link);
-    }
+//    echo $gymName;
+}
+
+//echo $gymFacility; 
+$sql = "UPDATE grouptrainingschedule SET trainingDate='".$startDate."', trainingTime='".$startTime."', trainingGym='".$gymName."',trainingFacility='" . $gymFacility . "'  WHERE id=$trainingSessionId";
+echo $sql;
+$result = mysqli_query($link, $sql)
+        or die(mysqli_error($link));
+if ($result) {
+    $count = mysqli_affected_rows($link);
+}
+if ($count == 1) {
+    echo "Updated ";
+} else {
+    echo "Error updating record: " . mysqli_error($link);
+}
 
 
 
@@ -59,7 +81,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             $mail->isSMTP();
             $mail->CharSet = 'UTF-8';
             $mail->Host = "smtp.live.com";
-            $mail->Subject = "Sports System -Training Session with $trainerName as has been Cancelled";
+            $mail->Subject = "Sports System -Training Session with $trainerName as has been Postponed";
             $mail->SMTPAuth = true;
             $mail->Username = "LifeStyleSportsSystem@hotmail.com";
             $mail->Password = "LIU3104SHUANG3104";
@@ -67,16 +89,17 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             $mail->Port = 587;
             $mail->From = "LifeStyleSportsSystem@hotmail.com";
             $mail->FromName = "Sports Management System";
-            $mail->addAddress($emailAddress, "Training: $trainingTitle has been Cancelled");
+            $mail->addAddress($emailAddress, "Training: $trainingTitle has been Postponed");
             $mail->isHTML(true);
             $emailTextHtml = "<span>Dear <b>.$emailAddress.</b></span>";
             $emailTextHtml .= "<table>";
             $emailTextHtml .= "</table>";
-            $emailTextHtml .= "<p>Your Group Training $trainingTitle on $trainingDate : $trainingTime has been cancelled ! </p>";
-            $emailTextHtml .= "<p>If you encounter any problems, please email us at <b><i>LifeStyleSportsSystem@support.com</i></b> </p>";
+            $emailTextHtml .= "<p>Your Group Training $trainingTitle on $PrevTrainingDate: $PrevTrainingTime has been postponed to $startDate : $startTime  ! </p>";
+            $emailTextHtml .= "<p>If you are unavailable to make it for the session, please drop a text to $trainerName. Thank you!</p>";
+            $emailTextHtml .= "<p>Do email us at <b><i>LifeStyleSportsSystem@support.com</i></b> if you encounter any problems </p>";
             $emailTextHtml .= "<br><p>Best regards </p>";
             $emailTextHtml .= "<p>LifeStyle Sports System </p>";
-            $mail->Subject = "Trainer Cancelled Personal Training Session";
+            $mail->Subject = "Group Training Session Postponed";
             $mail->Body = $emailTextHtml;
             $mail->AltBody = "This is the plain text version of the email content";
 
@@ -86,7 +109,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 $responseArray = array('type' => 'success', 'message' => '');
             }
         }
-        echo "has been Cancelled, trainers & trainees have been notified";
+        echo "has been Postponed, trainers & trainees have been notified";
     }
 
 //        echo json_encode($emailList);
