@@ -1239,24 +1239,51 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                                         </div>
                                     </div></div>
 
+                                <!--                                <div id="view_Recurring_GT" class="modal fade">  
+                                                                    <div class="modal-dialog">  
+                                                                        <div class="modal-content">  
+                                                                            <div class="modal-header">  
+                                                                                <button type="button" class="close" data-dismiss="modal">&times;</button>  
+                                                                                <h4 class="modal-title">Update</h4>  
+                                                                            </div>  
+                                                                            <div class="modal-body">  
+                                                                                <form method="post" id="trainingTips_form">  
+                                                                                    <label>Training Tips Type</label>  
+                                                                                    <input type="text" name="trainingTipsType" id="trainingTipsType" class="form-control" />  
+                                                                                    <br />  
+                                                                                    <label>Training Rate</label>  
+                                                                                    <input type="text" name="trainingTipsDesc" id="trainingTipsDesc" class="form-control" />   
+                                                                                    <br />  
+                                                                                    <input type="hidden" name="id" id="id" />  
+                                                                                    <input type="submit" name="editTrainingTips" id="editTrainingTips" value="Update" class="btn btn-success" />  
+                                                                                </form>  
+                                                                            </div>  
+                                                                            <div class="modal-footer">  
+                                                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  
+                                                                            </div>  
+                                                                        </div>  
+                                                                    </div>  
+                                                                </div>-->
                                 <div id="view_Recurring_GT" class="modal fade">  
                                     <div class="modal-dialog">  
                                         <div class="modal-content">  
                                             <div class="modal-header">  
                                                 <button type="button" class="close" data-dismiss="modal">&times;</button>  
-                                                <h4 class="modal-title">Update</h4>  
+                                                <h4 class="modal-title">TRAINING SESSIONS WITH INVALID LOCATIONS</h4>  
                                             </div>  
                                             <div class="modal-body">  
-                                                <form method="post" id="trainingTips_form">  
-                                                    <label>Training Tips Type</label>  
-                                                    <input type="text" name="trainingTipsType" id="trainingTipsType" class="form-control" />  
-                                                    <br />  
-                                                    <label>Training Rate</label>  
-                                                    <input type="text" name="trainingTipsDesc" id="trainingTipsDesc" class="form-control" />   
-                                                    <br />  
-                                                    <input type="hidden" name="id" id="id" />  
-                                                    <input type="submit" name="editTrainingTips" id="editTrainingTips" value="Update" class="btn btn-success" />  
-                                                </form>  
+                                                <!--                                                <form method="post" id="update_location_gt_form">  
+                                                                                                    <label>Date Of Training</label>  
+                                                                                                    <input type="text" name="training_date" id="training_date" class="form-control" />  
+                                                                                                 <label>Location</label>  
+                                                                                                    <input type="text" name="training_location" id="training_location" class="form-control" />   
+                                                                                                    <br />  
+                                                                                                    <input type="hidden" name="ID" id="ID" />  
+                                                                                                    <input type="submit" name="update" id="insert" value="update" class="btn btn-success" />  
+                                                                                                </form>  -->
+                                                <div id="wrapper">
+
+                                                </div>
                                             </div>  
                                             <div class="modal-footer">  
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  

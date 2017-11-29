@@ -1103,9 +1103,10 @@ if (session_status() == PHP_SESSION_NONE) {
                                 groupId = row[key];
                         }
                     }
+
+                    var linkToUpdate = 'PHPCodes/rejectBond.php';
+                    sendAjax(groupId, msg, linkToUpdate);
                 }
-                var linkToUpdate = 'PHPCodes/rejectBond.php';
-                sendAjax(groupId, msg, linkToUpdate);
                 //alert('You click remove action, row: ' + JSON.stringify(row));
             }
         };

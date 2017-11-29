@@ -166,7 +166,7 @@ if (!empty($_POST['login_submit'])) {
                     
                     <?php
                      }
-                    else if ($_SESSION['role'] == 'Trainer') {
+                    else if (($_SESSION['role'] == 'Trainer')  && ($_SESSION['verified']=='Verified')){
                         //If not they will only be able to see the schedule of all our group trainings
                         ?>
                         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OUR VISION <span class="caret"></span></a>
@@ -187,7 +187,32 @@ if (!empty($_POST['login_submit'])) {
                         </li>
 
                         <?php
-                    } else if ($_SESSION['role'] == 'admin') {
+                    } 
+                       else if (($_SESSION['role'] == 'Trainer')  && ($_SESSION['verified']=='Not Verified')){
+                        //If not they will only be able to see the schedule of all our group trainings
+                        ?>
+                           <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OUR VISION <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="companyInfo.php">ABOUT US </a></li>
+                                <!--<li><a href="promotions.php">PROMOTIONS</a></li>-->
+                                <!--<li><a href="trainingTips.php">TRAINING TIPS</a></li>-->
+                            </ul>
+                        </li>
+                        <li>
+                            <!--<a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>-->
+                        </li>
+                        <li>
+                            <!--<a class="page-scroll" href="groupTrainingSchedule.php">GROUP CLASSES</a>-->
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="testTrainerList.php">COACHES</a>
+                        </li>
+                        <?php
+                       }
+                    
+                    
+                    
+                    else if ($_SESSION['role'] == 'admin') {
                         //If not they will only be able to see the schedule of all our group trainings
                         ?>
                         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OUR VISION <span class="caret"></span></a>
@@ -283,7 +308,7 @@ if (!empty($_POST['login_submit'])) {
                                 <div class="row">
 
                                     <div class="col-md-11" style="width:300px;">
-                                        <?php if ($_SESSION['role'] == 'Trainer') { ?>
+                                        <?php if (($_SESSION['role'] == 'Trainer') && ($_SESSION['verified']=='Verified')) { ?>
                                             <center> <a href="trainerPersonalSchedule.php">COACH PANEL</a></center> <br>
                                         <?php } ?>
                                         <center> <a href="editTraineeProfile.php">VIEW PROFILE DETAILS</a></center> <br>
