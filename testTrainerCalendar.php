@@ -225,7 +225,7 @@ $bondResult = mysqli_fetch_array($bondQuery);
                                 // if trainee is bonded with a trainer, and the bonded trainer's page is not this page, dont show join btn
                                 if ($bondedTrainerName != "" && $bondedTrainerName != $_GET['trainerName'] && $bondStatus == "Approved") { ?>
                                     <input type="submit" id="jnBtn" class="btn btn-primary" disabled name="joinBtn" value="Join this session">
-                                <?php } else if ($bondedTrainerName == $_GET['trainerName'] || $bondedTrainerName == "") { ?>
+                                <?php } else if ($bondedTrainerName == $_GET['trainerName'] || $bondedTrainerName == "" || $bondStatus == "Pending") { ?>
                                     <input type="submit" id="jnBtn" class="btn btn-primary" name="joinBtn" value="Join this session">
                                 <?php }
                             }

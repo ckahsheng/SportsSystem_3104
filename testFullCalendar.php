@@ -825,6 +825,8 @@ foreach ($events as $event):
             } else if ($event['eventType'] == 'ot') { // trainer's own training session
                 $title = $event['starttime'] . " " . $title;
                 $color = '#b6abfb';
+                $venue="";
+                $facility="";
             } else if ($event['eventType'] == 'pt' && $traineeId != NULL) { // trainee signed up for training
                 $title = $event['starttime'] . " /" . $traineeId . " /" . $title;
                 $color = '#67d967';
@@ -836,6 +838,8 @@ foreach ($events as $event):
             if ($event['eventType'] == 'ot') { // trainee own training session
                 $title = $event['starttime'] . " " . $title;
                 $color = '#b6abfb';
+                $venue="";
+                $facility="";
             } else if ($event['eventType'] == 'pt' && $traineeId == $_SESSION['username']) { // trainee signed up for personal training session
                 $title = $traineeId . " " . $title;
                 $color = '#67d967';

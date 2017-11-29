@@ -51,7 +51,17 @@ if (!empty($_POST['login_submit'])) {
                             if ($verified == "Rejected") {
                                 echo "<script language='javascript'>alert('Your Account Has Been Deactivated!');</script>";
                                 $password_err = 'Your account has been Deactivated';
-                            } else {
+                            }
+                            else if ($verified=='Not Verified'){
+                                 echo "<script language='javascript'>alert('Your Account Has Not Been Verified Yet!');</script>";
+                                  $_SESSION['username'] = $username;
+                                $_SESSION['role'] = $role;
+                                $_SESSION['hashed_pw'] = $hashed_password;
+                                $_SESSION['email_addr'] = $email;
+                                $_SESSION['verified'] = $verified;
+                                 header("location: index.php");
+                            }
+                            else {
                                 $_SESSION['username'] = $username;
                                 $_SESSION['role'] = $role;
                                 $_SESSION['hashed_pw'] = $hashed_password;
@@ -111,7 +121,8 @@ if (!empty($_POST['login_submit'])) {
                     //If user is logged in, they will be able to access their own calendar 
                     ?>
                     <?php
-                    if ($_SESSION['role'] == 'Trainee') {
+               
+                    if (($_SESSION['role'] == 'Trainee')  && ($_SESSION['verified']=='Verified')){
                         ?>
                         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OUR VISION <span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -131,7 +142,31 @@ if (!empty($_POST['login_submit'])) {
                         </li>
 
                         <?php
-                    } else if ($_SESSION['role'] == 'Trainer') {
+                    } 
+                     if (($_SESSION['role'] == 'Trainee')  && ($_SESSION['verified']=='Not Verified')){
+                        ?>
+                        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OUR VISION <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="companyInfo.php">ABOUT US </a></li>
+<!--                                <li><a href="promotions.php">PROMOTIONS</a></li>
+                                <li><a href="trainingTips.php">TRAINING TIPS</a></li>-->
+                            </ul>
+                        </li>
+                        <li>
+                            <!--<a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>-->
+                        </li>
+                        <li>
+                            <!--<a class="page-scroll" href="groupTrainingSchedule.php">GROUP CLASSES</a>-->
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="testTrainerList.php">COACHES</a>
+                        </li>
+                    
+                    
+                    
+                    <?php
+                     }
+                    else if ($_SESSION['role'] == 'Trainer') {
                         //If not they will only be able to see the schedule of all our group trainings
                         ?>
                         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">OUR VISION <span class="caret"></span></a>
@@ -222,7 +257,7 @@ if (!empty($_POST['login_submit'])) {
                                                 <label class="sr-only" for="password">Password</label>
                                                 <input type="password" name="password" class="form-control" placeholder="Password" required>
                                                 <span class="help-block"><?php echo $password_err; ?></span>
-                                                <div class="help-block text-right"><a href=""><i>Forget password ?</i></a></div>
+<!--                                                <div class="help-block text-right"><a href=""><i>Forget password ?</i></a></div>-->
                                             </div>
                                             <div class="form-group">
                                                 <input type="submit" name="login_submit" class="btn btn-primary btn-block" value="Sign in">
