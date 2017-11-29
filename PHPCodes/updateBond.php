@@ -101,7 +101,7 @@ if (isset($_POST['bond'])) {
 
 
 if (isset($_POST['endBond'])) {
-    $updateQuery = mysqli_query($link, "UPDATE users SET bondWithTrainerId ='' WHERE id='" . $selectResult['id'] . "' AND bondApprovalStatus = 'Approved'");
+    $updateQuery = mysqli_query($link, "UPDATE users SET bondWithTrainerId ='', bondApprovalStatus = '' WHERE id='" . $selectResult['id'] . "' AND bondApprovalStatus = 'Approved'");
     $row = mysqli_affected_rows($link);
     if ($row == 1) {
         echo '<script language="javascript">';

@@ -101,6 +101,7 @@ if (session_status() == PHP_SESSION_NONE) {
             echo 'ohmy';
             $start = new DateTime($startDate);
             $end = new DateTime($endDate);
+            $end->modify('+1 day');
             $interval = new DateInterval('P1D');
             $period = new DatePeriod($start, $interval, $end);
             $mydays = $_POST['recurring'];
@@ -815,7 +816,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 var venueSelected = $(this).find(":selected").val();
                 var maxPax = venueSelected.split(':')[1];
                 maxPax = maxPax.replace(")", "");
-                alert(maxPax);
+                // alert(maxPax);
                 var capacityDropDown = document.getElementById("trainingCapacityDropDown");
 
                 capacityDropDown.innerHTML = "";

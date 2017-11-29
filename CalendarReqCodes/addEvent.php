@@ -66,6 +66,7 @@ if (isset($_POST['add'])) {
         $enddate = date('Y/m/d', strtotime($_POST['endDate']));
         $start = new DateTime($startdate);
         $end = new DateTime(date('Y/m/d', strtotime($_POST['endDate'])));
+        $end->modify('+1 day');
         $interval = new DateInterval('P1D');
         $period = new DatePeriod($start, $interval, $end);
         foreach ($period as $date) {

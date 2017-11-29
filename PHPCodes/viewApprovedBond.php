@@ -11,7 +11,7 @@ if (isset($_SESSION['username'])) {
     $selectResult = mysqli_fetch_array($selectQuery);
 }
 
-$sqltran1 = mysqli_query($link, "SELECT id, userid, bondApprovalStatus FROM users WHERE bondApprovalStatus='Approved' AND bondWithTrainerId = '".$selectResult['id']."'")or die(mysqli_error($con));
+$sqltran1 = mysqli_query($link, "SELECT id, userid, bondApprovalStatus FROM users WHERE bondApprovalStatus='Approved' AND bondWithTrainerId = '".$selectResult[0]."'")or die(mysqli_error($con));
 $arrVal = array();
 $i = 1;
 
