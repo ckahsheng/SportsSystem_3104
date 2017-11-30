@@ -1552,6 +1552,7 @@ if (!empty($_POST['create_trainingTips_submit'])) {
                             $('#insert_form')[0].reset();
                             $('#add_data_Modal').modal('hide');
                             $('#Training_table').html(data);
+                            location.reload();
                         }
                     });
                 }

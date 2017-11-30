@@ -223,7 +223,7 @@ if (!empty($_POST['login_submit'])) {
                             </ul>
                         </li>
                         <li>
-                            <a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>
+                            <!--<a class="page-scroll" href="testFullCalendar.php">MY SCHEDULE</a>-->
                         </li>
                         <li>
                             <a class="page-scroll" href="groupTrainingSchedule.php">GROUP CLASSES</a>
